@@ -73,3 +73,13 @@ func BuildValidator(properties map[string]interface{}, required []string) map[st
 	}
 
 }
+
+// SchemalessValidator is the validator for a collection without schema validation
+func SchemalessValidator() map[string]interface{} {
+	return map[string]interface{}{
+		"$jsonSchema": map[string]interface{}{
+			"bsonType":             "object",
+			"additionalProperties": true,
+		},
+	}
+}
