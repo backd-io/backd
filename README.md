@@ -1,2 +1,7 @@
 # backd
-application api
+
+Platform for rapid application development. 
+
+```
+Work in Progress.
+```
