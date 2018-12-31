@@ -40,15 +40,15 @@ func (db *Mongo) CreateDefaultDomainIndexes(database string) error {
 		err error
 	)
 
-	// index to help find user / group
-	if err = db.CreateIndex(database, constants.ColEntities, []string{"_type"}, false); err != nil {
-		return err
-	}
+	// // index to help find user / group
+	// if err = db.CreateIndex(database, constants.ColEntities, []string{"_type"}, false); err != nil {
+	// 	return err
+	// }
 
-	// index to help find user (_type=u) / group (_type=g)
-	if err = db.CreateIndex(database, constants.ColEntities, []string{"_type", "name"}, false); err != nil {
-		return err
-	}
+	// // index to help find user (_type=u) / group (_type=g)
+	// if err = db.CreateIndex(database, constants.ColEntities, []string{"_type", "name"}, false); err != nil {
+	// 	return err
+	// }
 
 	// index to help find relations of user (_type=u) & group (_type=g)
 	if err = db.CreateIndex(database, constants.ColMembership, []string{"u", "g"}, true); err != nil {

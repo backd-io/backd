@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package sessionspb;
+
+service Sessions {
+  // CreateSession ask for a session creation
+  rpc CreateSession(CreateSessionRequest) returns (Session) {} 
+  // GetSession returns a session already established
+  rpc GetSession(GetSessionRequest) returns (Session) {}
+  // DeleteSession removes a session if exists, returns transaction status as result
+  rpc DeleteSession(GetSessionRequest) returns (Result) {}
+}
+
+// CreateSessionRequest contains the needed information to create 
+//   and maintain a new session
+message CreateSessionRequest {
+  string domain_id = 1;
+  string user_id = 2;
+  int64 duration_seconds = 3;
+}
+
+// Session is the session data that is shared with other services
+message Session {
+  string id = 1;
+  string domain_id = 2;
+  string user_id = 3;
+  repeated string groups = 4;
+  int64 expires_at = 5;
+  int64 created_at = 6;
+}
+
+// GetSessionRequest contains the needed information to create 
+//   and maintain a new session
+message GetSessionRequest {
+  string id = 1;
+  string domain_id = 2;
+  string user_id = 3;
+}
+
+// Result is used for deletes to return a boolean result to show success
+message Result {
+  bool result = 1;
+}

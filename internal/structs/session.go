@@ -1,31 +1,27 @@
 package structs
 
+import "time"
+
 // Session is the struct that reflects the information of the user
 //   currently logged into the domain
 type Session struct {
-	ID        string `json:"_id" bson:"_id"`
-	Domain    string `json:"domain" bson:"d"`
-	User      User   `json:"user" bson:"u"`
-	ExpiresAt int64  `json:"expires_at" bson:"eat"`
-	Metadata  `json:"_meta" bson:"_meta"`
+	ID        string `json:"_id"`
+	DomainID  string `json:"did"`
+	User      User   `json:"uid"`
+	ExpiresAt int64  `json:"eat"`
+	CreatedAt int64  `json:"cat"`
 }
 
-// // TODO: Sessions must not be stored on database
-// // Indexes
-// var (
-// 	SessionIndexes = []Index{
-// 		{
-// 			Fields: []string{"_id"},
-// 			Unique: true,
-// 		},
-// 	}
-// )
+// IsExpired returns expiration status of the session
+func (s *Session) IsExpired() bool {
+	return time.Now().Unix() > s.ExpiresAt
+}
 
 // SessionResponse is the struct that will be returned to the client
 //   when a session has been established
 type SessionResponse struct {
 	ID        string `json:"_id"`
-	Domain    string `json:"domain"`
+	DomainID  string `json:"domain_id"`
 	UserID    string `json:"user_id"`
 	ExpiresAt int64  `json:"expires_at"`
 }
