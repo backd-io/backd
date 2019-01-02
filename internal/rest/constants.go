@@ -29,3 +29,8 @@ type APIHandler func(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 // APIMatcher is an array of rules that must be applied for each request to ensure
 //   the required input is being passed to the API
 type APIMatcher []string
+
+// Headers for the endpoints
+const (
+	HeaderSessionID = "X-Session-ID"
+)

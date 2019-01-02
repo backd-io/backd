@@ -5,15 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/backd-io/backd/internal/pbsessions"
-	"github.com/backd-io/backd/internal/structs"
-	"google.golang.org/grpc"
-
-	"github.com/backd-io/backd/internal/rest"
-
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
+	"github.com/backd-io/backd/internal/pbsessions"
+	"github.com/backd-io/backd/internal/rest"
+	"github.com/backd-io/backd/internal/structs"
 	"github.com/julienschmidt/httprouter"
+	"google.golang.org/grpc"
 )
 
 type apiStruct struct {
@@ -58,7 +56,7 @@ func (a *apiStruct) deleteSession(w http.ResponseWriter, r *http.Request, ps htt
 	defer cancel()
 
 	result, err = c.DeleteSession(ctx, &pbsessions.GetSessionRequest{
-		Id: "a",
+		Id: r.Header.Get(rest.HeaderSessionID),
 	})
 
 	rest.Response(w, result, err, nil, http.StatusOK, "")
