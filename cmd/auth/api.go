@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"time"
 
+	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/structs"
 	"google.golang.org/grpc"
 
@@ -17,10 +20,6 @@ type apiStruct struct {
 	inst     *instrumentation.Instrumentation
 	mongo    *db.Mongo
 	sessions *grpc.ClientConn
-}
-
-func (a *apiStruct) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	rest.Response(w, nil, nil, nil, http.StatusOK, "")
 }
 
 func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -48,5 +47,19 @@ func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httpr
 }
 
 func (a *apiStruct) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	rest.Response(w, nil, nil, nil, http.StatusOK, "")
+
+	var (
+		result *pbsessions.Result
+		err    error
+	)
+
+	c := pbsessions.NewSessionsClient(a.sessions)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err = c.DeleteSession(ctx, &pbsessions.GetSessionRequest{
+		Id: "a",
+	})
+
+	rest.Response(w, result, err, nil, http.StatusOK, "")
 }

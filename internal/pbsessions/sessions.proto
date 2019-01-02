@@ -35,8 +35,6 @@ message Session {
 //   and maintain a new session
 message GetSessionRequest {
   string id = 1;
-  string domain_id = 2;
-  string user_id = 3;
 }
 
 // Result is used for deletes to return a boolean result to show success

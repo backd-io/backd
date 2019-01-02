@@ -53,8 +53,6 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 				External:        false,
 			})
 
-			sessionResponse.DomainID = domain.ID
-			sessionResponse.UserID = user.ID
 			sessionResponse.ExpiresAt = session.GetExpiresAt()
 			sessionResponse.ID = session.GetId()
 
@@ -102,8 +100,6 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 			External:        true,
 		})
 
-		sessionResponse.DomainID = domain.ID
-		sessionResponse.UserID = user.ID
 		sessionResponse.ExpiresAt = session.GetExpiresAt()
 		sessionResponse.ID = session.GetId()
 

@@ -50,9 +50,6 @@ func main() {
 	}
 
 	routes = map[string]map[string]rest.APIHandler{
-		"GET": {
-			"/session": api.getSession,
-		},
 		"POST": {
 			"/session": api.postSession,
 		},
@@ -62,9 +59,6 @@ func main() {
 	}
 
 	matchers = map[string]map[string]rest.APIMatcher{
-		"GET": {
-			"/session": []string{},
-		},
 		"POST": {
 			"/session": []string{},
 		},

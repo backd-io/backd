@@ -20,9 +20,7 @@ func (s *Session) IsExpired() bool {
 // SessionResponse is the struct that will be returned to the client
 //   when a session has been established
 type SessionResponse struct {
-	ID        string `json:"_id"`
-	DomainID  string `json:"domain_id"`
-	UserID    string `json:"user_id"`
+	ID        string `json:"id"`
 	ExpiresAt int64  `json:"expires_at"`
 }
 
