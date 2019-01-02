@@ -15,6 +15,7 @@ import (
 // SetupRouter builds a router for the REST API endpoints
 func (rr *REST) SetupRouter(routes map[string]map[string]APIHandler, matchers map[string]map[string]APIMatcher, inst *instrumentation.Instrumentation) {
 
+	rr.inst = inst
 	rr.registerMetrics()
 
 	var router *httprouter.Router
