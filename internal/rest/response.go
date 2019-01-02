@@ -54,6 +54,11 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 	ErrorResponse(w, http.StatusNotFound, "")
 }
 
+// NotAllowed is a generic 405 response that will be returned if the router can match the method
+func NotAllowed(w http.ResponseWriter, r *http.Request) {
+	ErrorResponse(w, http.StatusMethodNotAllowed, "")
+}
+
 // BadRequest is a generic 400 response
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	ErrorResponse(w, http.StatusBadRequest, "")

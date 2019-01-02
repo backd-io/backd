@@ -63,6 +63,7 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIHandler, matchers ma
 	}
 
 	router.NotFound = http.HandlerFunc(NotFound)
+	router.MethodNotAllowed = http.HandlerFunc(NotAllowed)
 
 	rr.router = router
 
