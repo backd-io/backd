@@ -10,7 +10,7 @@ import (
 	"github.com/backd-io/backd/cmd/sessions/store"
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
-	"github.com/backd-io/backd/internal/sessionspb"
+	"github.com/backd-io/backd/internal/pbsessions"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -47,7 +47,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	sessionspb.RegisterSessionsServer(s, server)
+	pbsessions.RegisterSessionsServer(s, server)
 	// Register reflection service on gRPC server.
 	reflection.Register(s)
 

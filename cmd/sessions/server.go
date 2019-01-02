@@ -9,7 +9,7 @@ import (
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
-	"github.com/backd-io/backd/internal/sessionspb"
+	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/structs"
 )
 
@@ -20,12 +20,12 @@ type sessionsServer struct {
 }
 
 // CreateSession ask for a session creation
-func (s sessionsServer) CreateSession(c context.Context, req *sessionspb.CreateSessionRequest) (*sessionspb.Session, error) {
+func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateSessionRequest) (*pbsessions.Session, error) {
 
 	var (
 		session     structs.Session
 		user        structs.User
-		response    sessionspb.Session
+		response    pbsessions.Session
 		memberships []map[string]string
 		groups      []string
 		err         error
@@ -35,20 +35,35 @@ func (s sessionsServer) CreateSession(c context.Context, req *sessionspb.CreateS
 		return &response, errors.New("bad")
 	}
 
-	err = s.mongo.GetOneByID(req.GetDomainId(), constants.ColUsers, req.GetUserId(), &user)
-	if err != nil {
-		return &response, err
+	// if external == true then auth and group membership is managed outside BackD
+	//   group membership must be empty
+	if req.GetExternal() {
+		// search an apply groups if those are defined on the database for role enforcing
+		for _, groupName := range req.Groups {
+			var group structs.Group
+			err = s.mongo.GetOne(req.GetDomainId(), constants.ColGroups, map[string]interface{}{"name": groupName}, &group)
+			if err == nil {
+				groups = append(groups, group.ID)
+			}
+		}
+	} else {
+		// if no group request then expect to have group membership defined
+		err = s.mongo.GetOneByID(req.GetDomainId(), constants.ColUsers, req.GetUserId(), &user)
+		if err != nil {
+			return &response, err
+		}
+
+		err = s.mongo.GetMany(req.GetDomainId(), constants.ColMembership, map[string]interface{}{"u": req.GetUserId()}, []string{}, &memberships, 0, 0)
+		if err != nil {
+			return &response, err
+		}
+		for _, membership := range memberships {
+			groups = append(groups, membership["g"])
+		}
+
 	}
 
-	err = s.mongo.GetMany(req.GetDomainId(), constants.ColMembership, map[string]interface{}{"u": req.GetUserId()}, []string{}, &memberships, 0, 0)
-	if err != nil {
-		return &response, err
-	}
-
-	for _, membership := range memberships {
-		groups = append(groups, membership["g"])
-	}
-
+	// build session
 	session.ID = db.NewXID().String()
 	session.DomainID = req.DomainId
 	session.User = user
@@ -72,11 +87,11 @@ func (s sessionsServer) CreateSession(c context.Context, req *sessionspb.CreateS
 }
 
 // GetSession returns a session already established
-func (s sessionsServer) GetSession(c context.Context, req *sessionspb.GetSessionRequest) (*sessionspb.Session, error) {
+func (s sessionsServer) GetSession(c context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Session, error) {
 
 	var (
 		sess     structs.Session
-		response sessionspb.Session
+		response pbsessions.Session
 		err      error
 	)
 
@@ -106,11 +121,11 @@ func (s sessionsServer) GetSession(c context.Context, req *sessionspb.GetSession
 }
 
 // DeleteSession removes a session if exists, returns transaction status as result
-func (s sessionsServer) DeleteSession(c context.Context, req *sessionspb.GetSessionRequest) (*sessionspb.Result, error) {
+func (s sessionsServer) DeleteSession(c context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Result, error) {
 
 	var (
 		sess     structs.Session
-		response sessionspb.Result
+		response pbsessions.Result
 		err      error
 	)
 

@@ -59,6 +59,11 @@ func BadRequest(w http.ResponseWriter, r *http.Request) {
 	ErrorResponse(w, http.StatusBadRequest, "")
 }
 
+// Unauthorized is a generic 401 response
+func Unauthorized(w http.ResponseWriter, r *http.Request) {
+	ErrorResponse(w, http.StatusUnauthorized, "")
+}
+
 // ErrorValidationResponse returns a error page with the rules broken on the validation
 func ErrorValidationResponse(w http.ResponseWriter, status int, validationErrors map[string][]string) int {
 	w.WriteHeader(status)

@@ -14,8 +14,14 @@ const (
 // Domain collections to define security
 const (
 	ColConfig     = "_Config"     // Contains the especific configuration for this domain
+	ColDomains    = "_Domains"    // Contains domains insformation
 	ColUsers      = "_Users"      // Contains the users defined at domain level
 	ColGroups     = "_Groups"     // Contains the  groups defined at domain level
 	ColMembership = "_Membership" // Relationship between users & groups
 	ColSession    = "_Sessions"   // Session information (user & group membership), expiration
+)
+
+// Default Database for Backd
+const (
+	DBBackd = "backd"
 )

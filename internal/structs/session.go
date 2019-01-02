@@ -25,3 +25,11 @@ type SessionResponse struct {
 	UserID    string `json:"user_id"`
 	ExpiresAt int64  `json:"expires_at"`
 }
+
+// SessionRequest is the struct that defines how an user creates a session
+//   on the auth service.
+type SessionRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	DomainID string `json:"domain"`
+}

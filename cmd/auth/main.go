@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
 	"github.com/backd-io/backd/internal/db"
+	"google.golang.org/grpc"
 
 	"github.com/backd-io/backd/internal/instrumentation"
 	"github.com/backd-io/backd/internal/rest"
@@ -18,12 +20,23 @@ func main() {
 		matchers map[string]map[string]rest.APIMatcher
 
 		server *rest.REST
+		conn   *grpc.ClientConn
 		inst   *instrumentation.Instrumentation
 		mongo  *db.Mongo
 		api    *apiStruct
 
 		err error
 	)
+
+	// TODO: REMOVE! AND CONFIGURE PROPERLY
+	address := "localhost:8082"
+
+	// Set up a connection to the sessions server.
+	conn, err = grpc.Dial(address, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
 
 	mongo, err = db.NewMongo("mongodb://localhost:27017")
 	er(err)

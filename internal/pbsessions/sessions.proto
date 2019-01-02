@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package sessionspb;
+package pbsessions;
 
 service Sessions {
   // CreateSession ask for a session creation
@@ -17,6 +17,8 @@ message CreateSessionRequest {
   string domain_id = 1;
   string user_id = 2;
   int64 duration_seconds = 3;
+  repeated string groups = 4;
+  bool external = 5;
 }
 
 // Session is the session data that is shared with other services
