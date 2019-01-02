@@ -46,7 +46,7 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIHandler, matchers ma
 				}
 				BadRequest(w, r)
 
-				rr.log(true, "hit", localMethod, r.RequestURI, r.RemoteAddr, 400, 0, time.Since(now))
+				rr.log(true, "hit", localMethod, r.RequestURI, r.RemoteAddr, http.StatusBadRequest, 0, time.Since(now))
 
 			}
 
@@ -62,8 +62,17 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIHandler, matchers ma
 		}
 	}
 
-	router.NotFound = http.HandlerFunc(NotFound)
-	router.MethodNotAllowed = http.HandlerFunc(NotAllowed)
+	// ensure not found and not allowed handlers are logged also
+	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
+		ErrorResponse(w, http.StatusNotFound, "")
+		rr.log(false, "hit", r.Method, r.RequestURI, r.RemoteAddr, http.StatusNotFound, 0, time.Since(now))
+	})
+	router.MethodNotAllowed = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
+		ErrorResponse(w, http.StatusMethodNotAllowed, "")
+		rr.log(false, "hit", r.Method, r.RequestURI, r.RemoteAddr, http.StatusMethodNotAllowed, 0, time.Since(now))
+	})
 
 	rr.router = router
 
@@ -98,7 +107,7 @@ func match(route string, matcher []string, r *http.Request) bool {
 	}
 
 	for i, m := range matcher {
-		// do no check blank or .* routes since anything is already allowed
+		// do no check blank or .* routes since everything is already allowed
 		if m != "" && m != ".*" {
 			matched, err := regexp.MatchString(m, routeParts[i+1])
 			if err != nil || matched == false {
