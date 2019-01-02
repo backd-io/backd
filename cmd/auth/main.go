@@ -16,8 +16,7 @@ import (
 func main() {
 
 	var (
-		routes   map[string]map[string]rest.APIHandler
-		matchers map[string]map[string]rest.APIMatcher
+		routes map[string]map[string]rest.APIEndpoint
 
 		server *rest.REST
 		conn   *grpc.ClientConn
@@ -49,26 +48,21 @@ func main() {
 		mongo: mongo,
 	}
 
-	routes = map[string]map[string]rest.APIHandler{
+	routes = map[string]map[string]rest.APIEndpoint{
 		"POST": {
-			"/session": api.postSession,
+			"/session": {
+				Handler: api.postSession,
+			},
 		},
 		"DELETE": {
-			"/session": api.deleteSession,
-		},
-	}
-
-	matchers = map[string]map[string]rest.APIMatcher{
-		"POST": {
-			"/session": []string{},
-		},
-		"DELETE": {
-			"/session": []string{},
+			"/session": {
+				Handler: api.deleteSession,
+			},
 		},
 	}
 
 	server = rest.New("0.0.0.0:8083")
-	server.SetupRouter(routes, matchers, inst)
+	server.SetupRouter(routes, inst)
 
 	// graceful
 	stop := make(chan os.Signal, 1)

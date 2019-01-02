@@ -13,7 +13,7 @@ import (
 )
 
 // SetupRouter builds a router for the REST API endpoints
-func (rr *REST) SetupRouter(routes map[string]map[string]APIHandler, matchers map[string]map[string]APIMatcher, inst *instrumentation.Instrumentation) {
+func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *instrumentation.Instrumentation) {
 
 	rr.inst = inst
 	rr.registerMetrics()
@@ -22,12 +22,12 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIHandler, matchers ma
 	router = httprouter.New()
 
 	for method, mappings := range routes {
-		for route, function := range mappings {
+		for route, endpoint := range mappings {
 
-			localFunction := function
-			localMethod := method                             // ensure it will be logged
-			localRoute := route                               // ensure it will be logged
-			localMatcher := matchers[localMethod][localRoute] // ensure meets regexp
+			localMethod := method             // ensure it will be logged
+			localRoute := route               // ensure it will be logged
+			localFunction := endpoint.Handler // function
+			localMatcher := endpoint.Matcher  // ensure naming compliance (if defined)
 
 			// wrapper will handle all logic that are not on the function as:
 			//  - instrumentation

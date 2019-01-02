@@ -48,14 +48,15 @@ func (a *apiStruct) deleteSession(w http.ResponseWriter, r *http.Request, ps htt
 
 	var (
 		result *pbsessions.Result
+		cc     pbsessions.SessionsClient
 		err    error
 	)
 
-	c := pbsessions.NewSessionsClient(a.sessions)
+	cc = pbsessions.NewSessionsClient(a.sessions)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	result, err = c.DeleteSession(ctx, &pbsessions.GetSessionRequest{
+	result, err = cc.DeleteSession(ctx, &pbsessions.GetSessionRequest{
 		Id: r.Header.Get(rest.HeaderSessionID),
 	})
 

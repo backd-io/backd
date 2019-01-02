@@ -23,6 +23,12 @@ type HTTPErrorStatus struct {
 	Reason  string `json:"reason,omitempty"`
 }
 
+// APIEndpoint is the struct that holds the Handler and Matchers (if any) to build the router
+type APIEndpoint struct {
+	Handler APIHandler
+	Matcher APIMatcher
+}
+
 // APIHandler defines the handler function that will be used for each API endpoint
 type APIHandler func(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
