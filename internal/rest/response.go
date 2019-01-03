@@ -1,10 +1,13 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // Response is a default func to return data
 func Response(w http.ResponseWriter, data interface{}, err error, validationErrors map[string][]string, desiredStatus int, location string) int {
@@ -13,10 +16,10 @@ func Response(w http.ResponseWriter, data interface{}, err error, validationErro
 	w.Header().Set("Accept", "application/json")
 
 	// see if is json syntax error (not checkeable on the next switch expression)
-	_, ok := err.(*json.SyntaxError)
-	if ok {
-		return ErrorResponse(w, http.StatusBadRequest, err.Error())
-	}
+	// _, ok := err.(*json.SyntaxError)
+	// if ok {
+	// 	return ErrorResponse(w, http.StatusBadRequest, err.Error())
+	// }
 
 	switch err {
 	case nil:

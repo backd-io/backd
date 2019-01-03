@@ -2,6 +2,8 @@ package structs
 
 import (
 	"time"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 // Metadata is the struct that represents a metadata information of an struct
@@ -25,6 +27,11 @@ func (m *Metadata) SetCreate(domainID, userID string) {
 func (m *Metadata) SetUpdate(domainID, userID string) {
 	m.UpdatedAt = time.Now().Unix()
 	m.UpdatedBy = FullUsername(domainID, userID)
+}
+
+// FromInterface sets metadata value from a map using mapstructure
+func (m *Metadata) FromInterface(meta map[string]interface{}) error {
+	return mapstructure.Decode(meta, &m)
 }
 
 // FullUsername returns the <domain_id>/<user_id> representation that ensures uniqueness

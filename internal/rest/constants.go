@@ -38,5 +38,6 @@ type APIMatcher []string
 
 // Headers for the endpoints
 const (
-	HeaderSessionID = "X-Session-ID"
+	HeaderSessionID     = "X-Session-ID"
+	HeaderApplicationID = "X-Application-ID"
 )

@@ -1,12 +1,8 @@
 package db
 
 import (
-	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
-	"github.com/backd-io/backd/internal/pbsessions"
-	"github.com/backd-io/backd/internal/structs"
 	mgo "github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
 )
 
 // Mongo is the struct used to interact with a MongoDB database from backd apis
@@ -162,40 +158,8 @@ func (db *Mongo) Insert(database, collection string, this interface{}) error {
 }
 
 // Count returns the number of ocurrencies returnd from the database using that query
-func (db *Mongo) Count(database, collection string, query interface{}) (int, error) {
+func (db *Mongo) Count(database, collection string, query map[string]interface{}) (int, error) {
 	return db.session.DB(database).C(collection).Find(query).Count()
-}
-
-// GetManyRBAC returns all records that meets RBAC and the desired filter,
-//   skip and limit must be passed to limit the number of results
-func (db *Mongo) GetManyRBAC(session *pbsessions.Session, perm backd.Permission, database, collection string, query map[string]interface{}, sort []string, this interface{}, skip, limit int) error {
-
-	var (
-		all          bool
-		accesibleIDs []string
-		err          error
-	)
-
-	if query == nil {
-		query = make(map[string]interface{})
-	}
-
-	all, accesibleIDs, err = db.VisibleID(session, database, collection, perm)
-	if err != nil {
-		return err
-	}
-
-	// restrict only if the user can see a limited amount of items
-	if all == false {
-		query["_ids"] = bson.M{
-			"$in": accesibleIDs,
-		}
-	}
-
-	if len(sort) > 0 {
-		return db.session.DB(database).C(collection).Find(query).Sort(sort...).Skip(skip).Limit(limit).All(this)
-	}
-	return db.session.DB(database).C(collection).Find(query).Skip(skip).Limit(limit).All(this)
 }
 
 // GetMany returns all records that meets the desired filter,
@@ -207,7 +171,7 @@ func (db *Mongo) GetMany(database, collection string, query interface{}, sort []
 	return db.session.DB(database).C(collection).Find(query).Skip(skip).Limit(limit).All(this)
 }
 
-// GetOne returns one object by ID
+// GetOne returns one object by query
 func (db *Mongo) GetOne(database, collection string, query, this interface{}) error {
 	return db.session.DB(database).C(collection).Find(query).One(this)
 }
@@ -228,74 +192,11 @@ func (db *Mongo) UpdateByID(database, collection, id string, to interface{}) err
 }
 
 // Delete deletes from the collection the referenced object
-func (db *Mongo) Delete(database, collection string, selector interface{}) error {
+func (db *Mongo) Delete(database, collection string, selector map[string]interface{}) error {
 	return db.session.DB(database).C(collection).Remove(selector)
 }
 
 // DeleteByID deletes from the collection the referenced object using an ObjectID passed as string
 func (db *Mongo) DeleteByID(database, collection, id string) error {
 	return db.session.DB(database).C(collection).RemoveId(id)
-}
-
-// Can validates the ability to make something by an user
-func (db *Mongo) Can(session *pbsessions.Session, database, collection, id string, perm backd.Permission) bool {
-
-	var (
-		rbac  structs.RBAC
-		query map[string]interface{}
-		err   error
-	)
-
-	query = map[string]interface{}{
-		"did": session.GetDomainId(),
-		"uid": db.getIdentities(session),
-		"c":   collection,
-		"cid": id,
-		"p":   perm,
-	}
-
-	err = db.GetOne(database, constants.ColRBAC, query, &rbac)
-	if err != nil {
-		return false
-	}
-
-	return true
-}
-
-// VisibleID returns only those IDs that the user is able to see from a collection
-func (db *Mongo) VisibleID(session *pbsessions.Session, database, collection string, perm backd.Permission) (all bool, ids []string, err error) {
-
-	var (
-		query map[string]interface{}
-	)
-
-	query = map[string]interface{}{
-		"did": session.GetDomainId(),
-		"uid": db.getIdentities(session),
-		"c":   collection,
-		"p":   perm,
-	}
-
-	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("cid", ids)
-
-	// see if can see all the items to simplify the query
-	for _, id := range ids {
-		if id == "*" {
-			all = true
-			break
-		}
-	}
-	return
-
-}
-
-// getIdentities returns the
-func (db *Mongo) getIdentities(session *pbsessions.Session) (identities []string) {
-
-	identities = append(identities, session.GetUserId())
-	for _, identity := range session.GetGroups() {
-		identities = append(identities, identity)
-	}
-	return
-
 }
