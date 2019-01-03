@@ -1,6 +1,10 @@
 package db
 
-import "github.com/rs/xid"
+import (
+	"github.com/backd-io/backd/backd"
+	"github.com/backd-io/backd/internal/pbsessions"
+	"github.com/rs/xid"
+)
 
 // Interface is the interface that define all methods to operate the databases
 type Interface interface {
@@ -17,6 +21,7 @@ type Interface interface {
 	CreateIndex(database, collection string, fields []string, unique bool) error
 	CreateDefaultAppIndexes() error
 	CreateDefaultDomainIndexes() error
+	Can(session *pbsessions.Session, database, collection, id string, perm backd.Permission) bool
 }
 
 // NewXID returns a new secure ID using the rs/xid librady

@@ -4,9 +4,9 @@ package constants
 const (
 	// ColSchema stores information about how the data must be stored and validated
 	ColSchema = "_Schemas"
-	// ColRoles is the collection that holds the Role Access for every object
+	// ColRBAC is the collection that holds the Role Access for every object
 	//   managed by the API
-	ColRoles = "_Roles"
+	ColRBAC = "_RBAC"
 	// ColRelation is the collection that stores the relations of linked data
 	ColRelation = "_Relations"
 )
@@ -18,7 +18,6 @@ const (
 	ColUsers      = "_Users"      // Contains the users defined at domain level
 	ColGroups     = "_Groups"     // Contains the  groups defined at domain level
 	ColMembership = "_Membership" // Relationship between users & groups
-	ColSession    = "_Sessions"   // Session information (user & group membership), expiration
 )
 
 // Default Database for Backd
