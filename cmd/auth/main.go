@@ -44,8 +44,9 @@ func main() {
 	er(err)
 
 	api = &apiStruct{
-		inst:  inst,
-		mongo: mongo,
+		inst:     inst,
+		mongo:    mongo,
+		sessions: conn,
 	}
 
 	routes = map[string]map[string]rest.APIEndpoint{
