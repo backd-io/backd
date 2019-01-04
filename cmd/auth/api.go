@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
 	"github.com/backd-io/backd/internal/pbsessions"
@@ -57,7 +58,7 @@ func (a *apiStruct) deleteSession(w http.ResponseWriter, r *http.Request, ps htt
 	defer cancel()
 
 	result, err = cc.DeleteSession(ctx, &pbsessions.GetSessionRequest{
-		Id: r.Header.Get(rest.HeaderSessionID),
+		Id: r.Header.Get(backd.HeaderSessionID),
 	})
 
 	rest.Response(w, result, err, nil, http.StatusOK, "")

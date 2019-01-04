@@ -6,11 +6,9 @@ import (
 	"time"
 
 	"github.com/backd-io/backd/backd"
-
-	"github.com/backd-io/backd/internal/pbsessions"
-
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
+	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/julienschmidt/httprouter"
 	"google.golang.org/grpc"
@@ -28,7 +26,7 @@ func (a *apiStruct) getSession(r *http.Request) (session *pbsessions.Session, ap
 		cc pbsessions.SessionsClient
 	)
 
-	if r.Header.Get(rest.HeaderSessionID) == "" || r.Header.Get(rest.HeaderApplicationID) == "" {
+	if r.Header.Get(backd.HeaderSessionID) == "" || r.Header.Get(backd.HeaderApplicationID) == "" {
 		err = rest.ErrUnauthorized
 		return
 	}
@@ -38,10 +36,10 @@ func (a *apiStruct) getSession(r *http.Request) (session *pbsessions.Session, ap
 	defer cancel()
 
 	session, err = cc.GetSession(ctx, &pbsessions.GetSessionRequest{
-		Id: r.Header.Get(rest.HeaderSessionID),
+		Id: r.Header.Get(backd.HeaderSessionID),
 	})
 
-	applicationID = r.Header.Get(rest.HeaderApplicationID)
+	applicationID = r.Header.Get(backd.HeaderApplicationID)
 	return
 
 }
