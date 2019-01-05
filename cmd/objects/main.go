@@ -39,7 +39,7 @@ func main() {
 	mongo, err = db.NewMongo("mongodb://localhost:27017")
 	er(err)
 
-	inst, err = instrumentation.New("0.0.0.0:8183", true)
+	inst, err = instrumentation.New("0.0.0.0:8181", true)
 	er(err)
 
 	api = &apiStruct{
@@ -79,7 +79,7 @@ func main() {
 		},
 	}
 
-	server = rest.New("0.0.0.0:8083")
+	server = rest.New("0.0.0.0:8081")
 	server.SetupRouter(routes, inst)
 
 	// graceful
