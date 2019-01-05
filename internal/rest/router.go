@@ -44,7 +44,7 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *inst
 					rr.log(false, "hit", localMethod, r.RequestURI, r.RemoteAddr, ww.Status(), ww.Size(), time.Since(now))
 					return
 				}
-				BadRequest(w, r)
+				BadRequest(w, r, "route not match")
 
 				rr.log(true, "hit", localMethod, r.RequestURI, r.RemoteAddr, http.StatusBadRequest, 0, time.Since(now))
 
@@ -99,6 +99,11 @@ func match(route string, matcher []string, r *http.Request) bool {
 	var (
 		routeParts []string
 	)
+
+	// if there is no matcher to match against then all match
+	if len(matcher) == 0 {
+		return true
+	}
 
 	routeParts = strings.Split(r.URL.Path, "/")
 

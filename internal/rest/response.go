@@ -30,6 +30,7 @@ func Response(w http.ResponseWriter, data interface{}, err error, validationErro
 		if data != nil {
 			json.NewEncoder(w).Encode(data)
 		}
+		return desiredStatus
 	case ErrConflict:
 		if validationErrors != nil {
 			if len(validationErrors) > 0 {
@@ -63,8 +64,8 @@ func NotAllowed(w http.ResponseWriter, r *http.Request) {
 }
 
 // BadRequest is a generic 400 response
-func BadRequest(w http.ResponseWriter, r *http.Request) {
-	ErrorResponse(w, http.StatusBadRequest, "")
+func BadRequest(w http.ResponseWriter, r *http.Request, reason string) {
+	ErrorResponse(w, http.StatusBadRequest, reason)
 }
 
 // Unauthorized is a generic 401 response
