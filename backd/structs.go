@@ -73,3 +73,12 @@ type LoginResponse struct {
 	ID        string `json:"id"`
 	ExpiresAt int64  `json:"expires_at"`
 }
+
+// BootstrapRequest is the request to initialize a `backd` cluster
+type BootstrapRequest struct {
+	Code     string `json:"code"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

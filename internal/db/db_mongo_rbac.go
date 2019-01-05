@@ -15,14 +15,25 @@ func (db *Mongo) Can(session *pbsessions.Session, database, collection, id strin
 	var (
 		rbac  structs.RBAC
 		query map[string]interface{}
+		cid   []string
 		err   error
 	)
+
+	// if the user can make the action on * can make it for the id
+	cid = append(cid, "*")
+	if id != "*" {
+		cid = append(cid, id)
+	}
 
 	query = map[string]interface{}{
 		"did": session.GetDomainId(),
 		"uid": db.getIdentities(session),
-		"c":   collection,
-		"cid": id,
+		"c": bson.M{
+			"$in": []string{collection, "*"},
+		},
+		"cid": bson.M{
+			"$in": cid,
+		},
 		"p": bson.M{
 			"$in": []backd.Permission{perm, backd.PermissionAdmin},
 		},

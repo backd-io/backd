@@ -7,9 +7,10 @@ import (
 	"os/signal"
 
 	"github.com/backd-io/backd/internal/db"
+	"google.golang.org/grpc"
+
 	"github.com/backd-io/backd/internal/instrumentation"
 	"github.com/backd-io/backd/internal/rest"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -39,7 +40,7 @@ func main() {
 	mongo, err = db.NewMongo("mongodb://localhost:27017")
 	er(err)
 
-	inst, err = instrumentation.New("0.0.0.0:8183", true)
+	inst, err = instrumentation.New("0.0.0.0:8184", true)
 	er(err)
 
 	api = &apiStruct{
@@ -48,20 +49,24 @@ func main() {
 		sessions: conn,
 	}
 
+	err = api.isBootstrapped()
+	er(err)
+
 	routes = map[string]map[string]rest.APIEndpoint{
 		"POST": {
-			"/session": {
-				Handler: api.postSession,
+			"/bootstrap": {
+				Handler: api.postBootstrap,
+				Matcher: []string{""},
 			},
 		},
-		"DELETE": {
-			"/session": {
-				Handler: api.deleteSession,
-			},
-		},
+		// "DELETE": {
+		// 	"/session": {
+		// 		Handler: api.deleteSession,
+		// 	},
+		// },
 	}
 
-	server = rest.New("0.0.0.0:8083")
+	server = rest.New("0.0.0.0:8084")
 	server.SetupRouter(routes, inst)
 
 	// graceful

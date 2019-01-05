@@ -100,12 +100,6 @@ func (s sessionsServer) GetSession(c context.Context, req *pbsessions.GetSession
 		return &response, err
 	}
 
-	if sess.DomainID != req.GetDomainId() || sess.User.ID != req.GetUserId() {
-		if err != nil {
-			return &response, errors.New("conflict/unauthorized")
-		}
-	}
-
 	if sess.IsExpired() {
 		return &response, errors.New("session expired")
 	}
@@ -124,20 +118,13 @@ func (s sessionsServer) GetSession(c context.Context, req *pbsessions.GetSession
 func (s sessionsServer) DeleteSession(c context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Result, error) {
 
 	var (
-		sess     structs.Session
 		response pbsessions.Result
 		err      error
 	)
 
-	sess, err = s.store.Get(req.GetId())
+	_, err = s.store.Get(req.GetId())
 	if err != nil {
 		return &response, err
-	}
-
-	if sess.DomainID != req.GetDomainId() || sess.User.ID != req.GetUserId() {
-		if err != nil {
-			return &response, errors.New("conflict/unauthorized")
-		}
 	}
 
 	err = s.store.Delete(req.GetId())

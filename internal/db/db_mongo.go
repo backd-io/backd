@@ -1,7 +1,6 @@
 package db
 
 import (
-	"github.com/backd-io/backd/internal/constants"
 	mgo "github.com/globalsign/mgo"
 )
 
@@ -30,101 +29,109 @@ func (db *Mongo) Session() *mgo.Session {
 	return db.session
 }
 
-// CreateDefaultDomainIndexes cretes the required indexes for a domain
-//  - entities
-//  - memberships
-//  - sessions
-func (db *Mongo) CreateDefaultDomainIndexes(database string) error {
+// // CreateDefaultDomainIndexes cretes the required indexes for a domain
+// //  - entities
+// //  - memberships
+// //  - sessions
+// func (db *Mongo) CreateDefaultDomainIndexes(database string) error {
 
-	var (
-		err error
-	)
+// 	var (
+// 		err error
+// 	)
 
-	// // index to help find user / group
-	// if err = db.CreateIndex(database, constants.ColEntities, []string{"_type"}, false); err != nil {
-	// 	return err
-	// }
+// 	// // index to help find user / group
+// 	// if err = db.CreateIndex(database, constants.ColEntities, []string{"_type"}, false); err != nil {
+// 	// 	return err
+// 	// }
 
-	// // index to help find user (_type=u) / group (_type=g)
-	// if err = db.CreateIndex(database, constants.ColEntities, []string{"_type", "name"}, false); err != nil {
-	// 	return err
-	// }
+// 	// // index to help find user (_type=u) / group (_type=g)
+// 	// if err = db.CreateIndex(database, constants.ColEntities, []string{"_type", "name"}, false); err != nil {
+// 	// 	return err
+// 	// }
 
-	// index to help find relations of user (_type=u) & group (_type=g)
-	if err = db.CreateIndex(database, constants.ColMembership, []string{"u", "g"}, true); err != nil {
-		return err
-	}
+// 	// index to help find relations of user (_type=u) & group (_type=g)
+// 	if err = db.CreateIndex(database, constants.ColMembership, []string{"u", "g"}, true); err != nil {
+// 		return err
+// 	}
 
-	// index to help find relations of user (_type=u)
-	if err = db.CreateIndex(database, constants.ColMembership, []string{"u"}, false); err != nil {
-		return err
-	}
+// 	// index to help find relations of user (_type=u)
+// 	if err = db.CreateIndex(database, constants.ColMembership, []string{"u"}, false); err != nil {
+// 		return err
+// 	}
 
-	// index to help find relations of  group (_type=g)
-	if err = db.CreateIndex(database, constants.ColMembership, []string{"g"}, false); err != nil {
-		return err
-	}
+// 	// index to help find relations of  group (_type=g)
+// 	if err = db.CreateIndex(database, constants.ColMembership, []string{"g"}, false); err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-// CreateDefaultAppIndexes creates the required indexes for the basic API services:
-//  - data relationship
-func (db *Mongo) CreateDefaultAppIndexes(database string) error {
+// // CreateDefaultAppIndexes creates the required indexes for the basic API services:
+// //  - data relationship
+// func (db *Mongo) CreateDefaultAppIndexes(database string) error {
 
-	var (
-		err error
-	)
+// 	var (
+// 		err error
+// 	)
 
-	// relation -> src, sid (source)
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid"}, false); err != nil {
-		return err
-	}
+// 	// relation -> src, sid (source)
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid"}, false); err != nil {
+// 		return err
+// 	}
 
-	// relation -> dst, did (destination)
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"dst", "did"}, false); err != nil {
-		return err
-	}
+// 	// relation -> dst, did (destination)
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"dst", "did"}, false); err != nil {
+// 		return err
+// 	}
 
-	// relation -> src, sid, rel (source + relation)
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid", "rel"}, false); err != nil {
-		return err
-	}
+// 	// relation -> src, sid, rel (source + relation)
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid", "rel"}, false); err != nil {
+// 		return err
+// 	}
 
-	// relation -> dst, did, rel (destination + relation)
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"dst", "did", "rel"}, false); err != nil {
-		return err
-	}
+// 	// relation -> dst, did, rel (destination + relation)
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"dst", "did", "rel"}, false); err != nil {
+// 		return err
+// 	}
 
-	// relation -> src, sid, rel, dst (source + relation + destinationType)
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid", "rel", "dst"}, false); err != nil {
-		return err
-	}
+// 	// relation -> src, sid, rel, dst (source + relation + destinationType)
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid", "rel", "dst"}, false); err != nil {
+// 		return err
+// 	}
 
-	// relation -> dst, did, rel (destination + relation + sourceType)
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"dst", "did", "rel", "src"}, false); err != nil {
-		return err
-	}
+// 	// relation -> dst, did, rel (destination + relation + sourceType)
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"dst", "did", "rel", "src"}, false); err != nil {
+// 		return err
+// 	}
 
-	// relation -> src, sid, rel, dst (source + relation + destination) - must be unique
-	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid", "rel", "dst", "did"}, true); err != nil {
-		return err
-	}
+// 	// relation -> src, sid, rel, dst (source + relation + destination) - must be unique
+// 	if err = db.CreateIndex(database, constants.ColRelation, []string{"src", "sid", "rel", "dst", "did"}, true); err != nil {
+// 		return err
+// 	}
 
-	return nil
+// 	return nil
 
-}
+// }
 
 // CreateIndex creates required indexes with some default settings that seems to
 // be enough for our needs
 func (db *Mongo) CreateIndex(database, collection string, fields []string, unique bool) error {
 
-	index := mgo.Index{
+	var index mgo.Index
+
+	index = mgo.Index{
 		Key:        fields,
 		Unique:     unique,
 		DropDups:   true,
 		Background: true,
 		Sparse:     true,
+	}
+
+	if len(fields) == 1 && fields[0] == "_id" {
+		index = mgo.Index{
+			Key: fields,
+		}
 	}
 
 	return db.session.DB(database).C(collection).EnsureIndex(index)

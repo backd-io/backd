@@ -45,11 +45,11 @@ var (
 	metadataValidator = map[string]interface{}{
 		"_meta.cby": map[string]interface{}{
 			"bsonType": "string",
-			"pattern":  "^[a-zA-Z0-9]{20}/[a-zA-Z0-9]{20}$",
+			"pattern":  "^[a-zA-Z0-9]+\\/[a-zA-Z0-9]{20}$",
 		},
 		"_meta.uby": map[string]interface{}{
 			"bsonType": "string",
-			"pattern":  "^[a-zA-Z0-9]{20}/[a-zA-Z0-9]{20}$",
+			"pattern":  "^[a-zA-Z0-9]+\\/[a-zA-Z0-9]{20}$",
 		},
 		"_meta.cat": map[string]interface{}{
 			"bsonType": "long",

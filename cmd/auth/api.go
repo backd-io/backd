@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -31,12 +32,15 @@ func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httpr
 	)
 
 	err = rest.GetFromBody(r, &sessionRequest)
+	fmt.Println("err:GetFromBody:", err)
 	if err != nil {
-		rest.BadRequest(w, r)
+		rest.BadRequest(w, r, "error getting data from body")
 		return
 	}
 
 	success, sessionResponse, err = a.createSession(sessionRequest)
+	fmt.Println(success)
+	fmt.Println(err)
 	if err != nil || success == false {
 		rest.Unauthorized(w, r)
 		return
