@@ -23,7 +23,7 @@ const (
 	pathBootstrap = "bootstrap"
 )
 
-func (b *Backd) buildPath(m microservice, route string) string {
+func (b *Backd) buildPath(m microservice, route string, parts ...string) string {
 
 	var (
 		urlString string
@@ -43,6 +43,11 @@ func (b *Backd) buildPath(m microservice, route string) string {
 		panic(err)
 	}
 	u.Path = path.Join(u.Path, route)
+
+	for _, part := range parts {
+		u.Path = path.Join(u.Path, part)
+	}
+
 	return u.String()
 
 }

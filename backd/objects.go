@@ -1,7 +1,6 @@
 package backd
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -19,7 +18,7 @@ func (b *Backd) Objects(applicationID string) *Objects {
 }
 
 // GetByID returns an object by it's id
-func (o *Objects) GetByID(collection, id, string, object interface{}) error {
+func (o *Objects) GetByID(collection, id string, object interface{}) error {
 
 	var (
 		failure  APIError
@@ -27,7 +26,11 @@ func (o *Objects) GetByID(collection, id, string, object interface{}) error {
 		err      error
 	)
 
-	response, err = o.backd.sling.Set(HeaderSessionID, o.backd.sessionID).Set(HeaderApplicationID, o.applicationID).Get(fmt.Sprintf("%s/%s", collection, id)).Receive(object, &failure)
+	response, err = o.backd.sling.
+		Set(HeaderSessionID, o.backd.sessionID).
+		Set(HeaderApplicationID, o.applicationID).
+		Get(o.backd.buildPath(objects, collection, id)).
+		Receive(object, &failure)
 
 	// rebuild and return err
 	return failure.wrapErr(err, response, http.StatusOK)
@@ -43,7 +46,12 @@ func (o *Objects) Insert(collection string, object interface{}) (id string, err 
 		response *http.Response
 	)
 
-	response, err = o.backd.sling.Set(HeaderSessionID, o.backd.sessionID).Set(HeaderApplicationID, o.applicationID).Post(collection).BodyJSON(object).Receive(&success, &failure)
+	response, err = o.backd.sling.
+		Set(HeaderSessionID, o.backd.sessionID).
+		Set(HeaderApplicationID, o.applicationID).
+		Post(o.backd.buildPath(objects, collection)).
+		BodyJSON(object).
+		Receive(&success, &failure)
 
 	// rebuild err
 	err = failure.wrapErr(err, response, http.StatusOK)
@@ -66,7 +74,12 @@ func (o *Objects) Update(collection, id string, from, to interface{}) error {
 		err      error
 	)
 
-	response, err = o.backd.sling.Set(HeaderSessionID, o.backd.sessionID).Set(HeaderApplicationID, o.applicationID).Put(fmt.Sprintf("%s/%s", collection, id)).BodyJSON(from).Receive(to, &failure)
+	response, err = o.backd.sling.
+		Set(HeaderSessionID, o.backd.sessionID).
+		Set(HeaderApplicationID, o.applicationID).
+		Put(o.backd.buildPath(objects, collection, id)).
+		BodyJSON(from).
+		Receive(to, &failure)
 
 	// rebuild and return err
 	return failure.wrapErr(err, response, http.StatusOK)
@@ -82,7 +95,11 @@ func (o *Objects) Delete(collection, id string) error {
 		err      error
 	)
 
-	response, err = o.backd.sling.Set(HeaderSessionID, o.backd.sessionID).Set(HeaderApplicationID, o.applicationID).Delete(fmt.Sprintf("%s/%s", collection, id)).Receive(nil, &failure)
+	response, err = o.backd.sling.
+		Set(HeaderSessionID, o.backd.sessionID).
+		Set(HeaderApplicationID, o.applicationID).
+		Delete(o.backd.buildPath(objects, collection, id)).
+		Receive(nil, &failure)
 
 	return failure.wrapErr(err, response, http.StatusNoContent)
 
