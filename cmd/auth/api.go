@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/backd-io/backd/backd"
+	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
 	"github.com/backd-io/backd/internal/pbsessions"
@@ -32,9 +33,8 @@ func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httpr
 	)
 
 	err = rest.GetFromBody(r, &sessionRequest)
-	fmt.Println("err:GetFromBody:", err)
 	if err != nil {
-		rest.BadRequest(w, r, "error getting data from body")
+		rest.BadRequest(w, r, constants.ReasonReadingBody)
 		return
 	}
 

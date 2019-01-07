@@ -7,10 +7,9 @@ import (
 	"os/signal"
 
 	"github.com/backd-io/backd/internal/db"
-	"google.golang.org/grpc"
-
 	"github.com/backd-io/backd/internal/instrumentation"
 	"github.com/backd-io/backd/internal/rest"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -52,18 +51,61 @@ func main() {
 	err = api.isBootstrapped()
 	er(err)
 
+	// "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"
+
 	routes = map[string]map[string]rest.APIEndpoint{
+		"GET": {
+			"/domains/:domain/users/:id": {
+				Handler: api.getUserByID,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/domains/:domain/groups/:id": {
+				Handler: api.getGroupByID,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+		},
 		"POST": {
 			"/bootstrap": {
 				Handler: api.postBootstrap,
 				Matcher: []string{""},
 			},
+			"/domains/:domain/users": {
+				Handler: api.postUser,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", ""},
+			},
+			"/domains/:domain/groups": {
+				Handler: api.postGroup,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", ""},
+			},
 		},
-		// "DELETE": {
-		// 	"/session": {
-		// 		Handler: api.deleteSession,
-		// 	},
-		// },
+		"PUT": {
+			"/domains/:domain/users/:id": {
+				Handler: api.putUser,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/domains/:domain/groups/:id": {
+				Handler: api.putGroup,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/domains/:domain/groups/:id/members/:user_id": {
+				Handler: api.putMembership,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+		},
+		"DELETE": {
+			"/domains/:domain/users/:id": {
+				Handler: api.deleteUser,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/domains/:domain/groups/:id": {
+				Handler: api.deleteGroup,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/domains/:domain/groups/:id/members/:user_id": {
+				Handler: api.deleteMembership,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+		},
 	}
 
 	server = rest.New("0.0.0.0:8084")

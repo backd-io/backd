@@ -82,3 +82,8 @@ type BootstrapRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// RequestByID is a request that only especifies an ID (for simple things like group membership)
+type RequestByID struct {
+	ID string `json:"_id"`
+}
