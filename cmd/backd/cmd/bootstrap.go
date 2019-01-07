@@ -37,13 +37,11 @@ func init() {
 func bootstrapFunc(cmd *cobra.Command, args []string) {
 
 	var (
-		client  *backd.Backd
 		request backd.BootstrapRequest
 		err     error
 	)
 
 	isTheCliConfigured()
-	client = newBackdClient()
 
 	emptyLines(2)
 	title("backd cluster first configuration.")
@@ -56,7 +54,7 @@ func bootstrapFunc(cmd *cobra.Command, args []string) {
 	request.Email = promptText("Email", "john.doe@example.com", isEmail)
 	request.Password = promptPassword("Password", nil)
 
-	err = client.BootstrapCluster(request.Code,
+	err = cli.backd.BootstrapCluster(request.Code,
 		request.Name,
 		request.Username,
 		request.Email,

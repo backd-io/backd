@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	ldap "gopkg.in/ldap.v2"
@@ -23,6 +24,7 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 
 	// search domain
 	err = a.mongo.GetOneByID(constants.DBBackdApp, constants.ColDomains, sessionRequest.DomainID, &domain)
+	fmt.Println("domain.err:", err)
 	if err != nil {
 		return false, sessionResponse, err
 	}
@@ -32,11 +34,15 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 		// try to login the user by its password
 		var user structs.User
 		err = a.mongo.GetOne(domain.ID, constants.ColUsers, map[string]interface{}{"un": sessionRequest.Username}, &user)
+		fmt.Println("user.err:", err)
 		if err != nil {
 			return false, sessionResponse, err
 		}
 
+		fmt.Println("sessionRequest", sessionRequest)
+
 		success = user.PasswordMatch(sessionRequest.Password)
+		fmt.Println("success", success)
 		if success {
 
 			var session *pbsessions.Session

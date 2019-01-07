@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/backd-io/backd/backd"
 	homedir "github.com/mitchellh/go-homedir"
@@ -40,17 +41,26 @@ func Execute() {
 	}
 }
 
-func init() {
-	cobra.OnInitialize(initConfig)
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.backd.yaml)")
+var (
+	flagDisableColor bool
+	flagQuiet        bool
+)
 
-	rootCmd.PersistentFlags().BoolVar(&disableColor, "no-color", false, "disable color (default: false)")
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func init() {
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.backd.yaml)")
+	rootCmd.PersistentFlags().BoolVarP(&flagDisableColor, "no-color", "n", false, "disable color (default: false)")
+
+	rootCmd.PersistentFlags().BoolVarP(&flagQuiet, "quiet", "q", false, "Dont't ask accessory questions (default: false)")
+
+	// read the config from the filesystem (if exists)
+	cobra.OnInitialize(initConfig)
+
+	// initialize client
+	cobra.OnInitialize(initCli)
 
 	// see if we must disable color on TTY
 	cobra.OnInitialize(mustDisableColor)
+
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -78,24 +88,43 @@ func initConfig() {
 
 }
 
-// cliConfigured is a global variable to determine is the cli is already configured
-//   if false, only `init` command can be executed
-var cliConfigured bool
+func initCli() {
+	// if cli is configured then build the cli helper
+	if cliConfigured {
+		cli = cliStruct{
+			backd: backd.NewClient(viper.GetString(configURLAuth),
+				viper.GetString(configURLObjects),
+				viper.GetString(configURLAdmin),
+			),
+		}
 
-// homeDirectory is the current home path for the user
-var homeDirectory string
+		if viper.GetString(configSessionID) != "" && viper.GetInt64(configSessionExpiresAt) != 0 {
+			if time.Now().Unix() < viper.GetInt64(configSessionExpiresAt) {
+				cli.backd.SetSession(viper.GetString(configSessionID), viper.GetInt64(configSessionExpiresAt))
+				fmt.Println("Using session from configuration...")
+			}
+		}
+	}
+
+}
+
+// global variables
+var (
+	// cliConfigured is a global variable to determine is the cli is already configured
+	//   if false, only `init` command can be executed
+	cliConfigured bool
+
+	// homeDirectory is the current home path for the user
+	homeDirectory string
+
+	// cli is the struct that holds the commands and it's initialized at start
+	cli cliStruct
+)
 
 const (
 	configFile   = ".backd"
 	configFormat = "yaml"
 )
-
-func newBackdClient() *backd.Backd {
-	return backd.NewClient(viper.GetString("url.auth"),
-		viper.GetString("url.objects"),
-		viper.GetString("url.admin"),
-	)
-}
 
 func isTheCliConfigured() {
 	if !cliConfigured {
@@ -104,4 +133,10 @@ func isTheCliConfigured() {
 		emptyLines(1)
 		os.Exit(1)
 	}
+}
+
+type cliStruct struct {
+	backd     *backd.Backd
+	sessionID string
+	expiresAt int64
 }

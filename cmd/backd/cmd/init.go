@@ -64,9 +64,9 @@ func initFunc(cmd *cobra.Command, args []string) {
 	objectsURL := promptText("Objects URL", "https://objects.backd.io", validateURL)
 	adminURL := promptText("Admin URL (optional)", "https://auth.backd.io", validateURL)
 
-	viper.Set("url.auth", authURL)
-	viper.Set("url.objects", objectsURL)
-	viper.Set("url.admin", adminURL)
+	viper.Set(configURLAdmin, adminURL)
+	viper.Set(configURLAuth, authURL)
+	viper.Set(configURLObjects, objectsURL)
 
 	if cliConfigured {
 		emptyLines(2)

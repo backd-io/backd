@@ -59,20 +59,28 @@ func (b *Backd) Logout() (bool, error) {
 
 }
 
-// SessionState returns current session status and remaining time if session is established
-func (b *Backd) SessionState() (int, time.Duration) {
+// Session returns current session status and remaining time if session is established
+func (b *Backd) Session() (string, int, time.Time) {
 
 	var (
-		expiresIn time.Duration
+		expiresAt time.Time
 	)
 
 	if b.sessionID == "" {
-		return StateAnonymous, expiresIn
+		return b.sessionID, StateAnonymous, expiresAt
 	}
 
-	if time.Now().Unix() > b.expiresAt {
-		return StateLoggedIn, time.Since(time.Unix(b.expiresAt, 0))
+	if time.Now().Unix() < b.expiresAt {
+		return b.sessionID, StateLoggedIn, time.Unix(b.expiresAt, 0)
 	}
 
-	return StateExpired, 0
+	return b.sessionID, StateExpired, expiresAt
+
+}
+
+// SetSession sets a sessionID and expires information from elsewhere, used as commodity for the cli
+//   No check will be done on the client library so errors (if any) will arise when requesting the API
+func (b *Backd) SetSession(sessionID string, expiresAt int64) {
+	b.sessionID = sessionID
+	b.expiresAt = expiresAt
 }

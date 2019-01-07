@@ -10,12 +10,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-var (
-	disableColor bool
-)
-
 func mustDisableColor() {
-	color.NoColor = disableColor
+	color.NoColor = flagDisableColor
 }
 
 func emptyLines(n int) {
@@ -26,6 +22,10 @@ func emptyLines(n int) {
 
 func printError(text string) {
 	printlnColor(text, true, color.FgRed)
+}
+
+func printSuccess(text string) {
+	printlnColor(text, true, color.FgGreen)
 }
 
 func printColor(text string, bold bool, aColor color.Attribute, args ...color.Attribute) {

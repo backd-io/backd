@@ -13,7 +13,8 @@ type Objects struct {
 // Objects returns an instance of the Objects struct
 func (b *Backd) Objects(applicationID string) *Objects {
 	return &Objects{
-		backd: b,
+		backd:         b,
+		applicationID: applicationID,
 	}
 }
 
