@@ -111,6 +111,11 @@ func (u *User) SetPassword(passwd string) error {
 		bytePassword []byte
 	)
 
+	// if there is no password then set one randomly
+	if passwd == "" {
+		return u.SetRandomPassword()
+	}
+
 	if u.PasswordSalt == "" {
 		// func(length, numDigits, numSymbols int, noUpper, allowRepeat bool)
 		u.PasswordSalt, err = password.Generate(16, 2, 2, false, true)
