@@ -157,7 +157,7 @@ func (db *Mongo) GetOneByIDRBACInterface(session *pbsessions.Session, isDomain b
 
 	// allowed
 	if db.Can(session, isDomain, database, collection, id, perm) {
-		return db.GetOneByID(database, collection, id, &this)
+		return db.GetOneByID(database, collection, id, this)
 	}
 
 	return rest.ErrUnauthorized
