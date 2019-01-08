@@ -22,7 +22,7 @@ func (b *Backd) Login(username, password, domain string) (bool, error) {
 		Domain:   domain,
 	}
 
-	response, err = b.sling.Post(b.buildPath(auth, pathSession)).BodyJSON(&body).Receive(&success, &failure)
+	response, err = b.sling.Post(b.buildPath(auth, []string{pathSession})).BodyJSON(&body).Receive(&success, &failure)
 
 	err = failure.wrapErr(err, response, http.StatusOK)
 
@@ -45,7 +45,7 @@ func (b *Backd) Logout() (bool, error) {
 		err      error
 	)
 
-	response, err = b.sling.Set(HeaderSessionID, b.sessionID).Delete(b.buildPath(auth, pathSession)).Receive(nil, &failure)
+	response, err = b.sling.Set(HeaderSessionID, b.sessionID).Delete(b.buildPath(auth, []string{pathSession})).Receive(nil, &failure)
 
 	err = failure.wrapErr(err, response, http.StatusNoContent)
 

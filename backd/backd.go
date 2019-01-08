@@ -71,8 +71,150 @@ func (b *Backd) BootstrapCluster(code, name, username, email, password string) e
 		Password: password,
 	}
 
-	response, err = b.sling.Post(b.buildPath(admin, pathBootstrap)).BodyJSON(&body).Receive(nil, &failure)
+	response, err = b.sling.Post(b.buildPath(admin, []string{pathBootstrap})).BodyJSON(&body).Receive(nil, &failure)
 
 	return failure.wrapErr(err, response, http.StatusCreated)
+
+}
+
+// headers returns the common headers needed to operate (session ID)
+func (b *Backd) headers() map[string]string {
+	return map[string]string{
+		HeaderSessionID: b.sessionID,
+	}
+}
+
+// Get is the generic getMany items from somewhere:
+// - expects parts as part of the full URL
+// - expects queryStrings map
+func (b *Backd) Get(m microservice, parts []string, queryOptions QueryOptions, data interface{}, headers map[string]string) error {
+
+	var (
+		failure  APIError
+		response *http.Response
+		sling    *sling.Sling
+		err      error
+	)
+
+	sling = b.sling
+
+	for key, value := range headers {
+		sling.Set(key, value)
+	}
+
+	response, err = sling.
+		Get(b.buildPathWithQueryOptions(m, parts, queryOptions)).
+		Receive(data, &failure)
+
+	// rebuild and return err
+	return failure.wrapErr(err, response, http.StatusOK)
+
+}
+
+// GetByID returns something by its id
+func (b *Backd) GetByID(m microservice, parts []string, object interface{}, headers map[string]string) error {
+
+	var (
+		failure  APIError
+		response *http.Response
+		sling    *sling.Sling
+		err      error
+	)
+
+	sling = b.sling
+
+	for key, value := range headers {
+		sling.Set(key, value)
+	}
+
+	response, err = sling.
+		Get(b.buildPath(m, parts)).
+		Receive(object, &failure)
+
+	// rebuild and return err
+	return failure.wrapErr(err, response, http.StatusOK)
+
+}
+
+// Insert allows to insert the required object on the API
+func (b *Backd) Insert(m microservice, parts []string, object interface{}, headers map[string]string) (id string, err error) {
+
+	var (
+		success  map[string]interface{}
+		failure  APIError
+		response *http.Response
+		sling    *sling.Sling
+	)
+
+	sling = b.sling
+
+	for key, value := range headers {
+		sling.Set(key, value)
+	}
+
+	response, err = sling.
+		Post(b.buildPath(m, parts)).
+		BodyJSON(object).
+		Receive(&success, &failure)
+
+	// rebuild err
+	err = failure.wrapErr(err, response, http.StatusOK)
+
+	if err == nil {
+		id, _ = success["_id"].(string)
+	}
+
+	return
+}
+
+// Update updates the required object if the user has permissions for
+//   from is the original object updated by the user
+//   to   is the object retreived by the API
+func (b *Backd) Update(m microservice, parts []string, from, to interface{}, headers map[string]string) error {
+
+	var (
+		failure  APIError
+		response *http.Response
+		sling    *sling.Sling
+		err      error
+	)
+
+	sling = b.sling
+
+	for key, value := range headers {
+		sling.Set(key, value)
+	}
+
+	response, err = sling.
+		Put(b.buildPath(m, parts)).
+		BodyJSON(from).
+		Receive(to, &failure)
+
+	// rebuild and return err
+	return failure.wrapErr(err, response, http.StatusOK)
+
+}
+
+// Delete removes a object by ID
+func (b *Backd) Delete(m microservice, parts []string, headers map[string]string) error {
+
+	var (
+		failure  APIError
+		response *http.Response
+		sling    *sling.Sling
+		err      error
+	)
+
+	sling = b.sling
+
+	for key, value := range headers {
+		sling.Set(key, value)
+	}
+
+	response, err = sling.
+		Delete(b.buildPath(m, parts)).
+		Receive(nil, &failure)
+
+	return failure.wrapErr(err, response, http.StatusNoContent)
 
 }
