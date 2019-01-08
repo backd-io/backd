@@ -5,11 +5,42 @@ import (
 
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
+	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/backd-io/backd/internal/structs"
 	"github.com/julienschmidt/httprouter"
 )
+
+// GET /domains/:domain/groups
+func (a *apiStruct) getGroups(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var (
+		query   map[string]interface{}
+		sort    []string
+		skip    int
+		limit   int
+		data    []structs.Group
+		session *pbsessions.Session
+		err     error
+	)
+
+	session, err = a.getSession(r)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	query, sort, skip, limit, err = rest.QueryStrings(r)
+	if err != nil {
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
+		return
+	}
+
+	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, skip, limit)
+	rest.Response(w, data, err, nil, http.StatusOK, "")
+
+}
 
 // GET /domains/:domain/groups/:id
 func (a *apiStruct) getGroupByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -55,6 +86,7 @@ func (a *apiStruct) postGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	group.SetCreate(session.GetDomainId(), session.GetUserId())
+	group.ID = db.NewXID().String()
 
 	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColGroups, &group)
 	rest.Response(w, group, err, nil, http.StatusCreated, "")

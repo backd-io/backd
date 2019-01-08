@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/pbsessions"
@@ -31,7 +33,9 @@ func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, colle
 
 	query = map[string]interface{}{
 		"did": session.GetDomainId(),
-		"uid": db.getIdentities(session),
+		"iid": bson.M{
+			"$in": db.getIdentities(session),
+		},
 		"c": bson.M{
 			"$in": []string{collection, "*"},
 		},
@@ -52,7 +56,11 @@ func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, colle
 }
 
 // VisibleID returns only those IDs that the user is able to see from a collection
-func (db *Mongo) VisibleID(session *pbsessions.Session, database, collection string, perm backd.Permission) (all bool, ids []string, err error) {
+func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database, collection string, perm backd.Permission) (all bool, ids []string, err error) {
+
+	if isDomain {
+		collection = constants.ColDomains
+	}
 
 	var (
 		query map[string]interface{}
@@ -60,15 +68,18 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, database, collection str
 
 	query = map[string]interface{}{
 		"did": session.GetDomainId(),
-		"uid": db.getIdentities(session),
-		"c":   collection,
+		"iid": bson.M{
+			"$in": db.getIdentities(session),
+		},
+		"c": collection,
 		"p": bson.M{
 			"$in": []backd.Permission{perm, backd.PermissionAdmin},
 		},
 	}
-
-	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("cid", ids)
-
+	fmt.Printf("query:\n%+v\n", query)
+	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("cid", &ids)
+	fmt.Println("found:", ids, err)
+	fmt.Println("db.getIdentities(session)", db.getIdentities(session))
 	// see if can see all the items to simplify the query
 	for _, id := range ids {
 		if id == "*" {
@@ -83,6 +94,7 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, database, collection str
 // getIdentities returns the
 func (db *Mongo) getIdentities(session *pbsessions.Session) (identities []string) {
 
+	fmt.Printf("session:\n%+v\n", session)
 	identities = append(identities, session.GetUserId())
 	for _, identity := range session.GetGroups() {
 		identities = append(identities, identity)
@@ -154,7 +166,7 @@ func (db *Mongo) GetOneByIDRBACInterface(session *pbsessions.Session, isDomain b
 
 // GetManyRBAC returns all records that meets RBAC and the desired filter,
 //   skip and limit must be passed to limit the number of results
-func (db *Mongo) GetManyRBAC(session *pbsessions.Session, perm backd.Permission, database, collection string, query map[string]interface{}, sort []string, this interface{}, skip, limit int) error {
+func (db *Mongo) GetManyRBAC(session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection string, query map[string]interface{}, sort []string, this interface{}, skip, limit int) error {
 
 	var (
 		all          bool
@@ -166,11 +178,11 @@ func (db *Mongo) GetManyRBAC(session *pbsessions.Session, perm backd.Permission,
 		query = make(map[string]interface{})
 	}
 
-	all, accesibleIDs, err = db.VisibleID(session, database, collection, perm)
+	all, accesibleIDs, err = db.VisibleID(session, isDomain, database, collection, perm)
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("all, accesibleIDs, err", all, accesibleIDs, err)
 	// restrict only if the user can see a limited amount of items
 	if all == false {
 		query["_ids"] = bson.M{

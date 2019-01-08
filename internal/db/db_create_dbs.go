@@ -82,6 +82,11 @@ func (db *Mongo) CreateApplicationDatabase(name string) (err error) {
 // CreateDomainDatabase creates the required collections on the domain to be usable
 func (db *Mongo) CreateDomainDatabase(name string) (err error) {
 
+	err = db.CreateCollection(name, constants.ColRBAC, structs.RBACValidator(), structs.RBACIndexes)
+	if err != nil {
+		return
+	}
+
 	err = db.CreateCollection(name, constants.ColUsers, structs.UserValidator(), structs.UserIndexes)
 	if err != nil {
 		return

@@ -5,11 +5,12 @@ import "time"
 // Session is the struct that reflects the information of the user
 //   currently logged into the domain
 type Session struct {
-	ID        string `json:"_id"`
-	DomainID  string `json:"did"`
-	User      User   `json:"uid"`
-	ExpiresAt int64  `json:"eat"`
-	CreatedAt int64  `json:"cat"`
+	ID        string   `json:"_id"`
+	DomainID  string   `json:"did"`
+	User      User     `json:"uid"`
+	ExpiresAt int64    `json:"eat"`
+	CreatedAt int64    `json:"cat"`
+	Groups    []string `json:"g"`
 }
 
 // IsExpired returns expiration status of the session

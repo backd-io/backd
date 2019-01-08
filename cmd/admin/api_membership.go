@@ -3,12 +3,63 @@ package main
 import (
 	"net/http"
 
+	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/backd-io/backd/internal/structs"
 	"github.com/julienschmidt/httprouter"
 )
+
+// GET /domains/:domain/groups/:id/members
+func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var (
+		query           map[string]interface{}
+		membershipQuery map[string]interface{}
+		sort            []string
+		ids             []string
+		data            []structs.User
+		session         *pbsessions.Session
+		err             error
+	)
+
+	session, err = a.getSession(r)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	query, sort, _, _, err = rest.QueryStrings(r)
+	if err != nil {
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
+		return
+	}
+
+	// get all members of the group
+	membershipQuery = map[string]interface{}{
+		"g": ps.ByName("id"),
+	}
+
+	err = a.mongo.Session().DB(ps.ByName("domain")).C(constants.ColMembership).Find(membershipQuery).Distinct("u", &ids)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	if query == nil {
+		query = make(map[string]interface{})
+	}
+
+	// query for the users with the id received on the last step
+	query["_id"] = map[string]interface{}{
+		"$in": ids,
+	}
+
+	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, 0, 0)
+	rest.Response(w, data, err, nil, http.StatusOK, "")
+
+}
 
 // PUT /domains/:domain/groups/:id/members/:user_id
 func (a *apiStruct) putMembership(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

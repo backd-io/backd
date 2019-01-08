@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/backd-io/backd/internal/constants"
+
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
@@ -67,6 +69,10 @@ func (a *apiStruct) getDataID(w http.ResponseWriter, r *http.Request, ps httprou
 func (a *apiStruct) getData(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	var (
+		query         map[string]interface{}
+		sort          []string
+		skip          int
+		limit         int
 		data          []map[string]interface{}
 		session       *pbsessions.Session
 		applicationID string
@@ -79,8 +85,15 @@ func (a *apiStruct) getData(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, backd.PermissionRead, applicationID, ps.ByName("collection"), map[string]interface{}{}, []string{}, &data, 0, 0)
+	query, sort, skip, limit, err = rest.QueryStrings(r)
+	if err != nil {
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
+		return
+	}
+
+	err = a.mongo.GetManyRBAC(session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), query, sort, &data, skip, limit)
 	rest.Response(w, data, err, nil, http.StatusOK, "")
+
 }
 
 func (a *apiStruct) postData(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

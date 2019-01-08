@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -39,6 +40,8 @@ func (a *apiStruct) getSession(r *http.Request) (session *pbsessions.Session, er
 	session, err = cc.GetSession(ctx, &pbsessions.GetSessionRequest{
 		Id: r.Header.Get(backd.HeaderSessionID),
 	})
+
+	fmt.Printf("session.admin: %+v\n", session)
 
 	return
 

@@ -61,6 +61,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 		membership       structs.Membership
 		group            structs.Group
 		rbac             structs.RBAC
+		rbac1            structs.RBAC
 		err              error
 	)
 
@@ -113,14 +114,26 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	// add admin permissions over `backd` application to Domain Administrators
+	// add admin permissions over `_backd` domain to Domain Administrators
 	rbac.ID = db.NewXID().String()
 	rbac.DomainID = constants.DBBackdDom
 	rbac.IdentityID = group.ID
-	rbac.Collection = "*"
+	rbac.Collection = constants.ColDomains
 	rbac.CollectionID = "*"
 	rbac.Permission = string(backd.PermissionAdmin)
-	err = a.mongo.Insert(constants.DBBackdApp, constants.ColRBAC, &rbac)
+	err = a.mongo.Insert(constants.DBBackdDom, constants.ColRBAC, &rbac)
+	if err != nil {
+		rest.BadRequest(w, r, "error adding user to admin group")
+		return
+	}
+	// add admin permissions over `backd` application to Domain Administrators
+	rbac1.ID = db.NewXID().String()
+	rbac1.DomainID = constants.DBBackdDom
+	rbac1.IdentityID = group.ID
+	rbac1.Collection = "*"
+	rbac1.CollectionID = "*"
+	rbac1.Permission = string(backd.PermissionAdmin)
+	err = a.mongo.Insert(constants.DBBackdApp, constants.ColRBAC, &rbac1)
 
 	// do not allow this operation again
 	a.bootstrapCode = ""

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/backd-io/backd/cmd/sessions/store"
@@ -57,6 +58,7 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 		if err != nil {
 			return &response, err
 		}
+
 		for _, membership := range memberships {
 			groups = append(groups, membership["g"])
 		}
@@ -71,6 +73,7 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 	now := time.Now()
 	session.CreatedAt = now.Unix()
 	session.ExpiresAt = now.Add(time.Duration(req.GetDurationSeconds()) * time.Second).Unix()
+	session.Groups = groups
 
 	err = s.store.Set(session.ID, session)
 	if err != nil {
@@ -82,6 +85,9 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 	response.UserId = user.ID
 	response.ExpiresAt = session.ExpiresAt
 	response.Groups = groups
+
+	fmt.Println("response=", response)
+
 	return &response, nil
 
 }
@@ -109,7 +115,7 @@ func (s sessionsServer) GetSession(c context.Context, req *pbsessions.GetSession
 	response.DomainId = sess.DomainID
 	response.CreatedAt = sess.CreatedAt
 	response.ExpiresAt = sess.ExpiresAt
-
+	response.Groups = sess.Groups
 	return &response, nil
 
 }

@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/backd-io/backd/internal/db"
+
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/pbsessions"
@@ -12,6 +14,34 @@ import (
 )
 
 // GET /domains
+func (a *apiStruct) getDomains(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var (
+		query   map[string]interface{}
+		sort    []string
+		skip    int
+		limit   int
+		data    []structs.Domain
+		session *pbsessions.Session
+		err     error
+	)
+
+	session, err = a.getSession(r)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	query, sort, skip, limit, err = rest.QueryStrings(r)
+	if err != nil {
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
+		return
+	}
+
+	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, query, sort, &data, skip, limit)
+	rest.Response(w, data, err, nil, http.StatusOK, "")
+
+}
 
 // GET /domains/:id
 func (a *apiStruct) getDomainByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -58,6 +88,7 @@ func (a *apiStruct) postDomain(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	domain.SetCreate(session.GetDomainId(), session.GetUserId())
+	domain.ID = db.NewXID().String()
 
 	err = a.mongo.InsertRBACInterface(session, true, constants.DBBackdApp, constants.ColDomains, &domain)
 	rest.Response(w, domain, err, nil, http.StatusCreated, "")

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+
+	"github.com/backd-io/backd/internal/db"
 
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
@@ -10,6 +13,36 @@ import (
 	"github.com/backd-io/backd/internal/structs"
 	"github.com/julienschmidt/httprouter"
 )
+
+// GET /domains/:domain/users
+func (a *apiStruct) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var (
+		query   map[string]interface{}
+		sort    []string
+		skip    int
+		limit   int
+		data    []structs.User
+		session *pbsessions.Session
+		err     error
+	)
+
+	session, err = a.getSession(r)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	query, sort, skip, limit, err = rest.QueryStrings(r)
+	if err != nil {
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
+		return
+	}
+
+	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, skip, limit)
+	rest.Response(w, data, err, nil, http.StatusOK, "")
+
+}
 
 // GET /domains/:domain/users/:id
 func (a *apiStruct) getUserByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -61,8 +94,10 @@ func (a *apiStruct) postUser(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	user.SetCreate(session.GetDomainId(), session.GetUserId())
+	user.ID = db.NewXID().String()
 
 	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColUsers, &user)
+	fmt.Println("InsertRBACInterface.err:", err)
 	rest.Response(w, user, err, nil, http.StatusCreated, "")
 
 }

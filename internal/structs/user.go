@@ -85,6 +85,10 @@ var (
 			Fields: []string{"_id"},
 			Unique: true,
 		},
+		{
+			Fields: []string{"un"},
+			Unique: true,
+		},
 	}
 )
 

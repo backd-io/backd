@@ -55,9 +55,25 @@ func main() {
 
 	routes = map[string]map[string]rest.APIEndpoint{
 		"GET": {
+			"/domains": {
+				Handler: api.getDomains,
+				Matcher: []string{""},
+			},
+			"/domains/:domain": {
+				Handler: api.getDomainByID,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
+			},
+			"/domains/:domain/users": {
+				Handler: api.getUsers,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", ""},
+			},
 			"/domains/:domain/users/:id": {
 				Handler: api.getUserByID,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/domains/:domain/groups": {
+				Handler: api.getGroups,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", ""},
 			},
 			"/domains/:domain/groups/:id": {
 				Handler: api.getGroupByID,
@@ -67,6 +83,10 @@ func main() {
 		"POST": {
 			"/bootstrap": {
 				Handler: api.postBootstrap,
+				Matcher: []string{""},
+			},
+			"/domains": {
+				Handler: api.postDomain,
 				Matcher: []string{""},
 			},
 			"/domains/:domain/users": {
@@ -79,6 +99,10 @@ func main() {
 			},
 		},
 		"PUT": {
+			"/domains/:domain": {
+				Handler: api.putDomain,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
+			},
 			"/domains/:domain/users/:id": {
 				Handler: api.putUser,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
@@ -93,6 +117,10 @@ func main() {
 			},
 		},
 		"DELETE": {
+			"/domains/:domain": {
+				Handler: api.deleteDomain,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
+			},
 			"/domains/:domain/users/:id": {
 				Handler: api.deleteUser,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
