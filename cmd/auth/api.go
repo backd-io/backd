@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -39,8 +38,6 @@ func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	success, sessionResponse, err = a.createSession(sessionRequest)
-	fmt.Println(success)
-	fmt.Println(err)
 	if err != nil || success == false {
 		rest.Unauthorized(w, r)
 		return

@@ -76,10 +76,9 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database,
 			"$in": []backd.Permission{perm, backd.PermissionAdmin},
 		},
 	}
-	fmt.Printf("query:\n%+v\n", query)
+
 	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("cid", &ids)
-	fmt.Println("found:", ids, err)
-	fmt.Println("db.getIdentities(session)", db.getIdentities(session))
+
 	// see if can see all the items to simplify the query
 	for _, id := range ids {
 		if id == "*" {
@@ -182,7 +181,7 @@ func (db *Mongo) GetManyRBAC(session *pbsessions.Session, isDomain bool, perm ba
 	if err != nil {
 		return err
 	}
-	fmt.Println("all, accesibleIDs, err", all, accesibleIDs, err)
+
 	// restrict only if the user can see a limited amount of items
 	if all == false {
 		query["_ids"] = bson.M{

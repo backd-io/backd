@@ -1,7 +1,6 @@
 package structs
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/sethvargo/go-password/password"
@@ -169,8 +168,6 @@ func (u *User) PasswordMatch(passwd string) bool {
 	if err != nil {
 		return false
 	}
-
-	fmt.Println(string(bytePassword), string(u.PasswordKey))
 
 	if reflect.DeepEqual(bytePassword, u.PasswordKey) {
 		return true

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/backd-io/backd/cmd/sessions/store"
@@ -85,8 +84,6 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 	response.UserId = user.ID
 	response.ExpiresAt = session.ExpiresAt
 	response.Groups = groups
-
-	fmt.Println("response=", response)
 
 	return &response, nil
 

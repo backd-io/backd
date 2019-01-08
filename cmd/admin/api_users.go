@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/backd-io/backd/internal/db"
@@ -97,7 +96,6 @@ func (a *apiStruct) postUser(w http.ResponseWriter, r *http.Request, ps httprout
 	user.ID = db.NewXID().String()
 
 	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColUsers, &user)
-	fmt.Println("InsertRBACInterface.err:", err)
 	rest.Response(w, user, err, nil, http.StatusCreated, "")
 
 }
