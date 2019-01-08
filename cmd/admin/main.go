@@ -55,6 +55,14 @@ func main() {
 
 	routes = map[string]map[string]rest.APIEndpoint{
 		"GET": {
+			"/applications": {
+				Handler: api.getApplications,
+				Matcher: []string{""},
+			},
+			"/applications/:id": {
+				Handler: api.getApplicationByID,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
+			},
 			"/domains": {
 				Handler: api.getDomains,
 				Matcher: []string{""},
@@ -85,6 +93,10 @@ func main() {
 			},
 		},
 		"POST": {
+			"/applications": {
+				Handler: api.postApplication,
+				Matcher: []string{""},
+			},
 			"/bootstrap": {
 				Handler: api.postBootstrap,
 				Matcher: []string{""},
@@ -103,6 +115,10 @@ func main() {
 			},
 		},
 		"PUT": {
+			"/applications/:id": {
+				Handler: api.putApplication,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
+			},
 			"/domains/:domain": {
 				Handler: api.putDomain,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
@@ -121,6 +137,10 @@ func main() {
 			},
 		},
 		"DELETE": {
+			"/applications/:id": {
+				Handler: api.deleteApplication,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
+			},
 			"/domains/:domain": {
 				Handler: api.deleteDomain,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
