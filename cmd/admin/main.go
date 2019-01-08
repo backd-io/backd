@@ -79,6 +79,10 @@ func main() {
 				Handler: api.getGroupByID,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$"},
 			},
+			"/domains/:domain/groups/:id/members": {
+				Handler: api.getMembers,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "", "^[a-zA-Z0-9]{20}$", ""},
+			},
 		},
 		"POST": {
 			"/bootstrap": {
