@@ -71,7 +71,7 @@ func (b *Backd) BootstrapCluster(code, name, username, email, password string) e
 		Password: password,
 	}
 
-	response, err = b.sling.Post(b.buildPath(admin, []string{pathBootstrap})).BodyJSON(&body).Receive(nil, &failure)
+	response, err = b.sling.Post(b.buildPath(authMS, []string{pathBootstrap})).BodyJSON(&body).Receive(nil, &failure)
 
 	return failure.wrapErr(err, response, http.StatusCreated)
 

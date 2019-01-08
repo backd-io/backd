@@ -62,9 +62,9 @@ var (
 type microservice int
 
 const (
-	admin microservice = iota
-	auth
-	objects
+	adminMS microservice = iota
+	authMS
+	objectsMS
 )
 
 func (b *Backd) buildPath(m microservice, parts []string) string {
@@ -74,11 +74,11 @@ func (b *Backd) buildPath(m microservice, parts []string) string {
 	)
 
 	switch m {
-	case admin:
+	case adminMS:
 		urlString = b.adminURL
-	case auth:
+	case authMS:
 		urlString = b.authURL
-	case objects:
+	case objectsMS:
 		urlString = b.objectsURL
 	}
 
