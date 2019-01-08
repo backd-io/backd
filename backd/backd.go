@@ -84,10 +84,10 @@ func (b *Backd) headers() map[string]string {
 	}
 }
 
-// Get is the generic getMany items from somewhere:
+// get is the generic getMany items from somewhere:
 // - expects parts as part of the full URL
 // - expects queryStrings map
-func (b *Backd) Get(m microservice, parts []string, queryOptions QueryOptions, data interface{}, headers map[string]string) error {
+func (b *Backd) get(m microservice, parts []string, queryOptions QueryOptions, data interface{}, headers map[string]string) error {
 
 	var (
 		failure  APIError
@@ -111,8 +111,8 @@ func (b *Backd) Get(m microservice, parts []string, queryOptions QueryOptions, d
 
 }
 
-// GetByID returns something by its id
-func (b *Backd) GetByID(m microservice, parts []string, object interface{}, headers map[string]string) error {
+// getByID returns something by its id
+func (b *Backd) getByID(m microservice, parts []string, object interface{}, headers map[string]string) error {
 
 	var (
 		failure  APIError
@@ -136,8 +136,8 @@ func (b *Backd) GetByID(m microservice, parts []string, object interface{}, head
 
 }
 
-// Insert allows to insert the required object on the API
-func (b *Backd) Insert(m microservice, parts []string, object interface{}, headers map[string]string) (id string, err error) {
+// insert allows to insert the required object on the API
+func (b *Backd) insert(m microservice, parts []string, object interface{}, headers map[string]string) (id string, err error) {
 
 	var (
 		success  map[string]interface{}
@@ -167,10 +167,10 @@ func (b *Backd) Insert(m microservice, parts []string, object interface{}, heade
 	return
 }
 
-// Update updates the required object if the user has permissions for
+// update updates the required object if the user has permissions for
 //   from is the original object updated by the user
 //   to   is the object retreived by the API
-func (b *Backd) Update(m microservice, parts []string, from, to interface{}, headers map[string]string) error {
+func (b *Backd) update(m microservice, parts []string, from, to interface{}, headers map[string]string) error {
 
 	var (
 		failure  APIError
@@ -195,8 +195,8 @@ func (b *Backd) Update(m microservice, parts []string, from, to interface{}, hea
 
 }
 
-// Delete removes a object by ID
-func (b *Backd) Delete(m microservice, parts []string, headers map[string]string) error {
+// delete removes a object by ID
+func (b *Backd) delete(m microservice, parts []string, headers map[string]string) error {
 
 	var (
 		failure  APIError

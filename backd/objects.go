@@ -23,27 +23,27 @@ func (o *Objects) headers() map[string]string {
 
 // GetMany returns all objects that matches the conditions especified
 func (o *Objects) GetMany(collection string, queryOptions QueryOptions, object interface{}) error {
-	return o.backd.Get(objects, []string{collection}, queryOptions, object, o.headers())
+	return o.backd.get(objects, []string{collection}, queryOptions, object, o.headers())
 }
 
 // GetByID returns an object by its ID
 func (o *Objects) GetByID(collection, id string, object interface{}) error {
-	return o.backd.GetByID(objects, []string{collection, id}, object, o.headers())
+	return o.backd.getByID(objects, []string{collection, id}, object, o.headers())
 }
 
 // Insert inserts a new object on the desired collection if the user have the required permissions
 func (o *Objects) Insert(collection string, object interface{}) (id string, err error) {
-	return o.backd.Insert(objects, []string{collection}, object, o.headers())
+	return o.backd.insert(objects, []string{collection}, object, o.headers())
 }
 
 // Update updates the required object if the user has permissions for
 //   from is the original object updated by the user
 //   to   is the object retreived by the API
 func (o *Objects) Update(collection, id string, from, to interface{}) error {
-	return o.backd.Update(objects, []string{collection, id}, from, to, o.headers())
+	return o.backd.update(objects, []string{collection, id}, from, to, o.headers())
 }
 
 // Delete removes a object by ID
 func (o *Objects) Delete(collection, id string) error {
-	return o.backd.Delete(objects, []string{collection, id}, o.headers())
+	return o.backd.delete(objects, []string{collection, id}, o.headers())
 }
