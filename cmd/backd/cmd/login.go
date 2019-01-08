@@ -81,6 +81,12 @@ func loginFunc(cmd *cobra.Command, args []string) {
 		printError("session state unexpected")
 	}
 
+	// if the user wants to be 'quiet' be it!
+	if flagQuiet {
+		fmt.Printf("%s", sessionID)
+		os.Exit(0)
+	}
+
 	emptyLines(2)
 	printSuccess("Login successful")
 	printSuccess(fmt.Sprintf("SessionID: '%s', Expires in %s (%s)", sessionID, time.Until(expiresAt), expiresAt))
