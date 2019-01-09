@@ -111,6 +111,9 @@ func (b *Backd) buildPathWithQueryOptions(m microservice, parts []string, option
 		queryString = values.Encode()
 	}
 
-	return fmt.Sprintf("%s?%s", urlString, queryString)
+	if urlString != "" && queryString != "" {
+		return fmt.Sprintf("%s?%s", urlString, queryString)
+	}
+	return urlString
 
 }
