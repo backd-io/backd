@@ -142,7 +142,7 @@ func (db *Mongo) GetOneByIDRBAC(session *pbsessions.Session, isDomain bool, perm
 			return data, err
 		}
 
-		if _, ok := data["_id"]; ok {
+		if _, ok := data["_id"]; !ok {
 			return data, constants.ErrItemWithoutID
 		}
 
