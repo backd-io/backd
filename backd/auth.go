@@ -83,3 +83,9 @@ func (b *Backd) SetSession(sessionID string, expiresAt int64) {
 	b.sessionID = sessionID
 	b.expiresAt = expiresAt
 }
+
+// SetSessionID sets a sessionID and expires information from elsewhere, used as commodity for the cli
+//   No check will be done on the client library so errors (if any) will arise when requesting the API
+func (b *Backd) SetSessionID(sessionID string) {
+	b.sessionID = sessionID
+}
