@@ -40,15 +40,15 @@ func logoutFunc(cmd *cobra.Command, args []string) {
 
 	if sessionID != "" && expiresAt != 0 {
 		cli.backd.SetSession(sessionID, expiresAt)
-		success, err := cli.backd.Logout()
+		err := cli.backd.Logout()
 
-		switch success {
-		case true:
+		switch err {
+		case nil:
 			if !flagQuiet {
 				printSuccess("User logged out successfully")
 			}
 			os.Exit(0)
-		case false:
+		default:
 			if !flagQuiet {
 				printError("Error logging out user")
 				if err != nil {

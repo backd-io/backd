@@ -48,7 +48,6 @@ func loginFunc(cmd *cobra.Command, args []string) {
 		password              string
 		domain                string
 		saveSessionIDQuestion string
-		ok                    bool
 		err                   error
 	)
 
@@ -68,8 +67,8 @@ func loginFunc(cmd *cobra.Command, args []string) {
 		domain = promptText("Domain", "", nil)
 	}
 
-	ok, err = cli.backd.Login(username, password, domain)
-	if !ok || err != nil {
+	err = cli.backd.Login(username, password, domain)
+	if err != nil {
 		emptyLines(2)
 		printError("User/Password/Domain does not match")
 		emptyLines(2)

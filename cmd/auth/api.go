@@ -22,6 +22,54 @@ type apiStruct struct {
 	sessions *grpc.ClientConn
 }
 
+func (a *apiStruct) internalGetSession(r *http.Request) (session *pbsessions.Session, err error) {
+
+	var (
+		cc pbsessions.SessionsClient
+	)
+
+	if r.Header.Get(backd.HeaderSessionID) == "" {
+		err = rest.ErrUnauthorized
+		return
+	}
+
+	cc = pbsessions.NewSessionsClient(a.sessions)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	session, err = cc.GetSession(ctx, &pbsessions.GetSessionRequest{
+		Id: r.Header.Get(backd.HeaderSessionID),
+	})
+
+	return
+
+}
+
+func (a *apiStruct) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	session, err := a.internalGetSession(r)
+	rest.Response(w, session, err, nil, http.StatusOK, "")
+
+}
+
+func (a *apiStruct) getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var (
+		session *pbsessions.Session
+		user    structs.User
+		err     error
+	)
+
+	session, err = a.internalGetSession(r)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+	}
+
+	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, session.GetDomainId(), constants.ColUsers, session.GetUserId(), &user)
+	rest.Response(w, user, err, nil, http.StatusOK, "")
+
+}
+
 func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	var (

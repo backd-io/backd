@@ -6,7 +6,7 @@ import (
 )
 
 // Login sends a log in request to the API
-func (b *Backd) Login(username, password, domain string) (bool, error) {
+func (b *Backd) Login(username, password, domain string) error {
 
 	var (
 		body     Login
@@ -27,17 +27,17 @@ func (b *Backd) Login(username, password, domain string) (bool, error) {
 	err = failure.wrapErr(err, response, http.StatusOK)
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	b.sessionID = success.ID
 	b.expiresAt = success.ExpiresAt
-	return true, nil
+	return err
 
 }
 
 // Logout deletes the session on the API so the client will make request (if any) as anonymous
-func (b *Backd) Logout() (bool, error) {
+func (b *Backd) Logout() error {
 
 	var (
 		failure  APIError
@@ -48,14 +48,13 @@ func (b *Backd) Logout() (bool, error) {
 	response, err = b.sling.Set(HeaderSessionID, b.sessionID).Delete(b.buildPath(authMS, []string{pathSession})).Receive(nil, &failure)
 
 	err = failure.wrapErr(err, response, http.StatusNoContent)
-
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	b.sessionID = ""
 	b.expiresAt = 0
-	return true, nil
+	return nil
 
 }
 

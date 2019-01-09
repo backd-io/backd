@@ -49,6 +49,14 @@ func main() {
 	}
 
 	routes = map[string]map[string]rest.APIEndpoint{
+		"GET": {
+			"/session": {
+				Handler: api.getSession,
+			},
+			"/me": {
+				Handler: api.getMe,
+			},
+		},
 		"POST": {
 			"/session": {
 				Handler: api.postSession,
