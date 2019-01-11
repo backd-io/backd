@@ -1,5 +1,8 @@
 package cmd
 
+// version
+const version = "0.0.1"
+
 // config
 const (
 	configCliNoColor           string = "cli.no_color"
