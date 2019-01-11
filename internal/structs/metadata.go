@@ -8,10 +8,10 @@ import (
 
 // Metadata is the struct that represents a metadata information of an struct
 type Metadata struct {
-	Owner     string `json:"_created_by" bson:"cby"`
-	UpdatedBy string `json:"_updated_by" bson:"uby"`
-	CreatedAt int64  `json:"_created_at" bson:"cat"`
-	UpdatedAt int64  `json:"_updated_at" bson:"uat"`
+	Owner     string `json:"_created_by" bson:"cby" mapstructure:"cby"`
+	UpdatedBy string `json:"_updated_by" bson:"uby" mapstructure:"uby"`
+	CreatedAt int64  `json:"_created_at" bson:"cat" mapstructure:"cat"`
+	UpdatedAt int64  `json:"_updated_at" bson:"uat" mapstructure:"uat"`
 }
 
 // SetCreate sets the metadata on creation

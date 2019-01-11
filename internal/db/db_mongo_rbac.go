@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/pbsessions"
@@ -71,7 +69,9 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database,
 		"iid": bson.M{
 			"$in": db.getIdentities(session),
 		},
-		"c": collection,
+		"c": bson.M{
+			"$in": []string{collection, "*"},
+		},
 		"p": bson.M{
 			"$in": []backd.Permission{perm, backd.PermissionAdmin},
 		},
@@ -90,10 +90,10 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database,
 
 }
 
-// getIdentities returns the
+// getIdentities returns the identities associated with the user.
+//   Identities array contains the UserID and all the GroupID where the user belongs.
 func (db *Mongo) getIdentities(session *pbsessions.Session) (identities []string) {
 
-	fmt.Printf("session:\n%+v\n", session)
 	identities = append(identities, session.GetUserId())
 	for _, identity := range session.GetGroups() {
 		identities = append(identities, identity)
@@ -178,6 +178,7 @@ func (db *Mongo) GetManyRBAC(session *pbsessions.Session, isDomain bool, perm ba
 	}
 
 	all, accesibleIDs, err = db.VisibleID(session, isDomain, database, collection, perm)
+	// fmt.Println("all, accesibleIDs, err:", all, accesibleIDs, err)
 	if err != nil {
 		return err
 	}
@@ -248,11 +249,9 @@ func (db *Mongo) UpdateByIDRBAC(session *pbsessions.Session, isDomain bool, data
 
 		// updated metadata
 		var metadata structs.Metadata
-		metadata.FromInterface(oldData["_meta"].(map[string]interface{}))
-
+		err = metadata.FromInterface(oldData["_meta"].(map[string]interface{}))
 		metadata.SetUpdate(session.GetDomainId(), session.GetUserId())
 		this["_meta"] = metadata
-
 		return this, db.UpdateByID(database, collection, id, this)
 	}
 
