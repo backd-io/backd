@@ -21,6 +21,7 @@ import (
 
 	"github.com/backd-io/backd/backd"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -30,13 +31,24 @@ var rootCmd = &cobra.Command{
 	Use:   "backd",
 	Short: "backd-cli allows to manage and use a backd instance",
 	Long:  `backd-cli allows to manage and use a backd instance.`,
+	Run:   runFunc,
+	Args: func(cmd *cobra.Command, args []string) error {
+
+		switch len(args) {
+		case 0:
+			return errors.Errorf("showing help")
+		case 1:
+			return nil
+		default:
+			return errors.Errorf("wrong number of arguments")
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 }
@@ -49,7 +61,6 @@ var (
 func init() {
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.backd.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&flagDisableColor, "no-color", "n", false, "disable color (default: false)")
-
 	rootCmd.PersistentFlags().BoolVarP(&flagQuiet, "quiet", "q", false, "Dont't ask accessory questions (default: false)")
 
 	// read the config from the filesystem (if exists)
@@ -101,7 +112,9 @@ func initCli() {
 		if viper.GetString(configSessionID) != "" && viper.GetInt64(configSessionExpiresAt) != 0 {
 			if time.Now().Unix() < viper.GetInt64(configSessionExpiresAt) {
 				cli.backd.SetSession(viper.GetString(configSessionID), viper.GetInt64(configSessionExpiresAt))
-				fmt.Println("Using session from configuration...")
+				if !flagQuiet {
+					fmt.Println("Using session from configuration...")
+				}
 			}
 		}
 	}

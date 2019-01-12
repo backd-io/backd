@@ -36,6 +36,44 @@ func init() {
 
 func shellFunc(cmd *cobra.Command, args []string) {
 
+	// var (
+	// 	username string
+	// 	password string
+	// 	domain   string
+	// 	err      error
+	// )
+
+	// username = viper.GetString(configLoginUsername)
+	// password = viper.GetString(configLoginPassword)
+	// domain = viper.GetString(configLoginDomain)
+
+	// if username == "" {
+	// 	username = promptText("Username", "", min2max254)
+	// }
+
+	// if password == "" {
+	// 	password = promptPassword("Password", min2max254)
+	// }
+
+	// if domain == "" {
+	// 	domain = promptText("Domain", "", nil)
+	// }
+
+	// err = cli.backd.Login(username, password, domain)
+	// if err != nil {
+	// 	emptyLines(2)
+	// 	printError("User/Password/Domain does not match")
+	// 	emptyLines(2)
+	// 	os.Exit(3)
+	// }
+
+	shell := lang.New(cli.backd)
+	os.Exit(shell.Interactive())
+
+}
+
+func tryLogin() {
+
 	var (
 		username string
 		password string
@@ -66,8 +104,4 @@ func shellFunc(cmd *cobra.Command, args []string) {
 		emptyLines(2)
 		os.Exit(3)
 	}
-
-	shell := lang.New(cli.backd)
-	os.Exit(shell.Interactive())
-
 }
