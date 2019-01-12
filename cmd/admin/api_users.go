@@ -156,3 +156,53 @@ func (a *apiStruct) deleteUser(w http.ResponseWriter, r *http.Request, ps httpro
 	a.delete(w, r, ps, ps.ByName("domain"), constants.ColUsers)
 
 }
+
+// GET /domains/:domain/users/:id/groups
+func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var (
+		query           map[string]interface{}
+		membershipQuery map[string]interface{}
+		sort            []string
+		ids             []string
+		data            []structs.Group
+		session         *pbsessions.Session
+		err             error
+	)
+
+	session, err = a.getSession(r)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	query, sort, _, _, err = rest.QueryStrings(r)
+	if err != nil {
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
+		return
+	}
+
+	// get all members of the group
+	membershipQuery = map[string]interface{}{
+		"u": ps.ByName("id"),
+	}
+
+	err = a.mongo.Session().DB(ps.ByName("domain")).C(constants.ColMembership).Find(membershipQuery).Distinct("g", &ids)
+	if err != nil {
+		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		return
+	}
+
+	if query == nil {
+		query = make(map[string]interface{})
+	}
+
+	// query for the users with the id received on the last step
+	query["_id"] = map[string]interface{}{
+		"$in": ids,
+	}
+
+	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, 0, 0)
+	rest.Response(w, data, err, nil, http.StatusOK, "")
+
+}
