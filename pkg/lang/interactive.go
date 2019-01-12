@@ -10,6 +10,7 @@ import (
 	"github.com/backd-io/anko/parser"
 	"github.com/backd-io/anko/vm"
 	"github.com/chzyer/readline"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 // Interactive starts the anko powered backd cli
@@ -19,17 +20,24 @@ func (l *Lang) Interactive() (returnCode int) {
 
 	fmt.Println("")
 	title("backd interactive shell v. %s\n", version)
-	fmt.Println(`
-  help("command_name") - Show help for a command. ('summary') to see a brief description of each.`)
-	fmt.Println("")
+	fmt.Print(`
+help            - Show a brief description of each command. 
+help("command") - Show longer help for the 'command'.
+
+	`)
+
+	// Find home directory.
+	homeDirectory, err := homedir.Dir()
+	if err != nil {
+		panic(err)
+	}
 
 	rl, err := readline.NewEx(&readline.Config{
 		DisableAutoSaveHistory: false,
-		// Prompt:                 "\033[31m»\033[0m ",
-		HistoryFile:       "/tmp/readline.tmp",
-		InterruptPrompt:   "^C",
-		EOFPrompt:         "exit",
-		HistorySearchFold: true,
+		HistoryFile:            fmt.Sprintf("%s/%s", homeDirectory, ".backd.history"),
+		InterruptPrompt:        "^C",
+		EOFPrompt:              "exit",
+		HistorySearchFold:      true,
 	})
 	if err != nil {
 		panic(err)
@@ -101,7 +109,7 @@ func (l *Lang) parseSource() bool {
 				if strings.HasSuffix(l.source, "{") {
 					l.deep++
 				}
-				if strings.HasSuffix(l.source, "}") {
+				if strings.HasSuffix(l.source, "}") && !strings.HasSuffix(l.source, "{}") {
 					l.deep--
 				}
 				l.source += "\n"
@@ -110,12 +118,12 @@ func (l *Lang) parseSource() bool {
 		} else {
 			if e.Pos.Column == len(l.source) && !e.Fatal {
 				fmt.Fprintln(os.Stderr, e)
-				l.deep++
+				// l.deep++
 				l.source += "\n"
 				return true
 			}
 			if e.Error() == "unexpected EOF" {
-				l.deep++
+				// l.deep++
 				l.source += "\n"
 				return true
 			}
