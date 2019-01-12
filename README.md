@@ -23,6 +23,6 @@ Usage:
 
 ```
 
-## backd go client
+## backd go client
 
 [Client Documentation](https://gowalker.org/github.com/backd-io/backd/backd)
