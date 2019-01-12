@@ -8,8 +8,8 @@ const (
 
 // Application collections
 const (
-	ColRBAC     = "_RBAC"      // ColRBAC is the collection that holds the Role Access for every object managed by the API
-	ColRelation = "_Relations" // ColRelation is the collection that stores the relations of linked data
+	ColRBAC      = "_RBAC"      // ColRBAC is the collection that holds the Role Access for every object managed by the API
+	ColRelations = "_Relations" // ColRelations is the collection that stores the relations of linked data
 )
 
 // Domain collections to define security
