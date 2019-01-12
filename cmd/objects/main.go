@@ -62,9 +62,9 @@ func main() {
 				Handler: api.getObjectIDRelations,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$", "^[a-zA-Z0-9-]{1,32}$", "^(in|out)$"},
 			},
-			"/related/:direction/:collection/:id": {
+			"/related/:collection/:id/:direction": {
 				Handler: api.getRelations,
-				Matcher: []string{"", "^(in|out)$", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$", "^(in|out)$"},
 			},
 			"/relations/:id": {
 				Handler: api.getRelationID,

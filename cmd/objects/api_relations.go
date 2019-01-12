@@ -138,7 +138,7 @@ func (a *apiStruct) getRelationID(w http.ResponseWriter, r *http.Request, ps htt
 
 }
 
-// GET /relations/:direction/:collection/:id
+// GET /relations/:collection/:id/:direction
 // This endpoint returns the 'relation' object, not the object itself
 func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 

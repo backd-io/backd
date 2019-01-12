@@ -47,3 +47,28 @@ func (o *Objects) Update(collection, id string, from, to interface{}) error {
 func (o *Objects) Delete(collection, id string) error {
 	return o.backd.delete(objectsMS, []string{"objects", collection, id}, o.headers())
 }
+
+// GetRelationsOf returns all objects that matches the conditions especified
+func (o *Objects) GetRelationsOf(collection, id, relation, direction string, object interface{}) error {
+	return o.backd.get(objectsMS, []string{"objects", collection, id, relation, direction}, QueryOptions{}, object, o.headers())
+}
+
+// RelationGetMany returns all relation structs that matches the conditions especified, not the items itself
+func (o *Objects) RelationGetMany(collection, id, direction string, object interface{}) error {
+	return o.backd.get(objectsMS, []string{"relations", collection, id, direction}, QueryOptions{}, object, o.headers())
+}
+
+// RelationGetByID returns an object by its ID
+func (o *Objects) RelationGetByID(id string, object interface{}) error {
+	return o.backd.getByID(objectsMS, []string{"relations", id}, object, o.headers())
+}
+
+// RelationInsert inserts a new relation between items if the user have the required permissions
+func (o *Objects) RelationInsert(object interface{}) (id string, err error) {
+	return o.backd.insert(objectsMS, []string{"relations"}, object, o.headers())
+}
+
+// RelationDelete removes a object by ID
+func (o *Objects) RelationDelete(id string) error {
+	return o.backd.delete(objectsMS, []string{"relations", id}, o.headers())
+}
