@@ -50,31 +50,51 @@ func main() {
 
 	routes = map[string]map[string]rest.APIEndpoint{
 		"GET": {
-			"/:collection/:id": {
-				Handler: api.getDataID,
-				Matcher: []string{"^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
+			"/objects/:collection/:id": {
+				Handler: api.getObjectID,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
 			},
-			"/:collection": {
-				Handler: api.getData,
-				Matcher: []string{"^[a-zA-Z0-9-]{1,32}$"},
+			"/objects/:collection": {
+				Handler: api.getObject,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
+			},
+			"/objects/:collection/:id/:relation/:direction": {
+				Handler: api.getObjectIDRelations,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$", "^[a-zA-Z0-9-]{1,32}$", "^(in|out)$"},
+			},
+			"/related/:direction/:collection/:id": {
+				Handler: api.getRelations,
+				Matcher: []string{"", "^(in|out)$", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/relations/:id": {
+				Handler: api.getRelationID,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
 			},
 		},
 		"POST": {
-			"/:collection": {
-				Handler: api.postData,
-				Matcher: []string{"^[a-zA-Z0-9-]{1,32}$"},
+			"/objects/:collection": {
+				Handler: api.postObject,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
+			},
+			"/relations": {
+				Handler: api.postRelation,
+				Matcher: []string{""},
 			},
 		},
 		"PUT": {
-			"/:collection/:id": {
-				Handler: api.putDataID,
-				Matcher: []string{"^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
+			"/objects/:collection/:id": {
+				Handler: api.putObjectID,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
 			},
 		},
 		"DELETE": {
-			"/:collection/:id": {
-				Handler: api.deleteDataID,
-				Matcher: []string{"^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
+			"/objects/:collection/:id": {
+				Handler: api.deleteObjectID,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/relations/:id": {
+				Handler: api.deleteRelationID,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
 			},
 		},
 	}
