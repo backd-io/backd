@@ -24,8 +24,9 @@ type Lang struct {
 }
 
 type man struct {
-	Short string
-	Long  string
+	Short   string
+	Long    string
+	Example string
 }
 
 // New retuns an instance of the `backd` scripting language
@@ -52,13 +53,14 @@ func New(backd *backd.Backd) *Lang {
 
 // AddCommand is the helper to add a command to the parser that also creates
 //   the help
-func (l *Lang) AddCommand(cmd, shortHelp, longHelp string, fn interface{}) {
+func (l *Lang) AddCommand(cmd, shortHelp, longHelp, example string, fn interface{}) {
 
 	var err error
 
 	l.help[cmd] = man{
-		Short: shortHelp,
-		Long:  longHelp,
+		Short:   shortHelp,
+		Long:    longHelp,
+		Example: example,
 	}
 
 	// commodity to format help

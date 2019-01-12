@@ -9,17 +9,14 @@ func (l *Lang) addBackdFunctionsCommands() {
 		"Creates a data object inside a collection",
 		`
 Creates a data object inside a collection. Returns ID and error if any.
-			
-Example:
-
+`,
+		`
 obj = {}
 obj.name = "applicationExample"
 obj.description = "this is an example"
 
 id, err = obj_create("myCollection", obj)
-
-
-	`,
+`,
 		l.objCreate)
 
 	l.AddCommand(
@@ -28,8 +25,8 @@ id, err = obj_create("myCollection", obj)
 		`
 Get a data object by ID from a collection. Returns object map and error if any.
 			
-Example:
-
+`,
+		`
 obj, err = obj_get("myCollection", "idObject")
 
 println(obj.name)
@@ -42,10 +39,9 @@ println(obj.name)
 		"obj_get_many",
 		"Get objects from a collection based on the query options passed",
 		`
-Get objects from a collection based on the query options passed. Returns object array and error if any.
-					
-Example:
-
+Get objects from a collection based on the query options passed. Returns object array and error if any.					
+`,
+		`
 objs, err = obj_get_many("myCollection", { "test": true }, [], 1, 20)
 
 for obj in objs {
@@ -60,14 +56,14 @@ for obj in objs {
 		`
 Get all objects from a collection. Returns object array and error if any.
 					
-Example:
-
+`,
+		`
 objs, err = obj_all("myCollection")
 
 for obj in objs {
 	println(pretty(obj))
 }
-				`,
+`,
 		l.objAll)
 
 	l.AddCommand(
@@ -76,8 +72,8 @@ for obj in objs {
 		`
 Updates an object on a collection. Returns object map and error if any.
 						
-Example:
-
+`,
+		`
 obj.name = "newName"
 
 newObj, err = obj_update("myCollection", "idObject", obj)
@@ -91,9 +87,8 @@ println(newObj)
 		"Deletes an object from a collection",
 		`
 Deletes an object from a collection. Returns error if any.
-						
-Example:
-
+`,
+		`
 err = obj_delete("myCollection", "idObject")
 
 println(err)

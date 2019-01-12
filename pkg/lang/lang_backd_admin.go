@@ -9,47 +9,34 @@ func (l *Lang) addBackdAdminCommands() {
 	l.AddCommand(
 		"app_id",
 		"Sets the application ID of the application we want to operate to.",
-		`
-Sets the application ID of the application we want to operate to.
-
-Example:
-
-app_id("idApplication")
-`,
+		`Sets the application ID of the application we want to operate to.`,
+		`app_id("idApplication")`,
 		l.appID)
 
 	l.AddCommand(
 		"me",
 		"Returns the information of the current user.",
-		`
-			Returns the information of the current user logged in.
-	`,
+		`Returns the information of the current user logged in.`,
+		``,
 		l.me)
 
 	l.AddCommand(
 		"app_get",
 		"Gets the application object by ID.",
+		`Gets the application object by ID`,
 		`
-	Gets the application object by ID
-	
-	Example:
-	
-	app, err = app_get("idApplication")
+app, err = app_get("idApplication")
 
-	println(app.name)
-	// returns "thisIsASample"
-	`,
+println(app.name)
+// returns "thisIsASample"
+`,
 		l.appGet)
 
 	l.AddCommand(
 		"app_create",
 		"Creates an application",
-		`
-Creates an application. Returns application ID and error if any.
-		
-Example:
-
-app = {}
+		`Creates an application. Returns application ID and error if any.`,
+		`app = {}
 app.name = "applicationExample"
 app.description = "this is an example"
 
