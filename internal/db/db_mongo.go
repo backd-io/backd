@@ -178,6 +178,14 @@ func (db *Mongo) GetMany(database, collection string, query interface{}, sort []
 	return db.session.DB(database).C(collection).Find(query).Skip(skip).Limit(limit).All(this)
 }
 
+// GetAll returns all records that meets the desired filter
+func (db *Mongo) GetAll(database, collection string, query interface{}, sort []string, this interface{}) error {
+	if len(sort) > 0 {
+		return db.session.DB(database).C(collection).Find(query).Sort(sort...).All(this)
+	}
+	return db.session.DB(database).C(collection).Find(query).All(this)
+}
+
 // GetOne returns one object by query
 func (db *Mongo) GetOne(database, collection string, query, this interface{}) error {
 	return db.session.DB(database).C(collection).Find(query).One(this)
