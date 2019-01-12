@@ -48,7 +48,6 @@ func (l *Lang) showHelp(cmd string) {
 
 	switch cmd {
 	case "summary", "":
-		//format := fmt.Sprintf("%%s%%%ds | %%s\n", l.helpChars)
 		fmt.Println()
 		var (
 			keys []string
@@ -61,7 +60,6 @@ func (l *Lang) showHelp(cmd string) {
 
 		sort.Strings(keys)
 		for _, key = range keys {
-			//help = fmt.Sprintf(format, help, key, l.help[key].Short)
 			title("%20s", key)
 			fmt.Printf(" | %s\n", l.help[key].Short)
 		}
@@ -87,7 +85,7 @@ func printLN(a ...interface{}) {
 
 // printF is a fmt.Printf without return to simplify the function
 func printF(format string, a ...interface{}) {
-	fmt.Printf(format, a...)
+	fmt.Printf(format+"\n", a...)
 }
 
 // sprintF is a fmt.Sprintf without return to simplify the function
