@@ -20,6 +20,16 @@ func (l *Lang) addCommonCommands() {
 		`Prints any data using its default format. Appends a newline.`,
 		printLN)
 
+	l.AddCommand("printf",
+		"Prints any data using the desired format.",
+		`Prints any data using its desired format.`,
+		printF)
+
+	l.AddCommand("sprintf",
+		"Returns a string formatted as desired.",
+		`Returns a string formatted as desired.`,
+		sprintF)
+
 	l.AddCommand("json",
 		"Returns an object as JSON.",
 		`Returns an object as JSON.`,
@@ -27,7 +37,7 @@ func (l *Lang) addCommonCommands() {
 
 	l.AddCommand("pretty",
 		"Returns an object as JSON but pretty printed.",
-		`Returns an object as JSON but pretty printed.`,
+		`Prints an object as JSON but pretty printed.`,
 		prettifyString)
 
 }
@@ -75,19 +85,33 @@ func printLN(a ...interface{}) {
 	fmt.Println(a...)
 }
 
-func toJSON(i interface{}) string {
-	b, err := json.Marshal(i)
-	fmt.Println("json.err:", err)
-	return string(b)
+// printF is a fmt.Printf without return to simplify the function
+func printF(format string, a ...interface{}) {
+	fmt.Printf(format, a...)
 }
 
-// prettifyString returns the string generated
-func prettifyString(item interface{}) string {
+// sprintF is a fmt.Sprintf without return to simplify the function
+func sprintF(format string, a ...interface{}) string {
+	return fmt.Sprintf(format, a...)
+}
 
-	by, err := json.Marshal(item)
+func toJSON(i interface{}) string {
+
+	b, err := json.Marshal(i)
 	if err != nil {
 		return "{}"
 	}
-	return string(pretty.Pretty(by))
+	return string(b)
+
+}
+
+// prettifyString prints to console the object prettified
+func prettifyString(item interface{}) {
+
+	by, err := json.Marshal(item)
+	if err != nil {
+		fmt.Println("{}")
+	}
+	fmt.Println(string(pretty.Pretty(by)))
 
 }
