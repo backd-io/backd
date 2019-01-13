@@ -82,7 +82,7 @@ func (a *Domains) GetByID(id string, object interface{}) error {
 }
 
 // Insert inserts a new domain on the desired collection if the user have the required permissions
-func (a *Domains) Insert(object interface{}) (id string, err error) {
+func (a *Domains) Insert(object interface{}) (map[string]interface{}, error) {
 	return a.backd.insert(adminMS, []string{"domains"}, object, a.backd.headers())
 }
 
@@ -111,7 +111,7 @@ func (a *AdminUsers) GetByID(id string, object interface{}) error {
 }
 
 // Insert inserts a new user on the desired collection if the user have the required permissions
-func (a *AdminUsers) Insert(object interface{}) (id string, err error) {
+func (a *AdminUsers) Insert(object interface{}) (map[string]interface{}, error) {
 	return a.backd.insert(adminMS, []string{"domains", a.domainID, "users"}, object, a.backd.headers())
 }
 
@@ -140,7 +140,7 @@ func (a *AdminGroups) GetByID(id string, object interface{}) error {
 }
 
 // Insert inserts a new group on the desired collection if the user have the required permissions
-func (a *AdminGroups) Insert(object interface{}) (id string, err error) {
+func (a *AdminGroups) Insert(object interface{}) (map[string]interface{}, error) {
 	return a.backd.insert(adminMS, []string{"domains", a.domainID, "groups"}, object, a.backd.headers())
 }
 

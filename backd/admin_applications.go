@@ -55,7 +55,7 @@ func (a *Apps) GetByID(id string, object interface{}) error {
 }
 
 // Insert inserts a new application on the desired collection if the user have the required permissions
-func (a *Apps) Insert(object interface{}) (id string, err error) {
+func (a *Apps) Insert(object interface{}) (map[string]interface{}, error) {
 	return a.backd.insert(adminMS, []string{"applications"}, object, a.backd.headers())
 }
 

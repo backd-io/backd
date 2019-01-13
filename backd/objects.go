@@ -32,7 +32,7 @@ func (o *Objects) GetByID(collection, id string, object interface{}) error {
 }
 
 // Insert inserts a new object on the desired collection if the user have the required permissions
-func (o *Objects) Insert(collection string, object interface{}) (id string, err error) {
+func (o *Objects) Insert(collection string, object interface{}) (map[string]interface{}, error) {
 	return o.backd.insert(objectsMS, []string{"objects", collection}, object, o.headers())
 }
 
@@ -64,7 +64,7 @@ func (o *Objects) RelationGetByID(id string, object interface{}) error {
 }
 
 // RelationInsert inserts a new relation between items if the user have the required permissions
-func (o *Objects) RelationInsert(object interface{}) (id string, err error) {
+func (o *Objects) RelationInsert(object interface{}) (map[string]interface{}, error) {
 	return o.backd.insert(objectsMS, []string{"relations"}, object, o.headers())
 }
 

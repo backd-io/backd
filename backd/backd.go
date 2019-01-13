@@ -1,6 +1,7 @@
 package backd
 
 import (
+	"bytes"
 	"net"
 	"net/http"
 	"time"
@@ -137,10 +138,9 @@ func (b *Backd) getByID(m microservice, parts []string, object interface{}, head
 }
 
 // insert allows to insert the required object on the API
-func (b *Backd) insert(m microservice, parts []string, object interface{}, headers map[string]string) (id string, err error) {
+func (b *Backd) insert(m microservice, parts []string, object interface{}, headers map[string]string) (success map[string]interface{}, err error) {
 
 	var (
-		success  map[string]interface{}
 		failure  APIError
 		response *http.Response
 		sling    *sling.Sling
@@ -152,18 +152,20 @@ func (b *Backd) insert(m microservice, parts []string, object interface{}, heade
 		sling.Set(key, value)
 	}
 
-	response, err = sling.
-		Post(b.buildPath(m, parts)).
-		BodyJSON(object).
-		Receive(&success, &failure)
-
-	// rebuild err
-	err = failure.wrapErr(err, response, http.StatusOK)
-
-	if err == nil {
-		id, _ = success["_id"].(string)
+	if _, ok := object.([]byte); ok {
+		response, err = sling.
+			Post(b.buildPath(m, parts)).
+			Body(bytes.NewReader(object.([]byte))).
+			Receive(&success, &failure)
+	} else {
+		response, err = sling.
+			Post(b.buildPath(m, parts)).
+			BodyJSON(object).
+			Receive(&success, &failure)
 	}
 
+	// rebuild err
+	err = failure.wrapErr(err, response, http.StatusCreated)
 	return
 }
 
@@ -211,10 +213,17 @@ func (b *Backd) update(m microservice, parts []string, from, to interface{}, hea
 		sling.Set(key, value)
 	}
 
-	response, err = sling.
-		Put(b.buildPath(m, parts)).
-		BodyJSON(from).
-		Receive(to, &failure)
+	if _, ok := from.([]byte); ok {
+		response, err = sling.
+			Post(b.buildPath(m, parts)).
+			Body(bytes.NewReader(from.([]byte))).
+			Receive(to, &failure)
+	} else {
+		response, err = sling.
+			Post(b.buildPath(m, parts)).
+			BodyJSON(from).
+			Receive(to, &failure)
+	}
 
 	// rebuild and return err
 	return failure.wrapErr(err, response, http.StatusOK)

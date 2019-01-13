@@ -17,7 +17,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/backd-io/backd/pkg/lang"
+	"github.com/backd-io/backd/pkg/lua"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,38 +36,9 @@ func init() {
 
 func shellFunc(cmd *cobra.Command, args []string) {
 
-	// var (
-	// 	username string
-	// 	password string
-	// 	domain   string
-	// 	err      error
-	// )
+	tryLogin()
 
-	// username = viper.GetString(configLoginUsername)
-	// password = viper.GetString(configLoginPassword)
-	// domain = viper.GetString(configLoginDomain)
-
-	// if username == "" {
-	// 	username = promptText("Username", "", min2max254)
-	// }
-
-	// if password == "" {
-	// 	password = promptPassword("Password", min2max254)
-	// }
-
-	// if domain == "" {
-	// 	domain = promptText("Domain", "", nil)
-	// }
-
-	// err = cli.backd.Login(username, password, domain)
-	// if err != nil {
-	// 	emptyLines(2)
-	// 	printError("User/Password/Domain does not match")
-	// 	emptyLines(2)
-	// 	os.Exit(3)
-	// }
-
-	shell := lang.New(cli.backd)
+	shell := lua.New(cli.backd)
 	os.Exit(shell.Interactive())
 
 }
