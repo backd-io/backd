@@ -25,7 +25,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 
 		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
 		if err != nil {
-			rest.Response(w, nil, err, nil, http.StatusOK, "")
+			rest.ResponseErr(w, err)
 			return
 		}
 
@@ -72,7 +72,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 
 		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
 		if err != nil {
-			rest.Response(w, nil, err, nil, http.StatusOK, "")
+			rest.ResponseErr(w, err)
 			return
 		}
 
@@ -89,7 +89,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	rest.Response(w, objects, nil, nil, http.StatusOK, "")
+	rest.Response(w, objects, nil, http.StatusOK, "")
 
 }
 
@@ -105,13 +105,13 @@ func (a *apiStruct) getRelationID(w http.ResponseWriter, r *http.Request, ps htt
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	err = rest.GetFromBody(r, &relation)
 	if err != nil {
-		rest.Response(w, relation, err, nil, http.StatusCreated, "")
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
 		return
 	}
 
@@ -134,7 +134,7 @@ func (a *apiStruct) getRelationID(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	rest.Response(w, relation, err, nil, http.StatusCreated, rest.Location("relations", relation.ID))
+	rest.Response(w, relation, err, http.StatusCreated, rest.Location("relations", relation.ID))
 
 }
 
@@ -153,7 +153,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -172,7 +172,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 
 		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
 		if err != nil {
-			rest.Response(w, nil, err, nil, http.StatusOK, "")
+			rest.ResponseErr(w, err)
 			return
 		}
 
@@ -196,7 +196,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 
 		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
 		if err != nil {
-			rest.Response(w, nil, err, nil, http.StatusOK, "")
+			rest.ResponseErr(w, err)
 			return
 		}
 
@@ -211,7 +211,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	rest.Response(w, relationsToReturn, err, nil, http.StatusOK, "")
+	rest.Response(w, relationsToReturn, err, http.StatusOK, "")
 
 }
 
@@ -227,13 +227,13 @@ func (a *apiStruct) postRelation(w http.ResponseWriter, r *http.Request, ps http
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	err = rest.GetFromBody(r, &relation)
 	if err != nil {
-		rest.Response(w, relation, err, nil, http.StatusCreated, "")
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
 		return
 	}
 
@@ -252,11 +252,11 @@ func (a *apiStruct) postRelation(w http.ResponseWriter, r *http.Request, ps http
 
 	err = a.mongo.Insert(applicationID, constants.ColRelations, &relation)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusCreated, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
-	rest.Response(w, relation, err, nil, http.StatusCreated, rest.Location("relations", relation.ID))
+	rest.Response(w, relation, err, http.StatusCreated, rest.Location("relations", relation.ID))
 
 }
 
@@ -289,6 +289,6 @@ func (a *apiStruct) deleteRelationID(w http.ResponseWriter, r *http.Request, ps 
 	}
 
 	err = a.mongo.DeleteByID(applicationID, constants.ColRelations, ps.ByName("id"))
-	rest.Response(w, nil, err, nil, http.StatusNoContent, "")
+	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

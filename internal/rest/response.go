@@ -9,8 +9,13 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+// ResponseErr is the Response where a straight error cannot be assigned. Simplified for if err != nil
+func ResponseErr(w http.ResponseWriter, err error) int {
+	return Response(w, nil, err, http.StatusOK, "")
+}
+
 // Response is a default func to return data
-func Response(w http.ResponseWriter, data interface{}, err error, validationErrors map[string][]string, desiredStatus int, location string) int {
+func Response(w http.ResponseWriter, data interface{}, err error, desiredStatus int, location string) int {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Accept", "application/json")
@@ -32,18 +37,8 @@ func Response(w http.ResponseWriter, data interface{}, err error, validationErro
 		}
 		return desiredStatus
 	case ErrConflict:
-		if validationErrors != nil {
-			if len(validationErrors) > 0 {
-				return ErrorValidationResponse(w, http.StatusConflict, validationErrors)
-			}
-		}
 		return ErrorResponse(w, http.StatusConflict, "")
 	case ErrBadRequest:
-		if validationErrors != nil {
-			if len(validationErrors) > 0 {
-				return ErrorValidationResponse(w, http.StatusBadRequest, validationErrors)
-			}
-		}
 		return ErrorResponse(w, http.StatusBadRequest, "")
 	case ErrUnauthorized:
 		return ErrorResponse(w, http.StatusUnauthorized, "")
@@ -71,13 +66,6 @@ func BadRequest(w http.ResponseWriter, r *http.Request, reason string) {
 // Unauthorized is a generic 401 response
 func Unauthorized(w http.ResponseWriter, r *http.Request) {
 	ErrorResponse(w, http.StatusUnauthorized, "")
-}
-
-// ErrorValidationResponse returns a error page with the rules broken on the validation
-func ErrorValidationResponse(w http.ResponseWriter, status int, validationErrors map[string][]string) int {
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(validationErrors)
-	return status
 }
 
 // ErrorResponse returns a formatted error

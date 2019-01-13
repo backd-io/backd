@@ -3,10 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/backd-io/backd/internal/db"
-
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
+	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/backd-io/backd/internal/structs"
@@ -28,7 +27,7 @@ func (a *apiStruct) getUsers(w http.ResponseWriter, r *http.Request, ps httprout
 
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -39,7 +38,7 @@ func (a *apiStruct) getUsers(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, skip, limit)
-	rest.Response(w, data, err, nil, http.StatusOK, "")
+	rest.Response(w, data, err, http.StatusOK, "")
 
 }
 
@@ -55,12 +54,12 @@ func (a *apiStruct) getUserByID(w http.ResponseWriter, r *http.Request, ps httpr
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &user)
-	rest.Response(w, user, err, nil, http.StatusOK, "")
+	rest.Response(w, user, err, http.StatusOK, "")
 
 }
 
@@ -76,7 +75,7 @@ func (a *apiStruct) postUser(w http.ResponseWriter, r *http.Request, ps httprout
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -96,7 +95,7 @@ func (a *apiStruct) postUser(w http.ResponseWriter, r *http.Request, ps httprout
 	user.ID = db.NewXID().String()
 
 	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColUsers, &user)
-	rest.Response(w, user, err, nil, http.StatusCreated, "")
+	rest.Response(w, user, err, http.StatusCreated, "")
 
 }
 
@@ -113,7 +112,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -125,7 +124,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 
 	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &oldUser)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -133,7 +132,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 	if user.Password != "" {
 		err = user.SetPassword(user.Password)
 		if err != nil {
-			rest.BadRequest(w, r, constants.ReasonReadingBody)
+			rest.ResponseErr(w, err)
 			return
 		}
 	}
@@ -146,7 +145,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 	user.SetUpdate(session.GetDomainId(), session.GetUserId())
 
 	err = a.mongo.UpdateByIDRBACInterface(session, true, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &user)
-	rest.Response(w, user, err, nil, http.StatusOK, "")
+	rest.Response(w, user, err, http.StatusOK, "")
 
 }
 
@@ -172,7 +171,7 @@ func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps htt
 
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -189,7 +188,7 @@ func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps htt
 
 	err = a.mongo.Session().DB(ps.ByName("domain")).C(constants.ColMembership).Find(membershipQuery).Distinct("g", &ids)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -203,6 +202,6 @@ func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, 0, 0)
-	rest.Response(w, data, err, nil, http.StatusOK, "")
+	rest.Response(w, data, err, http.StatusOK, "")
 
 }

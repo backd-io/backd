@@ -23,12 +23,12 @@ func (a *apiStruct) getObjectID(w http.ResponseWriter, r *http.Request, ps httpr
 	// getSession & rbac
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	data, err = a.mongo.GetOneByIDRBAC(session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), ps.ByName("id"))
-	rest.Response(w, data, err, nil, http.StatusOK, "")
+	rest.Response(w, data, err, http.StatusOK, "")
 }
 
 // GET /objects/:collection
@@ -47,7 +47,7 @@ func (a *apiStruct) getObject(w http.ResponseWriter, r *http.Request, ps httprou
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -58,7 +58,7 @@ func (a *apiStruct) getObject(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	err = a.mongo.GetManyRBAC(session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), query, sort, &data, skip, limit)
-	rest.Response(w, data, err, nil, http.StatusOK, "")
+	rest.Response(w, data, err, http.StatusOK, "")
 
 }
 
@@ -75,23 +75,23 @@ func (a *apiStruct) postObject(w http.ResponseWriter, r *http.Request, ps httpro
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusCreated, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	err = rest.GetFromBody(r, &data)
 	if err != nil {
-		rest.Response(w, data, err, nil, http.StatusCreated, "")
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
 		return
 	}
 
 	inserted, err = a.mongo.InsertRBAC(session, false, applicationID, ps.ByName("collection"), data)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusCreated, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
-	rest.Response(w, inserted, err, nil, http.StatusCreated, rest.Location(ps.ByName("collection"), inserted["_id"].(string)))
+	rest.Response(w, inserted, err, http.StatusCreated, rest.Location(ps.ByName("collection"), inserted["_id"].(string)))
 
 }
 
@@ -108,23 +108,23 @@ func (a *apiStruct) putObjectID(w http.ResponseWriter, r *http.Request, ps httpr
 
 	session, applicationID, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	err = rest.GetFromBody(r, &data)
 	if err != nil {
-		rest.Response(w, data, err, nil, http.StatusOK, "")
+		rest.BadRequest(w, r, constants.ReasonBadQuery)
 		return
 	}
 
 	updated, err = a.mongo.UpdateByIDRBAC(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), data)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
-	rest.Response(w, updated, err, nil, http.StatusOK, "")
+	rest.Response(w, updated, err, http.StatusOK, "")
 
 }
 
@@ -144,6 +144,6 @@ func (a *apiStruct) deleteObjectID(w http.ResponseWriter, r *http.Request, ps ht
 	}
 
 	err = a.mongo.DeleteByIDRBAC(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"))
-	rest.Response(w, nil, err, nil, http.StatusNoContent, "")
+	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

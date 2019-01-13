@@ -48,7 +48,7 @@ func (a *apiStruct) internalGetSession(r *http.Request) (session *pbsessions.Ses
 func (a *apiStruct) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	session, err := a.internalGetSession(r)
-	rest.Response(w, session, err, nil, http.StatusOK, "")
+	rest.Response(w, session, err, http.StatusOK, "")
 
 }
 
@@ -62,11 +62,12 @@ func (a *apiStruct) getMe(w http.ResponseWriter, r *http.Request, ps httprouter.
 
 	session, err = a.internalGetSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
+		return
 	}
 
 	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, session.GetDomainId(), constants.ColUsers, session.GetUserId(), &user)
-	rest.Response(w, user, err, nil, http.StatusOK, "")
+	rest.Response(w, user, err, http.StatusOK, "")
 
 }
 
@@ -91,7 +92,7 @@ func (a *apiStruct) postSession(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	rest.Response(w, sessionResponse, err, nil, http.StatusOK, "")
+	rest.Response(w, sessionResponse, err, http.StatusOK, "")
 }
 
 func (a *apiStruct) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -110,5 +111,5 @@ func (a *apiStruct) deleteSession(w http.ResponseWriter, r *http.Request, ps htt
 		Id: r.Header.Get(backd.HeaderSessionID),
 	})
 
-	rest.Response(w, result, err, nil, http.StatusOK, "")
+	rest.Response(w, result, err, http.StatusOK, "")
 }

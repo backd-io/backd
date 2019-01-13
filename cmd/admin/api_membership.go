@@ -26,7 +26,7 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err = a.mongo.Session().DB(ps.ByName("domain")).C(constants.ColMembership).Find(membershipQuery).Distinct("u", &ids)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, 0, 0)
-	rest.Response(w, data, err, nil, http.StatusOK, "")
+	rest.Response(w, data, err, http.StatusOK, "")
 
 }
 
@@ -73,7 +73,7 @@ func (a *apiStruct) putMembership(w http.ResponseWriter, r *http.Request, ps htt
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (a *apiStruct) putMembership(w http.ResponseWriter, r *http.Request, ps htt
 	membership.UserID = ps.ByName("user_id")
 
 	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColMembership, &membership)
-	rest.Response(w, nil, err, nil, http.StatusNoContent, "")
+	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }
 
@@ -96,7 +96,7 @@ func (a *apiStruct) deleteMembership(w http.ResponseWriter, r *http.Request, ps 
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -105,6 +105,6 @@ func (a *apiStruct) deleteMembership(w http.ResponseWriter, r *http.Request, ps 
 		"u": ps.ByName("user_id"),
 	})
 
-	rest.Response(w, nil, err, nil, http.StatusNoContent, "")
+	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

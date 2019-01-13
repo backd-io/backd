@@ -147,3 +147,13 @@ type QueryOptions struct {
 	Page    int                    `json:"page,omitempty" url:"page,omitempty"`
 	PerPage int                    `json:"per_page,omitempty" url:"per_page,omitempty"`
 }
+
+// RBAC is the struct used to manage roles and permissions by the API
+type RBAC struct {
+	Action       string   `json:"action,omitempty"` // allowed actions: add / remove / set
+	DomainID     string   `json:"domain_id"`        // domain
+	IdentityID   string   `json:"identity_id"`      // user_id / group_id
+	Collection   string   `json:"collection"`       // collection if application, if domain there is no concept of 'collection' you can manage or not if entity_id match
+	CollectionID string   `json:"collection_id"`    // id if application, entity_id if domain
+	Permissions  []string `json:"permissions"`      // array of permissions matching entity and item
+}

@@ -15,7 +15,7 @@ func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, colle
 	var (
 		rbac  structs.RBAC
 		query map[string]interface{}
-		cid   []string
+		cid   []string // array of ID inside collections
 		err   error
 	)
 

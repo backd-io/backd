@@ -139,6 +139,6 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	a.bootstrapCode = ""
 
 	a.inst.Info("server bootstrapped correctly")
-	rest.Response(w, nil, err, nil, http.StatusCreated, "")
+	rest.Response(w, nil, err, http.StatusCreated, "")
 
 }

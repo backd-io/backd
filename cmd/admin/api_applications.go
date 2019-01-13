@@ -27,7 +27,7 @@ func (a *apiStruct) getApplications(w http.ResponseWriter, r *http.Request, ps h
 
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -38,7 +38,7 @@ func (a *apiStruct) getApplications(w http.ResponseWriter, r *http.Request, ps h
 	}
 
 	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, query, sort, &data, skip, limit)
-	rest.Response(w, data, err, nil, http.StatusOK, "")
+	rest.Response(w, data, err, http.StatusOK, "")
 
 }
 
@@ -54,13 +54,13 @@ func (a *apiStruct) getApplicationByID(w http.ResponseWriter, r *http.Request, p
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
 	// applications reside on backd application database
 	err = a.mongo.GetOneByIDRBACInterface(session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
-	rest.Response(w, application, err, nil, http.StatusOK, "")
+	rest.Response(w, application, err, http.StatusOK, "")
 
 }
 
@@ -76,7 +76,7 @@ func (a *apiStruct) postApplication(w http.ResponseWriter, r *http.Request, ps h
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -90,7 +90,7 @@ func (a *apiStruct) postApplication(w http.ResponseWriter, r *http.Request, ps h
 	application.ID = db.NewXID().String()
 
 	err = a.mongo.InsertRBACInterface(session, true, constants.DBBackdApp, constants.ColApplications, &application)
-	rest.Response(w, application, err, nil, http.StatusCreated, "")
+	rest.Response(w, application, err, http.StatusCreated, "")
 
 }
 
@@ -107,7 +107,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 	// getSession & rbac
 	session, err = a.getSession(r)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -119,7 +119,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 
 	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &oldApplication)
 	if err != nil {
-		rest.Response(w, nil, err, nil, http.StatusOK, "")
+		rest.ResponseErr(w, err)
 		return
 	}
 
@@ -131,7 +131,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 	application.SetUpdate(session.GetDomainId(), session.GetUserId())
 
 	err = a.mongo.UpdateByIDRBACInterface(session, true, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
-	rest.Response(w, application, err, nil, http.StatusOK, "")
+	rest.Response(w, application, err, http.StatusOK, "")
 
 }
 
