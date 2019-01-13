@@ -50,6 +50,14 @@ const (
 	StateLoggedIn
 )
 
+// RBAC Actions
+const (
+	RBACActionGet    = "get"
+	RBACActionSet    = "set"
+	RBACActionAdd    = "add"
+	RBACActionRemove = "remove"
+)
+
 // HTTP Errors returns if found
 var (
 	ErrBadRequest       = errors.New(http.StatusText(http.StatusBadRequest))

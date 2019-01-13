@@ -42,6 +42,12 @@ type AdminGroups struct {
 	domainID string
 }
 
+// AdminRBAC holds groups operations
+type AdminRBAC struct {
+	backd    *Backd
+	domainID string
+}
+
 func (b *Backd) newAdminUsers(domainID string) *AdminUsers {
 	return &AdminUsers{
 		backd:    b,
@@ -51,6 +57,13 @@ func (b *Backd) newAdminUsers(domainID string) *AdminUsers {
 
 func (b *Backd) newAdminGroups(domainID string) *AdminGroups {
 	return &AdminGroups{
+		backd:    b,
+		domainID: domainID,
+	}
+}
+
+func (b *Backd) newAdminRBAC(domainID string) *AdminRBAC {
+	return &AdminRBAC{
 		backd:    b,
 		domainID: domainID,
 	}
@@ -151,4 +164,28 @@ func (a *AdminGroups) AddMember(id, userID string) error {
 // RemoveMember removes a member from a group by ID
 func (a *AdminGroups) RemoveMember(id, userID string) error {
 	return a.backd.delete(adminMS, []string{"domains", a.domainID, "groups", id, "members", userID}, a.backd.headers())
+}
+
+// Set sets a new role permission set
+func (a *AdminRBAC) Set(rbac RBAC) error {
+	rbac.Action = RBACActionSet
+	return a.backd.insertRBAC(adminMS, []string{"domains", a.domainID, "rbac"}, rbac, a.backd.headers())
+}
+
+// Get get cirremt role permission set
+func (a *AdminRBAC) Get(rbac RBAC) error {
+	rbac.Action = RBACActionGet
+	return a.backd.insertRBAC(adminMS, []string{"domains", a.domainID, "rbac"}, rbac, a.backd.headers())
+}
+
+// Add adds role/s to the role permission set
+func (a *AdminRBAC) Add(rbac RBAC) error {
+	rbac.Action = RBACActionAdd
+	return a.backd.insertRBAC(adminMS, []string{"domains", a.domainID, "rbac"}, rbac, a.backd.headers())
+}
+
+// Remove removes role/s to the role permission set
+func (a *AdminRBAC) Remove(rbac RBAC) error {
+	rbac.Action = RBACActionRemove
+	return a.backd.insertRBAC(adminMS, []string{"domains", a.domainID, "rbac"}, rbac, a.backd.headers())
 }

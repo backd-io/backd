@@ -37,9 +37,10 @@ func (a *apiStruct) rbacDomains(w http.ResponseWriter, r *http.Request, ps httpr
 func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.Params, isDomain bool) {
 
 	var (
-		rbac    backd.RBAC
-		session *pbsessions.Session
-		err     error
+		rbac     backd.RBAC
+		database string
+		session  *pbsessions.Session
+		err      error
 	)
 
 	// getSession & rbac
@@ -57,6 +58,9 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	if isDomain {
 		rbac.Collection = constants.ColDomains
+		database = ps.ByName("domain") // from the route /domains/:domain
+	} else {
+		database = ps.ByName("id") // from the route /applications/:id
 	}
 
 	if rbac.Action == "" || rbac.Collection == "" || rbac.CollectionID == "" || rbac.DomainID == "" || rbac.IdentityID == "" {
@@ -65,13 +69,13 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 
 	// ensure the current user can administer the resource
-	if !a.mongo.Can(session, isDomain, ps.ByName("id"), rbac.Collection, rbac.CollectionID, backd.PermissionAdmin) {
+	if !a.mongo.Can(session, isDomain, database, rbac.Collection, rbac.CollectionID, backd.PermissionAdmin) {
 		rest.Unauthorized(w, r)
 		return
 	}
 
 	switch rbac.Action {
-	case "add":
+	case backd.RBACActionAdd:
 		for _, perm := range rbac.Permissions {
 			query := map[string]interface{}{
 				"did": rbac.DomainID,
@@ -81,31 +85,10 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 				"p":   perm,
 			}
 			var count int
-			count, err = a.mongo.Count(ps.ByName("id"), constants.ColRBAC, query)
+			count, err = a.mongo.Count(database, constants.ColRBAC, query)
 			if count == 0 {
 				// insert
-				err = a.mongo.Insert(ps.ByName("id"), constants.ColRBAC, query)
-				if err != nil {
-					rest.ResponseErr(w, err)
-					return
-				}
-			}
-		}
-		rest.Response(w, nil, err, http.StatusOK, "")
-	case "remove":
-		for _, perm := range rbac.Permissions {
-			query := map[string]interface{}{
-				"did": rbac.DomainID,
-				"iid": rbac.IdentityID,
-				"c":   rbac.Collection,
-				"cid": rbac.CollectionID,
-				"p":   perm,
-			}
-			var count int
-			count, err = a.mongo.Count(ps.ByName("id"), constants.ColRBAC, query)
-			if count == 1 {
-				// insert
-				err = a.mongo.Delete(ps.ByName("id"), constants.ColRBAC, query)
+				err = a.mongo.Insert(database, constants.ColRBAC, query)
 				if err != nil {
 					rest.ResponseErr(w, err)
 					return
@@ -114,7 +97,29 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 		rest.Response(w, nil, err, http.StatusOK, "")
 
-	case "set":
+	case backd.RBACActionRemove:
+		for _, perm := range rbac.Permissions {
+			query := map[string]interface{}{
+				"did": rbac.DomainID,
+				"iid": rbac.IdentityID,
+				"c":   rbac.Collection,
+				"cid": rbac.CollectionID,
+				"p":   perm,
+			}
+			var count int
+			count, err = a.mongo.Count(database, constants.ColRBAC, query)
+			if count == 1 {
+				// insert
+				err = a.mongo.Delete(database, constants.ColRBAC, query)
+				if err != nil {
+					rest.ResponseErr(w, err)
+					return
+				}
+			}
+		}
+		rest.Response(w, nil, err, http.StatusOK, "")
+
+	case backd.RBACActionSet:
 		query := map[string]interface{}{
 			"did": rbac.DomainID,
 			"iid": rbac.IdentityID,
@@ -122,7 +127,7 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			"cid": rbac.CollectionID,
 		}
 		// remove all
-		err = a.mongo.Delete(ps.ByName("id"), constants.ColRBAC, query)
+		err = a.mongo.Delete(database, constants.ColRBAC, query)
 		if err != nil {
 			rest.ResponseErr(w, err)
 			return
@@ -135,14 +140,15 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 				"cid": rbac.CollectionID,
 				"p":   perm,
 			}
-			err = a.mongo.Insert(ps.ByName("id"), constants.ColRBAC, query)
+			err = a.mongo.Insert(database, constants.ColRBAC, query)
 			if err != nil {
 				rest.ResponseErr(w, err)
 				return
 			}
 		}
 		rest.Response(w, nil, err, http.StatusOK, "")
-	case "get":
+
+	case backd.RBACActionGet:
 
 		// if the user can make the action on * can make it for the id
 		var (
@@ -174,7 +180,7 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			},
 		}
 
-		err = a.mongo.GetAll(ps.ByName("id"), constants.ColRBAC, query, []string{}, &permissions)
+		err = a.mongo.GetAll(database, constants.ColRBAC, query, []string{}, &permissions)
 		if err != nil {
 			rest.ResponseErr(w, err)
 			return
@@ -188,6 +194,7 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 		// return rbac request filled
 		rest.Response(w, rbac, err, http.StatusOK, "")
+
 	}
 
 }

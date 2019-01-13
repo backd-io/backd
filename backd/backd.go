@@ -167,6 +167,32 @@ func (b *Backd) insert(m microservice, parts []string, object interface{}, heade
 	return
 }
 
+// insertRBAC allows to insert the required object on the API
+func (b *Backd) insertRBAC(m microservice, parts []string, object interface{}, headers map[string]string) (err error) {
+
+	var (
+		success  map[string]interface{}
+		failure  APIError
+		response *http.Response
+		sling    *sling.Sling
+	)
+
+	sling = b.sling
+
+	for key, value := range headers {
+		sling.Set(key, value)
+	}
+
+	response, err = sling.
+		Post(b.buildPath(m, parts)).
+		BodyJSON(object).
+		Receive(&success, &failure)
+
+	// rebuild err
+	err = failure.wrapErr(err, response, http.StatusOK)
+	return
+}
+
 // update updates the required object if the user has permissions for
 //   from is the original object updated by the user
 //   to   is the object retreived by the API

@@ -101,6 +101,10 @@ func main() {
 				Handler: api.postApplication,
 				Matcher: []string{""},
 			},
+			"/applications/:id/rbac": {
+				Handler: api.rbacApplications,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", ""},
+			},
 			"/bootstrap": {
 				Handler: api.postBootstrap,
 				Matcher: []string{""},
@@ -115,6 +119,10 @@ func main() {
 			},
 			"/domains/:domain/groups": {
 				Handler: api.postGroup,
+				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", ""},
+			},
+			"/domains/:domain/rbac": {
+				Handler: api.rbacDomains,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$", ""},
 			},
 		},

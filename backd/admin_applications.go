@@ -16,6 +16,7 @@ func (b *Backd) Apps() *Apps {
 type AdminApplication struct {
 	backd *Backd
 	appID string
+	RBAC  *AdminAppRBAC
 	// Users  *AdminUsers
 	// Groups *AdminGroups
 }
@@ -25,36 +26,71 @@ func (b *Backd) App(appID string) *AdminApplication {
 	return &AdminApplication{
 		backd: b,
 		appID: appID,
-		// Users:    b.newAdminUsers(domainID),
-		// Groups:   b.newAdminGroups(domainID),
+	}
+}
+
+// AdminAppRBAC holds groups operations
+type AdminAppRBAC struct {
+	backd *Backd
+	appID string
+}
+
+func (b *Backd) newAdminAppRBAC(appID string) *AdminAppRBAC {
+	return &AdminAppRBAC{
+		backd: b,
+		appID: appID,
 	}
 }
 
 // apps
 
-// GetMany returns all domains that matches the conditions especified
+// GetMany returns all applications that matches the conditions especified
 func (a *Apps) GetMany(queryOptions QueryOptions, object interface{}) error {
 	return a.backd.get(adminMS, []string{"applications"}, queryOptions, object, a.backd.headers())
 }
 
-// GetByID returns an domain by its ID
+// GetByID returns an application by its ID
 func (a *Apps) GetByID(id string, object interface{}) error {
 	return a.backd.getByID(adminMS, []string{"applications", id}, object, a.backd.headers())
 }
 
-// Insert inserts a new domain on the desired collection if the user have the required permissions
+// Insert inserts a new application on the desired collection if the user have the required permissions
 func (a *Apps) Insert(object interface{}) (id string, err error) {
 	return a.backd.insert(adminMS, []string{"applications"}, object, a.backd.headers())
 }
 
-// Update updates the required domain if the user has permissions for
+// Update updates the required application if the user has permissions for
 //   from is the original domain updated by the user
-//   to   is the updated domain retreived by the API
+//   to   is the updated application retreived by the API
 func (a *Apps) Update(id string, from, to interface{}) error {
 	return a.backd.update(adminMS, []string{"applications", id}, from, to, a.backd.headers())
 }
 
-// Delete removes a domain by ID
+// Delete removes an application by ID
 func (a *Apps) Delete(id string) error {
 	return a.backd.delete(adminMS, []string{"applications", id}, a.backd.headers())
+}
+
+// Set sets a new role permission set
+func (a *AdminAppRBAC) Set(rbac RBAC) error {
+	rbac.Action = RBACActionSet
+	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
+}
+
+// Get get cirremt role permission set
+func (a *AdminAppRBAC) Get(rbac RBAC) error {
+	rbac.Action = RBACActionGet
+	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
+}
+
+// Add adds role/s to the role permission set
+func (a *AdminAppRBAC) Add(rbac RBAC) error {
+	rbac.Action = RBACActionAdd
+	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
+}
+
+// Remove removes role/s to the role permission set
+func (a *AdminAppRBAC) Remove(rbac RBAC) error {
+	rbac.Action = RBACActionRemove
+	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
 }
