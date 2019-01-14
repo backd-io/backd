@@ -37,6 +37,8 @@ func QueryStrings(r *http.Request) (query map[string]interface{}, sort []string,
 
 	queryString = r.URL.Query().Get("q")
 	sortString = r.URL.Query().Get("sort")
+	pageString = r.URL.Query().Get("page")
+	perPageString = r.URL.Query().Get("per_page")
 
 	// if queryString is empty return a nil interface (do nothing)
 	if queryString != "" {
