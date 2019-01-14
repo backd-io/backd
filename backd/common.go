@@ -1,6 +1,7 @@
 package backd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -108,6 +109,7 @@ func (b *Backd) buildPathWithQueryOptions(m microservice, parts []string, option
 	var (
 		urlString   string
 		queryString string
+		q           string
 		values      url.Values
 		err         error
 	)
@@ -118,6 +120,21 @@ func (b *Backd) buildPathWithQueryOptions(m microservice, parts []string, option
 	if err == nil {
 		queryString = values.Encode()
 	}
+
+	if options.Q != nil {
+		// get the string
+		b, _ := json.Marshal(options.Q)
+		if len(b) > 0 {
+			if len(queryString) > 0 {
+				q = fmt.Sprintf("&q=%s", string(b))
+			} else {
+				q = fmt.Sprintf("q=%s", string(b))
+			}
+		}
+	}
+
+	// concatenate
+	queryString = queryString + q
 
 	if urlString != "" && queryString != "" {
 		return fmt.Sprintf("%s?%s", urlString, queryString)
