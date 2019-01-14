@@ -157,3 +157,14 @@ type RBAC struct {
 	CollectionID string   `json:"collection_id"`    // id if application, entity_id if domain
 	Permissions  []string `json:"permissions"`      // array of permissions matching entity and item
 }
+
+// Relation is the representation of linked data.
+type Relation struct {
+	ID            string `json:"_id"`
+	Source        string `json:"src"`
+	SourceID      string `json:"sid"`
+	Destination   string `json:"dst"`
+	DestinationID string `json:"did"`
+	Relation      string `json:"rel"`
+	Metadata      `json:"meta"`
+}
