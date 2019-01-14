@@ -142,7 +142,7 @@ type Domain struct {
 
 // QueryOptions is the builder of query parameters used for getMany queries
 type QueryOptions struct {
-	Q       map[string]interface{} `json:"q,omitempty" url:"q,omitempty"`
+	Q       map[string]interface{} `json:"q,omitempty" url:"-"` // for url it must be decode to string
 	Sort    []string               `json:"sort,omitempty" url:"sort,omitempty"`
 	Page    int                    `json:"page,omitempty" url:"page,omitempty"`
 	PerPage int                    `json:"per_page,omitempty" url:"per_page,omitempty"`
