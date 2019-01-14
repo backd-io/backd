@@ -74,6 +74,11 @@ func (db *Mongo) CreateBackdDatabases() (err error) {
 // CreateApplicationDatabase creates the required collection for an application to be usable
 func (db *Mongo) CreateApplicationDatabase(name string) (err error) {
 
+	err = db.CreateCollection(name, constants.ColRelations, structs.RelationValidator(), structs.RelationIndexes)
+	if err != nil {
+		return
+	}
+
 	err = db.CreateCollection(name, constants.ColRBAC, structs.RBACValidator(), structs.RBACIndexes)
 	return
 
