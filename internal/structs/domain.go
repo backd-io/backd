@@ -17,10 +17,10 @@ const (
 //   that holds the information
 type Domain struct {
 	ID          string                 `json:"_id" bson:"_id"`
-	Description string                 `json:"description" bson:"d"`
-	Type        DomainType             `json:"type" bson:"t"`
-	Config      map[string]interface{} `json:"config,omitempty" bson:"c"`
-	Metadata    `json:"_meta" bson:"_meta"`
+	Description string                 `json:"desc" bson:"desc"`
+	Type        DomainType             `json:"type" bson:"type"`
+	Config      map[string]interface{} `json:"config,omitempty" bson:"config"`
+	Metadata    `json:"meta" bson:"meta"`
 }
 
 // DomainValidator is the JSON schema validation for the domains collection
@@ -33,17 +33,17 @@ func DomainValidator() map[string]interface{} {
 				// "pattern":   "^[a-zA-Z0-9]+$",
 				"maxLength": 32,
 			},
-			"d": map[string]interface{}{
+			"desc": map[string]interface{}{
 				"bsonType": "string",
 			},
-			"t": map[string]interface{}{
+			"type": map[string]interface{}{
 				"bsonType": "string",
 			},
 			"c": map[string]interface{}{
 				"bsonType": "object",
 			},
 		},
-		[]string{"_id"},
+		[]string{"_id", "type"},
 	)
 
 }

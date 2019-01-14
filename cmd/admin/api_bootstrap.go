@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+
+	"github.com/backd-io/backd/internal/utils"
 
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
@@ -90,6 +93,8 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	user.SetCreate(constants.DBBackdDom, constants.SystemUserID)
 	err = a.mongo.Insert(constants.DBBackdDom, constants.ColUsers, &user)
 	if err != nil {
+		fmt.Println("error creating admin user")
+		utils.Prettify(user)
 		rest.BadRequest(w, r, "error creating admin user")
 		return
 	}

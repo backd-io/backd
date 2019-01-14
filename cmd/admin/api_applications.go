@@ -125,7 +125,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 
 	// fix metadata
 	application.CreatedAt = oldApplication.CreatedAt
-	application.Owner = oldApplication.Owner
+	application.CreatedBy = oldApplication.CreatedBy
 	application.ID = oldApplication.ID
 
 	application.SetUpdate(session.GetDomainId(), session.GetUserId())

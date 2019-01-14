@@ -204,7 +204,7 @@ func (db *Mongo) InsertRBAC(session *pbsessions.Session, isDomain bool, database
 		var metadata structs.Metadata
 		metadata.SetCreate(session.GetDomainId(), session.GetUserId())
 		this["_id"] = NewXID().String()
-		this["_meta"] = metadata
+		this["meta"] = metadata
 		return this, db.Insert(database, collection, this)
 	}
 
@@ -249,9 +249,9 @@ func (db *Mongo) UpdateByIDRBAC(session *pbsessions.Session, isDomain bool, data
 
 		// updated metadata
 		var metadata structs.Metadata
-		err = metadata.FromInterface(oldData["_meta"].(map[string]interface{}))
+		err = metadata.FromInterface(oldData["meta"].(map[string]interface{}))
 		metadata.SetUpdate(session.GetDomainId(), session.GetUserId())
-		this["_meta"] = metadata
+		this["meta"] = metadata
 		return this, db.UpdateByID(database, collection, id, this)
 	}
 

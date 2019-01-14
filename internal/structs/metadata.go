@@ -3,15 +3,17 @@ package structs
 import (
 	"time"
 
+	"github.com/backd-io/backd/internal/utils"
+
 	"github.com/mitchellh/mapstructure"
 )
 
 // Metadata is the struct that represents a metadata information of an struct
 type Metadata struct {
-	Owner     string `json:"_created_by" bson:"cby" mapstructure:"cby"`
-	UpdatedBy string `json:"_updated_by" bson:"uby" mapstructure:"uby"`
-	CreatedAt int64  `json:"_created_at" bson:"cat" mapstructure:"cat"`
-	UpdatedAt int64  `json:"_updated_at" bson:"uat" mapstructure:"uat"`
+	CreatedBy string `json:"cby" bson:"cby" mapstructure:"cby"`
+	UpdatedBy string `json:"uby" bson:"uby" mapstructure:"uby"`
+	CreatedAt int64  `json:"cat" bson:"cat" mapstructure:"cat"`
+	UpdatedAt int64  `json:"uat" bson:"uat" mapstructure:"uat"`
 }
 
 // SetCreate sets the metadata on creation
@@ -19,7 +21,7 @@ func (m *Metadata) SetCreate(domainID, userID string) {
 	now := time.Now().Unix()
 	m.CreatedAt = now
 	m.UpdatedAt = now
-	m.Owner = FullUsername(domainID, userID)
+	m.CreatedBy = FullUsername(domainID, userID)
 	m.UpdatedBy = FullUsername(domainID, userID)
 }
 
@@ -41,20 +43,20 @@ func FullUsername(domainID, userID string) string {
 
 // MongoDB JSON Schema description for metadata validator
 var (
-	metadataRequired  = []string{"_meta.cby", "_meta.uby", "_meta.cat", "_meta.uat"}
+	metadataRequired  = []string{"meta.cby", "meta.uby", "meta.cat", "meta.uat"}
 	metadataValidator = map[string]interface{}{
-		"_meta.cby": map[string]interface{}{
+		"meta.cby": map[string]interface{}{
 			"bsonType": "string",
 			"pattern":  "^[a-zA-Z0-9]+\\/[a-zA-Z0-9]{20}$",
 		},
-		"_meta.uby": map[string]interface{}{
+		"meta.uby": map[string]interface{}{
 			"bsonType": "string",
 			"pattern":  "^[a-zA-Z0-9]+\\/[a-zA-Z0-9]{20}$",
 		},
-		"_meta.cat": map[string]interface{}{
+		"meta.cat": map[string]interface{}{
 			"bsonType": "long",
 		},
-		"_meta.uat": map[string]interface{}{
+		"meta.uat": map[string]interface{}{
 			"bsonType": "long",
 		},
 	}
@@ -70,6 +72,14 @@ func BuildValidator(properties map[string]interface{}, required []string) map[st
 	for _, item := range metadataRequired {
 		required = append(required, item)
 	}
+
+	utils.Prettify(map[string]interface{}{
+		"$jsonSchema": map[string]interface{}{
+			"bsonType":   "object",
+			"required":   required,
+			"properties": properties,
+		},
+	})
 
 	return map[string]interface{}{
 		"$jsonSchema": map[string]interface{}{

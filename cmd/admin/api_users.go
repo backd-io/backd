@@ -139,7 +139,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 
 	// fix metadata
 	user.CreatedAt = oldUser.CreatedAt
-	user.Owner = oldUser.Owner
+	user.CreatedBy = oldUser.CreatedBy
 	user.ID = oldUser.ID
 
 	user.SetUpdate(session.GetDomainId(), session.GetUserId())

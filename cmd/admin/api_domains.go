@@ -126,7 +126,7 @@ func (a *apiStruct) putDomain(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// fix metadata
 	domain.CreatedAt = oldDomain.CreatedAt
-	domain.Owner = oldDomain.Owner
+	domain.CreatedBy = oldDomain.CreatedBy
 	domain.ID = oldDomain.ID
 
 	domain.SetUpdate(session.GetDomainId(), session.GetUserId())

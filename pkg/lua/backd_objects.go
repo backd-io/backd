@@ -3,8 +3,8 @@ package lua
 import (
 	"fmt"
 
-	luajson "github.com/backd-io/gopher-json"
 	lua "github.com/yuin/gopher-lua"
+	luajson "layeh.com/gopher-json"
 )
 
 // module objects
@@ -12,7 +12,6 @@ func (l *Lang) backdObjectsModule(L *lua.LState) int {
 
 	mod := L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
 		"new":      l.newObject,
-		"blank":    l.newObject,
 		"get_one":  l.getObject,
 		"get_many": l.getObjects,
 		"create":   l.createObject,
@@ -51,7 +50,7 @@ func (l *Lang) getObject(L *lua.LState) int {
 		return 2
 	}
 	fmt.Println("data:", data)
-	i := luajson.DecodeInterface(l.env, data)
+	i := luajson.DecodeValue(l.env, data)
 
 	L.Push(i)
 	return 1
@@ -87,7 +86,7 @@ func (l *Lang) createObject(L *lua.LState) int {
 		return 2
 	}
 
-	L.Push(luajson.DecodeInterface(l.env, to))
+	L.Push(luajson.DecodeValue(l.env, to))
 	return 1
 
 }
@@ -120,7 +119,7 @@ func (l *Lang) updateObject(L *lua.LState) int {
 		return 2
 	}
 
-	L.Push(luajson.DecodeInterface(l.env, to))
+	L.Push(luajson.DecodeValue(l.env, to))
 	return 1
 
 }

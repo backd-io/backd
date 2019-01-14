@@ -124,7 +124,7 @@ func (a *apiStruct) putGroup(w http.ResponseWriter, r *http.Request, ps httprout
 
 	// fix metadata
 	group.CreatedAt = oldGroup.CreatedAt
-	group.Owner = oldGroup.Owner
+	group.CreatedBy = oldGroup.CreatedBy
 	group.ID = oldGroup.ID
 
 	group.SetUpdate(session.GetDomainId(), session.GetUserId())

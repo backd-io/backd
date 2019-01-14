@@ -31,7 +31,7 @@ func TestMetadata(t *testing.T) {
 	if got, want := t1, m.UpdatedAt; got > want {
 		t.Errorf("Error Metadata: Update time ('%v') must be older than test time ('%v')", got, want)
 	}
-	if got, want := m.Owner, FullUsername(domain, owner); got != want {
+	if got, want := m.CreatedBy, FullUsername(domain, owner); got != want {
 		t.Errorf("Error Metadata: Owner error: got: '%v', want: '%v'", got, want)
 	}
 	if got, want := m.UpdatedBy, FullUsername(domain, owner); got > want {
@@ -71,14 +71,14 @@ func TestMetadata(t *testing.T) {
 	if got, want := t3, m.UpdatedAt; got < want {
 		t.Errorf("Error Metadata: 3rd test time ('%v') must be older than Update time ('%v')", got, want)
 	}
-	if got, want := m.Owner, FullUsername(domain, owner); got != want {
+	if got, want := m.CreatedBy, FullUsername(domain, owner); got != want {
 		t.Errorf("Error Metadata: Owner error: got: '%v', want: '%v'", got, want)
 	}
 	if got, want := m.UpdatedBy, FullUsername(domain, updater); got > want {
 		t.Errorf("Error Metadata: Updater error: got: '%v', want: '%v'", got, want)
 	}
 	m.SetUpdate(domain, owner)
-	if got, want := m.Owner, FullUsername(domain, owner); got != want {
+	if got, want := m.CreatedBy, FullUsername(domain, owner); got != want {
 		t.Errorf("Error Metadata: Owner error: got: '%v', want: '%v'", got, want)
 	}
 	if got, want := m.UpdatedBy, FullUsername(domain, owner); got > want {

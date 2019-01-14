@@ -2,8 +2,8 @@ package lua
 
 import (
 	"github.com/backd-io/backd/backd"
-	luajson "github.com/backd-io/gopher-json"
 	lua "github.com/yuin/gopher-lua"
+	luajson "layeh.com/gopher-json"
 )
 
 const (

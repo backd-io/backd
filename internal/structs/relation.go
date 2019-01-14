@@ -8,5 +8,5 @@ type Relation struct {
 	Destination   string `json:"dst" bson:"dst"`
 	DestinationID string `json:"did" bson:"did"`
 	Relation      string `json:"rel" bson:"rel"`
-	Metadata      `json:"_meta" bson:"_meta"`
+	Metadata
 }

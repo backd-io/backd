@@ -5,8 +5,8 @@ package structs
 //     a group can have an array of users it can be degraded if grow
 //   Too relation but effective
 type Membership struct {
-	UserID  string `json:"user_id" bson:"u"`
-	GroupID string `json:"group_id" bson:"g"`
+	UserID  string `json:"user_id" bson:"user_id"`
+	GroupID string `json:"group_id" bson:"group_id"`
 }
 
 // MembershipValidator is a schema for the membership collections
@@ -14,13 +14,13 @@ func MembershipValidator() map[string]interface{} {
 	return map[string]interface{}{
 		"$jsonSchema": map[string]interface{}{
 			"bsonType": "object",
-			"required": []string{"u", "g"},
+			"required": []string{"user_id", "group_id"},
 			"properties": map[string]interface{}{
-				"u": map[string]interface{}{
+				"user_id": map[string]interface{}{
 					"bsonType": "string",
 					"pattern":  "^[a-zA-Z0-9]{20}$",
 				},
-				"g": map[string]interface{}{
+				"group_id": map[string]interface{}{
 					"bsonType": "string",
 					"pattern":  "^[a-zA-Z0-9]{20}$",
 				},
@@ -33,15 +33,15 @@ func MembershipValidator() map[string]interface{} {
 var (
 	MembershipIndexes = []Index{
 		{
-			Fields: []string{"u", "g"},
+			Fields: []string{"user_id", "group_id"},
 			Unique: true,
 		},
 		{
-			Fields: []string{"u"},
+			Fields: []string{"user_id"},
 			Unique: false,
 		},
 		{
-			Fields: []string{"g"},
+			Fields: []string{"group_id"},
 			Unique: false,
 		},
 	}

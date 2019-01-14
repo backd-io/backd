@@ -5,9 +5,9 @@ package structs
 //
 type Application struct {
 	ID          string `json:"_id" bson:"_id"`
-	Name        string `json:"name" bson:"n"`
-	Description string `json:"description" bson:"d"`
-	Metadata    `json:"_meta" bson:"_meta"`
+	Name        string `json:"name" bson:"name"`
+	Description string `json:"desc" bson:"desc"`
+	Metadata    `json:"meta" bson:"meta"`
 }
 
 // ApplicationValidator is the JSON schema validation for the applications collection
@@ -19,14 +19,14 @@ func ApplicationValidator() map[string]interface{} {
 				"bsonType": "string",
 				"pattern":  "^[a-zA-Z0-9]{20}$",
 			},
-			"n": map[string]interface{}{
+			"name": map[string]interface{}{
 				"bsonType": "string",
 			},
-			"d": map[string]interface{}{
+			"desc": map[string]interface{}{
 				"bsonType": "string",
 			},
 		},
-		[]string{"_id", "n"},
+		[]string{"_id", "name"},
 	)
 
 }
