@@ -74,7 +74,7 @@ func (l *Lang) Interactive() int {
 	}
 
 	// unreachable but it's good to respect your own rules
-	return 0
+	// return 0
 
 }
 
