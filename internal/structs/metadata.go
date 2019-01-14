@@ -3,8 +3,6 @@ package structs
 import (
 	"time"
 
-	"github.com/backd-io/backd/internal/utils"
-
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -72,14 +70,6 @@ func BuildValidator(properties map[string]interface{}, required []string) map[st
 	for _, item := range metadataRequired {
 		required = append(required, item)
 	}
-
-	utils.Prettify(map[string]interface{}{
-		"$jsonSchema": map[string]interface{}{
-			"bsonType":   "object",
-			"required":   required,
-			"properties": properties,
-		},
-	})
 
 	return map[string]interface{}{
 		"$jsonSchema": map[string]interface{}{

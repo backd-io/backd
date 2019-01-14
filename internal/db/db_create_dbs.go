@@ -1,10 +1,6 @@
 package db
 
 import (
-	"fmt"
-
-	"github.com/backd-io/backd/internal/utils"
-
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/structs"
 	mgo "github.com/globalsign/mgo"
@@ -70,8 +66,6 @@ func (db *Mongo) CreateBackdDatabases() (err error) {
 	thisDomain.Description = "backd domain"
 	thisDomain.SetCreate(constants.DBBackdDom, constants.SystemUserID) // system ID (this domain must no mutate over the time)
 
-	fmt.Printf("thisDomain: \n%#v \n", thisDomain)
-	utils.Prettify(thisDomain)
 	err = db.Insert(constants.DBBackdApp, constants.ColDomains, &thisDomain)
 	return
 
