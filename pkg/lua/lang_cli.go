@@ -31,7 +31,7 @@ func (l *Lang) pretty(L *lua.LState) int {
 
 	item := L.ToUserData(1)
 
-	fmt.Println(item)
+	fmt.Println("item:", item)
 
 	by, err := json.Marshal(item)
 	if err != nil {

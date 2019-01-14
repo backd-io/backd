@@ -22,9 +22,9 @@ func (l *Lang) RunScript(filename string) int {
 	}
 
 	// do not load lua debug package
-	// if err = l.LoadLuaPackage(lua.DebugLibName, lua.OpenDebug); err != nil {
-	// 	panic(err)
-	// }
+	if err = l.LoadLuaPackage(lua.DebugLibName, lua.OpenDebug); err != nil {
+		panic(err)
+	}
 
 	// load lua coroutines package
 	if err = l.LoadLuaPackage(lua.CoroutineLibName, lua.OpenCoroutine); err != nil {
@@ -33,6 +33,9 @@ func (l *Lang) RunScript(filename string) int {
 
 	// preload objects
 	l.env.PreloadModule("objects", l.backdObjectsModule)
+
+	// preload relations
+	l.env.PreloadModule("relations", l.backdRelationsModule)
 
 	// set up backd
 	l.currentAppID = noAppID

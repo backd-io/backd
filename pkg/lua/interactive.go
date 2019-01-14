@@ -38,6 +38,9 @@ func (l *Lang) Interactive() int {
 	// preload objects
 	l.env.PreloadModule("objects", l.backdObjectsModule)
 
+	// preload relations
+	l.env.PreloadModule("relations", l.backdRelationsModule)
+
 	// Find home directory.
 	homeDirectory, err := homedir.Dir()
 	if err != nil {
