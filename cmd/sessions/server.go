@@ -53,13 +53,13 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 			return &response, err
 		}
 
-		err = s.mongo.GetMany(req.GetDomainId(), constants.ColMembership, map[string]interface{}{"u": req.GetUserId()}, []string{}, &memberships, 0, 0)
+		err = s.mongo.GetMany(req.GetDomainId(), constants.ColMembership, map[string]interface{}{"user_id": req.GetUserId()}, []string{}, &memberships, 0, 0)
 		if err != nil {
 			return &response, err
 		}
 
 		for _, membership := range memberships {
-			groups = append(groups, membership["g"])
+			groups = append(groups, membership["group_id"])
 		}
 
 	}

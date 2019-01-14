@@ -30,17 +30,17 @@ func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, colle
 	}
 
 	query = map[string]interface{}{
-		"did": session.GetDomainId(),
-		"iid": bson.M{
+		"domain_id": session.GetDomainId(),
+		"identity_id": bson.M{
 			"$in": db.getIdentities(session),
 		},
-		"c": bson.M{
+		"collection": bson.M{
 			"$in": []string{collection, "*"},
 		},
-		"cid": bson.M{
+		"collection_id": bson.M{
 			"$in": cid,
 		},
-		"p": bson.M{
+		"perm": bson.M{
 			"$in": []backd.Permission{perm, backd.PermissionAdmin},
 		},
 	}
@@ -65,19 +65,19 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database,
 	)
 
 	query = map[string]interface{}{
-		"did": session.GetDomainId(),
-		"iid": bson.M{
+		"domain_id": session.GetDomainId(),
+		"identity_id": bson.M{
 			"$in": db.getIdentities(session),
 		},
-		"c": bson.M{
+		"collection": bson.M{
 			"$in": []string{collection, "*"},
 		},
-		"p": bson.M{
+		"perm": bson.M{
 			"$in": []backd.Permission{perm, backd.PermissionAdmin},
 		},
 	}
 
-	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("cid", &ids)
+	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("collection_id", &ids)
 
 	// see if can see all the items to simplify the query
 	for _, id := range ids {

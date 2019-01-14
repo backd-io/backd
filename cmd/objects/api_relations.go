@@ -5,6 +5,7 @@ import (
 
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
+	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/backd-io/backd/internal/structs"
@@ -249,6 +250,9 @@ func (a *apiStruct) postRelation(w http.ResponseWriter, r *http.Request, ps http
 		rest.Unauthorized(w, r)
 		return
 	}
+
+	relation.ID = db.NewXID().String()
+	relation.SetCreate(session.GetDomainId(), session.GetUserId())
 
 	err = a.mongo.Insert(applicationID, constants.ColRelations, &relation)
 	if err != nil {
