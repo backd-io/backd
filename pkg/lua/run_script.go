@@ -31,11 +31,17 @@ func (l *Lang) RunScript(filename string) int {
 		panic(err)
 	}
 
+	// preload backd
+	l.env.PreloadModule("backd", l.backdModule)
+
 	// preload objects
-	l.env.PreloadModule("objects", l.backdObjectsModule)
+	l.env.PreloadModule("backd.objects", l.backdObjectsModule)
 
 	// preload relations
-	l.env.PreloadModule("relations", l.backdRelationsModule)
+	l.env.PreloadModule("backd.relations", l.backdRelationsModule)
+
+	// preload rbac
+	l.env.PreloadModule("backd.rbac", l.backdRBACModule)
 
 	// set up backd
 	l.currentAppID = noAppID
