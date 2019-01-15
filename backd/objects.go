@@ -55,7 +55,7 @@ func (o *Objects) GetRelationsOf(collection, id, relation, direction string, obj
 
 // RelationGetMany returns all relation structs that matches the conditions especified, not the items itself
 func (o *Objects) RelationGetMany(collection, id, direction string, object interface{}) error {
-	return o.backd.get(objectsMS, []string{"relations", collection, id, direction}, QueryOptions{}, object, o.headers())
+	return o.backd.get(objectsMS, []string{"related", collection, id, direction}, QueryOptions{}, object, o.headers())
 }
 
 // RelationGetByID returns an object by its ID
