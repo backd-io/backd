@@ -98,9 +98,9 @@ println(err)
 }
 
 // objCreate - obj_create (object)
-func (l *Lang) objCreate(collection string, data map[string]interface{}) (string, error) {
+func (l *Lang) objCreate(collection string, data map[string]interface{}) (map[string]interface{}, error) {
 	if l.currentAppID == noAppID {
-		return "", ErrApplicationNotEspecified
+		return map[string]interface{}{}, ErrApplicationNotEspecified
 	}
 	return l.b.Objects(l.currentAppID).Insert(collection, data)
 }

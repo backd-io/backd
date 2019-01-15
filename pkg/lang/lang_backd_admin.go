@@ -61,7 +61,7 @@ func (l *Lang) me() (user backd.User, err error) {
 }
 
 // appCreate - app_create
-func (l *Lang) appCreate(data map[string]interface{}) (string, error) {
+func (l *Lang) appCreate(data map[string]interface{}) (map[string]interface{}, error) {
 	return l.b.Apps().Insert(data)
 }
 
