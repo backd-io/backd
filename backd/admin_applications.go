@@ -35,7 +35,8 @@ type AdminAppRBAC struct {
 	appID string
 }
 
-func (b *Backd) newAdminAppRBAC(appID string) *AdminAppRBAC {
+// RBAC returns an instance of the AdminAppRBAC struct
+func (b *Backd) RBAC(appID string) *AdminAppRBAC {
 	return &AdminAppRBAC{
 		backd: b,
 		appID: appID,
@@ -77,7 +78,7 @@ func (a *AdminAppRBAC) Set(rbac RBAC) error {
 	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
 }
 
-// Get get cirremt role permission set
+// Get get current role permission set
 func (a *AdminAppRBAC) Get(rbac RBAC) error {
 	rbac.Action = RBACActionGet
 	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
