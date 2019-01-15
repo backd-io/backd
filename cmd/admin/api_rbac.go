@@ -14,12 +14,12 @@ import (
 
 // POST /applications/:id/rbac
 func (a *apiStruct) rbacApplications(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	a.rbac(w, r, ps, false)
+	a.rbac(w, r, ps, false, ps.ByName("id")) // from the route /applications/:id
 }
 
 // POST /domains/:id/rbac
 func (a *apiStruct) rbacDomains(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	a.rbac(w, r, ps, true)
+	a.rbac(w, r, ps, true, ps.ByName("domain")) // from the route /domains/:domain
 }
 
 // NOTE: These endpoints do not act as natural REST, since work more like a RPC call. Access to the record on the database won't be done from the API.
@@ -34,13 +34,13 @@ func (a *apiStruct) rbacDomains(w http.ResponseWriter, r *http.Request, ps httpr
 //                To remove all permissions just set an empty array.
 //   - get.     Returns all permissions the entity has granted for the resource. (not need to be explicit, it can be inherit by *)
 //
-func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.Params, isDomain bool) {
+func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.Params, isDomain bool, database string) {
 
 	var (
-		rbac     backd.RBAC
-		database string
-		session  *pbsessions.Session
-		err      error
+		rbac backd.RBAC
+		// database string
+		session *pbsessions.Session
+		err     error
 	)
 
 	// getSession & rbac
@@ -58,14 +58,6 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	if isDomain {
 		rbac.Collection = constants.ColDomains
-		database = ps.ByName("domain") // from the route /domains/:domain
-	} else {
-		database = ps.ByName("id") // from the route /applications/:id
-	}
-
-	if rbac.Action == "" || rbac.Collection == "" || rbac.CollectionID == "" || rbac.DomainID == "" || rbac.IdentityID == "" {
-		rest.BadRequest(w, r, constants.ReasonReadingBody)
-		return
 	}
 
 	// ensure the current user can administer the resource
@@ -78,75 +70,71 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	case backd.RBACActionAdd:
 		for _, perm := range rbac.Permissions {
 			query := map[string]interface{}{
-				"did": rbac.DomainID,
-				"iid": rbac.IdentityID,
-				"c":   rbac.Collection,
-				"cid": rbac.CollectionID,
-				"p":   perm,
+				"domain_id":     rbac.DomainID,
+				"identity_id":   rbac.IdentityID,
+				"collection":    rbac.Collection,
+				"collection_id": rbac.CollectionID,
+				"perm":          perm,
 			}
 			var count int
 			count, err = a.mongo.Count(database, constants.ColRBAC, query)
 			if count == 0 {
 				// insert
-				err = a.mongo.Insert(database, constants.ColRBAC, query)
-				if err != nil {
+				if err = a.mongo.Insert(database, constants.ColRBAC, query); err != nil {
 					rest.ResponseErr(w, err)
 					return
 				}
 			}
 		}
-		rest.Response(w, nil, err, http.StatusOK, "")
+		rest.Response(w, nil, err, http.StatusNoContent, "")
 
 	case backd.RBACActionRemove:
 		for _, perm := range rbac.Permissions {
 			query := map[string]interface{}{
-				"did": rbac.DomainID,
-				"iid": rbac.IdentityID,
-				"c":   rbac.Collection,
-				"cid": rbac.CollectionID,
-				"p":   perm,
+				"domain_id":     rbac.DomainID,
+				"identity_id":   rbac.IdentityID,
+				"collection":    rbac.Collection,
+				"collection_id": rbac.CollectionID,
+				"perm":          perm,
 			}
 			var count int
 			count, err = a.mongo.Count(database, constants.ColRBAC, query)
 			if count == 1 {
 				// insert
-				err = a.mongo.Delete(database, constants.ColRBAC, query)
-				if err != nil {
+				if err = a.mongo.Delete(database, constants.ColRBAC, query); err != nil {
 					rest.ResponseErr(w, err)
 					return
 				}
 			}
 		}
-		rest.Response(w, nil, err, http.StatusOK, "")
+		rest.Response(w, nil, err, http.StatusNoContent, "")
 
 	case backd.RBACActionSet:
 		query := map[string]interface{}{
-			"did": rbac.DomainID,
-			"iid": rbac.IdentityID,
-			"c":   rbac.Collection,
-			"cid": rbac.CollectionID,
+			"domain_id":     rbac.DomainID,
+			"identity_id":   rbac.IdentityID,
+			"collection":    rbac.Collection,
+			"collection_id": rbac.CollectionID,
 		}
 		// remove all
-		err = a.mongo.Delete(database, constants.ColRBAC, query)
-		if err != nil {
+		if err = a.mongo.Delete(database, constants.ColRBAC, query); err != nil {
 			rest.ResponseErr(w, err)
 			return
 		}
 		for _, perm := range rbac.Permissions {
 			query := map[string]interface{}{
-				"did": rbac.DomainID,
-				"iid": rbac.IdentityID,
-				"c":   rbac.Collection,
-				"cid": rbac.CollectionID,
-				"p":   perm,
+				"domain_id":     rbac.DomainID,
+				"identity_id":   rbac.IdentityID,
+				"collection":    rbac.Collection,
+				"collection_id": rbac.CollectionID,
+				"perm":          perm,
 			}
-			err = a.mongo.Insert(database, constants.ColRBAC, query)
-			if err != nil {
+			if err = a.mongo.Insert(database, constants.ColRBAC, query); err != nil {
 				rest.ResponseErr(w, err)
 				return
 			}
 		}
-		rest.Response(w, nil, err, http.StatusOK, "")
+		rest.Response(w, nil, err, http.StatusNoContent, "")
 
 	case backd.RBACActionGet:
 
@@ -170,18 +158,17 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 
 		query := map[string]interface{}{
-			"did": rbac.DomainID,
-			"iid": rbac.IdentityID,
-			"c": bson.M{
+			"domain_id":   rbac.DomainID,
+			"identity_id": rbac.IdentityID,
+			"collection": bson.M{
 				"$in": c,
 			},
-			"cid": bson.M{
+			"collection_id": bson.M{
 				"$in": cid,
 			},
 		}
 
-		err = a.mongo.GetAll(database, constants.ColRBAC, query, []string{}, &permissions)
-		if err != nil {
+		if err = a.mongo.GetAll(database, constants.ColRBAC, query, []string{}, &permissions); err != nil {
 			rest.ResponseErr(w, err)
 			return
 		}
