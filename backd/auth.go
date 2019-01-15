@@ -73,6 +73,21 @@ func (b *Backd) Me() (user User, err error) {
 
 }
 
+// MeMapInterface returns an instance of the current user logged as map[string]interface{}
+func (b *Backd) MeMapInterface() (user map[string]interface{}, err error) {
+
+	var (
+		failure  APIError
+		response *http.Response
+	)
+
+	response, err = b.sling.Set(HeaderSessionID, b.sessionID).Get(b.buildPath(authMS, []string{"me"})).Receive(&user, &failure)
+
+	err = failure.wrapErr(err, response, http.StatusOK)
+	return
+
+}
+
 // Session returns current session status and remaining time if session is established
 func (b *Backd) Session() (string, int, time.Time) {
 
