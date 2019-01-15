@@ -185,10 +185,17 @@ func (b *Backd) insertRBAC(m microservice, parts []string, object interface{}, h
 		sling.Set(key, value)
 	}
 
-	response, err = sling.
-		Post(b.buildPath(m, parts)).
-		BodyJSON(object).
-		Receive(&success, &failure)
+	if _, ok := object.([]byte); ok {
+		response, err = sling.
+			Post(b.buildPath(m, parts)).
+			Body(bytes.NewReader(object.([]byte))).
+			Receive(&success, &failure)
+	} else {
+		response, err = sling.
+			Post(b.buildPath(m, parts)).
+			BodyJSON(object).
+			Receive(&success, &failure)
+	}
 
 	// rebuild err
 	err = failure.wrapErr(err, response, http.StatusOK)
