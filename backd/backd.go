@@ -215,12 +215,12 @@ func (b *Backd) update(m microservice, parts []string, from, to interface{}, hea
 
 	if _, ok := from.([]byte); ok {
 		response, err = sling.
-			Post(b.buildPath(m, parts)).
+			Put(b.buildPath(m, parts)).
 			Body(bytes.NewReader(from.([]byte))).
 			Receive(to, &failure)
 	} else {
 		response, err = sling.
-			Post(b.buildPath(m, parts)).
+			Put(b.buildPath(m, parts)).
 			BodyJSON(from).
 			Receive(to, &failure)
 	}
