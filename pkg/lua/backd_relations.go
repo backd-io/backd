@@ -31,7 +31,7 @@ func (l *Lang) getRelated(L *lua.LState) int {
 		id        string
 		relation  string
 		direction string
-		data      map[string]interface{}
+		data      []interface{}
 		err       error
 	)
 
@@ -59,7 +59,7 @@ func (l *Lang) getManyRelations(L *lua.LState) int {
 		col       string
 		id        string
 		direction string
-		data      map[string]interface{}
+		data      []interface{}
 		err       error
 	)
 
