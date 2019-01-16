@@ -36,6 +36,7 @@ func (l *Lang) getRBAC(L *lua.LState) int {
 
 	obj := L.CheckAny(1)
 
+	// to byte
 	from, err = luajson.Encode(obj)
 	if err != nil {
 		L.Push(lua.LNil)
@@ -43,6 +44,7 @@ func (l *Lang) getRBAC(L *lua.LState) int {
 		return 2
 	}
 
+	// to struct
 	err = json.Unmarshal(from, &rbac)
 	if err != nil {
 		L.Push(lua.LNil)
@@ -50,7 +52,8 @@ func (l *Lang) getRBAC(L *lua.LState) int {
 		return 2
 	}
 
-	err = l.b.RBAC(l.currentAppID).Get(rbac)
+	// fill struct
+	err = l.b.RBAC(l.currentAppID).Get(&rbac)
 	if err != nil {
 		L.Push(lua.LNil)
 		L.Push(lua.LString(err.Error()))

@@ -79,7 +79,7 @@ func (a *AdminAppRBAC) Set(rbac RBAC) error {
 }
 
 // Get get current role permission set
-func (a *AdminAppRBAC) Get(rbac RBAC) error {
+func (a *AdminAppRBAC) Get(rbac *RBAC) error {
 	rbac.Action = RBACActionGet
 	return a.backd.insertRBAC(adminMS, []string{"applications", a.appID, "rbac"}, rbac, a.backd.headers())
 }

@@ -35,8 +35,8 @@ func (l *Lang) Interactive() int {
 		panic(err)
 	}
 
-	// preload backd
-	l.env.PreloadModule("backd", l.backdModule)
+	// preload auth
+	l.env.PreloadModule("backd.auth", l.backdAuthModule)
 
 	// preload objects
 	l.env.PreloadModule("backd.objects", l.backdObjectsModule)
