@@ -50,7 +50,7 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 			session, err = c.CreateSession(ctx, &pbsessions.CreateSessionRequest{
 				UserId:          user.ID,
 				DomainId:        domain.ID,
-				DurationSeconds: 300,
+				DurationSeconds: 3600,
 				Groups:          []string{},
 				External:        false,
 			})
@@ -97,7 +97,7 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 		session, err = c.CreateSession(ctx, &pbsessions.CreateSessionRequest{
 			UserId:          user.ID,
 			DomainId:        domain.ID,
-			DurationSeconds: 300,
+			DurationSeconds: 3600,
 			Groups:          ldapGroups,
 			External:        true,
 		})
