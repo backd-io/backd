@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/structs"
 	mgo "github.com/globalsign/mgo"
@@ -76,6 +78,12 @@ func (db *Mongo) CreateApplicationDatabase(name string) (err error) {
 
 	err = db.CreateCollection(name, constants.ColRelations, structs.RelationValidator(), structs.RelationIndexes)
 	if err != nil {
+		return
+	}
+
+	err = db.CreateCollection(name, constants.ColFunctions, structs.FunctionValidator(), structs.FunctionIndexes)
+	if err != nil {
+		fmt.Println("err:", err)
 		return
 	}
 
