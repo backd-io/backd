@@ -27,6 +27,15 @@ type man struct {
 	Example string
 }
 
+// Clone returns a new instance of Lang copying current configuration of
+//    backd and Lua configuration
+func (l *Lang) Clone() *Lang {
+	var newLang Lang
+	newLang.b = l.b
+	newLang.env = l.env
+	return &newLang
+}
+
 // New returns an instance of a Lua interpreter with the backd
 //   client inside. This allow us to integrate it in many places.
 // Language initialization requires a backd client with endpoints

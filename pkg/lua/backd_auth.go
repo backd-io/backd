@@ -132,6 +132,7 @@ func (l *Lang) getSessionExpiresAt(L *lua.LState) int {
 
 }
 
+// setSession sets the Session information returned by the sessions service from Lua
 func (l *Lang) setSession(L *lua.LState) int {
 
 	var (
@@ -149,6 +150,7 @@ func (l *Lang) setSession(L *lua.LState) int {
 
 }
 
+// setSession sets the Session ID from Lua
 func (l *Lang) setSessionID(L *lua.LState) int {
 
 	var (
@@ -163,6 +165,3 @@ func (l *Lang) setSessionID(L *lua.LState) int {
 	return 1
 
 }
-
-// func (b *Backd) Session() (string, int, time.Time) {
-// func (b *Backd) SetSession(sessionID string, expiresAt int64) {
