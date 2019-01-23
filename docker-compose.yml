@@ -1,0 +1,83 @@
+version: "3.7"
+services:
+
+  admin: 
+    image: backd/admin
+    ports: 
+      - "8084"
+      - "8184"
+    networks:
+      - public
+      - private
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  auth: 
+    image: backd/auth
+    ports: 
+      - "8083"
+      - "8183"
+    networks:
+      - public
+      - private
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  functions: 
+    image: backd/functions
+    ports: 
+      - "8085"
+      - "8185"
+    networks:
+      - public
+      - private
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  objects: 
+    image: backd/objects
+    ports: 
+      - "8081"
+      - "8181"
+    networks:
+      - public
+      - private
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  sessions: 
+    image: backd/sessions
+    ports: 
+      - "8082"
+      - "8182"
+    networks:
+      - private
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  prometheus:
+    image: prom/prometheus
+    ports: 
+      - "8081"
+      - "8181"
+    networks:
+      - public
+      - private
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+networks:
+  public:
+  private:
