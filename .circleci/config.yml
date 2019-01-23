@@ -31,9 +31,8 @@ jobs:
       - run: for i in {admin,auth,backd,functions,objects,sessions}; do gox -osarch="linux/amd64" -output="bin/{{.Dir}}" github.com/backd-io/backd/cmd/$i ; done
 
         # login
-      - run: echo $DOCKER_USER
 
-      - run: docker login -u $DOCKER_USER -p "$DOCKER_PASS"
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
       - run: ./scripts/build.sh
           
