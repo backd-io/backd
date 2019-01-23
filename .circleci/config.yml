@@ -28,8 +28,6 @@ jobs:
 
       - run: go get github.com/mitchellh/gox
 
-      - run: gox -build-toolchain
-
       - run: for i in {admin,auth,backd,functions,objects,sessions}; do gox -osarch="linux/amd64" -output="bin/{{.Dir}}" github.com/backd-io/backd/cmd/$i ; done
 
         # login
