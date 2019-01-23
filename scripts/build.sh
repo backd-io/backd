@@ -7,8 +7,8 @@ cd $GOPATH/src/${PROJECT_REPO}
 GIT_COMMIT=$(git rev-parse HEAD)
 
 for i in {admin,auth,backd,functions,objects,sessions} ; do
-    docker build --force-rm --squash                         \
-        -f scripts/Dockerfile                             \
+    docker build --force-rm                                    \
+        -f scripts/Dockerfile                                  \
         --build-arg ARTIFACT=${i}                              \
         --build-arg VCS_URL=${PROJECT_REPO}                    \
         --build-arg VCS_REF=${GIT_COMMIT}                      \
