@@ -28,26 +28,12 @@ jobs:
 
       - run: go get github.com/mitchellh/gox
 
-      - run: gox -build-toolchain
-
       - run: for i in {admin,auth,backd,functions,objects,sessions}; do gox -osarch="linux/amd64" -output="bin/{{.Dir}}" github.com/backd-io/backd/cmd/$i ; done
 
         # login
+
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
-      - run: 
-        - > 
-          PROJECT_REPO="github.com/backd-io/backd"
-          GIT_COMMIT=$(git rev-parse HEAD)
-          for i in {admin,auth,backd,functions,objects,sessions} ; do
-            docker build --force-rm --squash                         \
-              -f scripts/Dockerfile                             \
-              --build-arg ARTIFACT=${i}                              \
-              --build-arg VCS_URL=${PROJECT_REPO}                    \
-              --build-arg VCS_REF=${GIT_COMMIT}                      \
-              --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-              --build-arg VERSION=latest                             \
-              -t backd/$i:latest
-            docker push backd/${i}:latest
-          done
+      - run: ./scripts/build.sh
+          
 
