@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url=https://$VCS_URL \
       org.label-schema.vendor="antoniofernandezvara+backd@gmail.com" \
       org.label-schema.version=$VERSION \
-      org.label-schema.schema-version="1.0"
+      org.label-schema.schema-version="1.0" \
       maintainer="antoniofernandezvara+backd@gmail.com"
 
 COPY bin/$ARTIFACT /artifact 

@@ -24,6 +24,19 @@ Usage:
 
 ```
 
+## required tools for development
+
+**gox** 
+
+```bash 
+go get github.com/mitchellh/gox
+```
+
+**govendor**
+```bash
+go get -u github.com/kardianos/govendor
+```
+
 ## backd go client
 
 [Client Documentation](https://gowalker.org/github.com/backd-io/backd/backd)
