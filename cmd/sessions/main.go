@@ -36,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server.mongo, err = db.NewMongo("mongodb://localhost:27017")
+	server.mongo, err = db.NewMongo("mongodb://mongodb:27017")
 	if err != nil {
 		log.Fatal(err)
 	}

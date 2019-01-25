@@ -1,0 +1,31 @@
+
+debug = false
+logLevel = "ERROR"
+defaultEntryPoints = ["https","http"]
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "local.backd.io"
+watch = true
+swarmMode = true
+network = "public"
+exposedByDefault = false
+
+# [entryPoints]
+#   [entryPoints.http]
+#   address = ":80"
+#     [entryPoints.http.redirect]
+#     entryPoint = "https"
+#   [entryPoints.https]
+#   address = ":443"
+#   [entryPoints.https.tls]
+
+# [retry]
+
+# [acme]
+# email = "antoniofernandezvara@gmail.com"
+# storage = "acme.json"
+# entryPoint = "https"
+# onHostRule = true
+# [acme.httpChallenge]
+# entryPoint = "http"

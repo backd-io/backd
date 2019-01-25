@@ -11,6 +11,12 @@ Platform for rapid application development.
 println("Work in Progress.")
 ```
 
+## quick-start
+
+```bash
+  docker stack deploy backd --compose-file docker-compose.yml
+```
+
 ## backd-cli
 
 The CLI allows to make most of the actions doable by the using of the API. CLI helps bootstrapping the cluster.
@@ -18,21 +24,19 @@ The CLI allows to make most of the actions doable by the using of the API. CLI h
 Usage:
 
 ```bash
-  # this sample assumes that you already initialized the cli
-  # and set the login user, password and domain in advance
-  export SESSION_ID=$(backd login -q)
 
 ```
 
 ## required tools for development
 
-**gox** 
+### gox
 
-```bash 
+```bash
 go get github.com/mitchellh/gox
 ```
 
-**govendor**
+### govendor
+
 ```bash
 go get -u github.com/kardianos/govendor
 ```

@@ -27,7 +27,7 @@ func main() {
 	)
 
 	// TODO: REMOVE! AND CONFIGURE PROPERLY
-	address := "localhost:8082"
+	address := "sessions:8082"
 
 	// Set up a connection to the sessions server.
 	conn, err = grpc.Dial(address, grpc.WithInsecure())
@@ -36,7 +36,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	mongo, err = db.NewMongo("mongodb://localhost:27017")
+	mongo, err = db.NewMongo("mongodb://mongodb:27017")
 	er(err)
 
 	inst, err = instrumentation.New("0.0.0.0:8183", true)

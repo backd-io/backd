@@ -20,7 +20,7 @@ const (
 	configURLObjects  = "http://localhost:8081"
 	configURLAuth     = "http://localhost:8083"
 	configURLAdmin    = "http://localhost:8084"
-	configURLSessions = "localhost:8082"
+	configURLSessions = "sessions:8082"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 	)
 
 	// TODO: REMOVE! AND CONFIGURE PROPERLY
-	// address := "localhost:8082"
+	// address := "session:8082"
 
 	// Set up a connection to the sessions server.
 	conn, err = grpc.Dial(configURLSessions, grpc.WithInsecure())
@@ -48,7 +48,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	mongo, err = db.NewMongo("mongodb://localhost:27017")
+	mongo, err = db.NewMongo("mongodb://mongodb:27017")
 	er(err)
 
 	inst, err = instrumentation.New("0.0.0.0:8185", true)
@@ -141,7 +141,7 @@ func er(err error) {
 // // 	}
 
 // // 	// initialize mongo connection
-// // 	server.mongo, err = db.NewMongo("mongodb://localhost:27017")
+// // 	server.mongo, err = db.NewMongo("mongodb://mongodb:27017")
 // // 	if err != nil {
 // // 		log.Fatal(err)
 // // 	}
