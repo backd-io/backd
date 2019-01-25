@@ -19,6 +19,8 @@ LABEL org.label-schema.build-date=${BUILD_DATE}                      \
       org.label-schema.schema-version="1.0"                          \
       maintainer="antoniofernandezvara+backd@gmail.com"
 
+RUN apk add --update --no-cache ca-certificates && rm /var/cache/apk/*
+
 COPY bin/${ARTIFACT} /artifact 
 
 EXPOSE ${API_PORT}
