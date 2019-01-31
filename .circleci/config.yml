@@ -14,13 +14,13 @@ jobs:
 
       - run: go test -v ./...
 
-      - setup_remote_docker:
-          docker_layer_caching: true
+      # - setup_remote_docker:
+          # docker_layer_caching: true
 
-      - run: go get github.com/mitchellh/gox
+      # - run: go get github.com/mitchellh/gox
 
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      # - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
-      - run: ./scripts/build.sh
+      # - run: ./scripts/build.sh
           
 
