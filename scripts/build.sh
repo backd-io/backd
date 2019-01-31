@@ -37,9 +37,9 @@ function buildcli () {
     docker push backd/$1:latest
 }
 
-build "objects" 8081 8281
-build "sessions" 8082 8282
-build "auth" 8083 8283
-build "admin" 8084 8284
-build "functions" 8085 8285
+build "objects" 8081 8181
+build "sessions" 8082 8182
+build "auth" 8083 8183
+build "admin" 8084 8184
+build "functions" 8085 8185
 buildcli "backd"
