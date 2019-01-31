@@ -13,3 +13,6 @@
 
 bin/
 data/
+
+## ignore binary if compiled for testing
+cmd/backd/backd

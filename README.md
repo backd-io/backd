@@ -17,6 +17,15 @@ println("Work in Progress.")
   docker stack deploy backd --compose-file docker-compose.yml
 ```
 
+```bash
+# retrieve logged in token
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kubernetes-dashboard-token | awk '{print $1}')
+
+# proxy to dashboard, visit: https://127.0.0.1:8443/
+export POD_NAME=$(kubectl get pods -n kube-system -l "app=kubernetes-dashboard,release=dashboard" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n kube-system port-forward $POD_NAME 8443:8443
+```
+
 ## backd-cli
 
 The CLI allows to make most of the actions doable by the using of the API. CLI helps bootstrapping the cluster.
