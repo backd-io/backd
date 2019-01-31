@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: backd-ingress
+  namespace: backd
+spec:
+  rules:
+  - host: admin.backd.io
+    http:
+      paths:
+      - backend:
+          serviceName: admin
+          servicePort: "api"
+  - host: auth.backd.io
+    http:
+      paths:
+      - backend:
+          serviceName: auth
+          servicePort: "api"
+  - host: objects.backd.io
+    http:
+      paths:
+      - backend:
+          serviceName: objects
+          servicePort: "api"
+  - host: functions.backd.io
+    http:
+      paths:
+      - backend:
+          serviceName: functions
+          servicePort: "api"
