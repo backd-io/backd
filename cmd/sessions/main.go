@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -20,14 +21,23 @@ func main() {
 	// TODO: Add configuration...
 
 	var (
-		server sessionsServer
-		err    error
+		server   sessionsServer
+		mongoURL string
+		err      error
 	)
+
+	mongoURL = os.Getenv("MONGO_URL")
+	if mongoURL == "" {
+		fmt.Println("MONGO_URL not found")
+		os.Exit(1)
+	}
 
 	server.inst, err = instrumentation.New("0.0.0.0:8182", true)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	server.inst.RegisterGauge("sessions_in_use", "Sessions in use", []string{"hostname"})
 
 	server.store = store.New(server.inst, 10*time.Second)
 
@@ -36,7 +46,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server.mongo, err = db.NewMongo("mongodb://mongodb:27017")
+	server.mongo, err = db.NewMongo(mongoURL)
 	if err != nil {
 		log.Fatal(err)
 	}

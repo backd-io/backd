@@ -3,6 +3,8 @@ package store
 import (
 	"fmt"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func (s *Store) startTicker() {
@@ -35,6 +37,8 @@ func (s *Store) removeExpired() {
 			expired++
 		}
 	}
+
+	s.inst.Metric("sessions_in_use").(*prometheus.GaugeVec).WithLabelValues(s.inst.Hostname()).Set(float64(len(s.m)))
 
 	fmt.Println("Expired keys:", expired, "Remain:", len(s.m), "Took:", time.Since(now).String())
 }

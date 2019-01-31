@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/backd-io/backd/internal/constants"
@@ -32,6 +33,8 @@ func (a *apiStruct) postFunction(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	err = rest.GetFromBody(r, &input)
+	fmt.Println("GetFromBody.err:", err)
+	fmt.Println("GetFromBody.input:", input)
 	if err != nil {
 		rest.BadRequest(w, r, constants.ReasonReadingBody)
 		return

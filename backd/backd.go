@@ -11,16 +11,17 @@ import (
 
 // Backd is the struct that holds the client for the service
 type Backd struct {
-	sling      *sling.Sling
-	authURL    string
-	objectsURL string
-	adminURL   string
-	sessionID  string
-	expiresAt  int64
+	sling        *sling.Sling
+	authURL      string
+	objectsURL   string
+	adminURL     string
+	functionsURL string
+	sessionID    string
+	expiresAt    int64
 }
 
 // NewClient returns an usable client to connect to an instance of Backd
-func NewClient(authURL, objectsURL, adminURL string) *Backd {
+func NewClient(authURL, objectsURL, adminURL, functionsURL string) *Backd {
 
 	var (
 		backd Backd
@@ -29,6 +30,7 @@ func NewClient(authURL, objectsURL, adminURL string) *Backd {
 	backd.authURL = authURL
 	backd.objectsURL = objectsURL
 	backd.adminURL = adminURL
+	backd.functionsURL = functionsURL
 	backd.ConnectionTimeouts(5, 5, 10)
 
 	return &backd

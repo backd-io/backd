@@ -22,6 +22,9 @@ func (l *Lang) PrepareFunctions() *Lang {
 	// preload rbac
 	l.env.PreloadModule("backd.rbac", l.backdRBACModule)
 
+	// preload rbac
+	l.env.PreloadModule("backd.functions", l.backdFunctionsModule)
+
 	return l
 }
 

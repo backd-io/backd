@@ -17,14 +17,20 @@ func main() {
 	var (
 		routes map[string]map[string]rest.APIEndpoint
 
-		server *rest.REST
-		conn   *grpc.ClientConn
-		inst   *instrumentation.Instrumentation
-		mongo  *db.Mongo
-		api    *apiStruct
-
-		err error
+		server   *rest.REST
+		conn     *grpc.ClientConn
+		inst     *instrumentation.Instrumentation
+		mongo    *db.Mongo
+		api      *apiStruct
+		mongoURL string
+		err      error
 	)
+
+	mongoURL = os.Getenv("MONGO_URL")
+	if mongoURL == "" {
+		fmt.Println("MONGO_URL not found")
+		os.Exit(1)
+	}
 
 	// TODO: REMOVE! AND CONFIGURE PROPERLY
 	address := "sessions:8082"
@@ -36,7 +42,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	mongo, err = db.NewMongo("mongodb://mongodb:27017")
+	mongo, err = db.NewMongo(mongoURL)
 	er(err)
 
 	inst, err = instrumentation.New("0.0.0.0:8183", true)

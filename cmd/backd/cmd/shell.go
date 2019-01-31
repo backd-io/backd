@@ -43,13 +43,10 @@ func shellFunc(cmd *cobra.Command, args []string) {
 
 }
 
-func tryLogin() {
+func tryLogin() (username, password, domain string) {
 
 	var (
-		username string
-		password string
-		domain   string
-		err      error
+		err error
 	)
 
 	username = viper.GetString(configLoginUsername)
@@ -75,4 +72,5 @@ func tryLogin() {
 		emptyLines(2)
 		os.Exit(3)
 	}
+	return
 }

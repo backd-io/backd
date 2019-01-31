@@ -1,7 +1,7 @@
 package cmd
 
 // version
-const version = "0.0.1"
+const version = "0.1.0"
 
 // config
 const (
@@ -19,6 +19,7 @@ const (
 	configURLAuth              string = "url.auth"
 	configURLObjects           string = "url.objects"
 	configURLAdmin             string = "url.admin"
+	configURLFunctions         string = "url.functions"
 )
 
 // Questions & answers

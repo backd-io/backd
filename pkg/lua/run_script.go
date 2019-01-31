@@ -43,6 +43,12 @@ func (l *Lang) RunScript(filename string) int {
 	// preload rbac
 	l.env.PreloadModule("backd.rbac", l.backdRBACModule)
 
+	// preload rbac
+	l.env.PreloadModule("backd.functions", l.backdFunctionsModule)
+
+	// preload ssh
+	l.env.PreloadModule("ssh", packageSSHModule)
+
 	// set up backd
 	l.currentAppID = noAppID
 

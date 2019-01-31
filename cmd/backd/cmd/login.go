@@ -20,9 +20,12 @@ import (
 	"time"
 
 	"github.com/backd-io/backd/backd"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+)
+
+var (
+	flagSaveSession bool
 )
 
 // loginCmd represents the login command
@@ -39,8 +42,6 @@ func init() {
 	loginCmd.Flags().BoolVarP(&flagSaveSession, "save-session", "s", false, "saves the session information for later usage")
 }
 
-var flagSaveSession bool
-
 func loginFunc(cmd *cobra.Command, args []string) {
 
 	var (
@@ -48,32 +49,9 @@ func loginFunc(cmd *cobra.Command, args []string) {
 		password              string
 		domain                string
 		saveSessionIDQuestion string
-		err                   error
 	)
 
-	username = viper.GetString(configLoginUsername)
-	password = viper.GetString(configLoginPassword)
-	domain = viper.GetString(configLoginDomain)
-
-	if username == "" {
-		username = promptText("Username", "", min2max254)
-	}
-
-	if password == "" {
-		password = promptPassword("Password", min2max254)
-	}
-
-	if domain == "" {
-		domain = promptText("Domain", "", nil)
-	}
-
-	err = cli.backd.Login(username, password, domain)
-	if err != nil {
-		emptyLines(2)
-		printError("User/Password/Domain does not match")
-		emptyLines(2)
-		os.Exit(3)
-	}
+	username, password, domain = tryLogin()
 
 	sessionID, state, expiresAt := cli.backd.Session()
 	if state != backd.StateLoggedIn {

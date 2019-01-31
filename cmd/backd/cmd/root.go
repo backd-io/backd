@@ -106,6 +106,7 @@ func initCli() {
 			backd: backd.NewClient(viper.GetString(configURLAuth),
 				viper.GetString(configURLObjects),
 				viper.GetString(configURLAdmin),
+				viper.GetString(configURLFunctions),
 			),
 		}
 

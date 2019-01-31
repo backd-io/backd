@@ -74,6 +74,7 @@ const (
 	adminMS microservice = iota
 	authMS
 	objectsMS
+	functionsMS
 )
 
 func (b *Backd) buildPath(m microservice, parts []string) string {
@@ -89,6 +90,8 @@ func (b *Backd) buildPath(m microservice, parts []string) string {
 		urlString = b.authURL
 	case objectsMS:
 		urlString = b.objectsURL
+	case functionsMS:
+		urlString = b.functionsURL
 	}
 
 	u, err := url.Parse(urlString)

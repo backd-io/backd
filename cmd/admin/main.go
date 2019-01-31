@@ -15,16 +15,21 @@ import (
 func main() {
 
 	var (
-		routes map[string]map[string]rest.APIEndpoint
-
-		server *rest.REST
-		conn   *grpc.ClientConn
-		inst   *instrumentation.Instrumentation
-		mongo  *db.Mongo
-		api    *apiStruct
-
-		err error
+		routes   map[string]map[string]rest.APIEndpoint
+		server   *rest.REST
+		conn     *grpc.ClientConn
+		inst     *instrumentation.Instrumentation
+		mongo    *db.Mongo
+		api      *apiStruct
+		mongoURL string
+		err      error
 	)
+
+	mongoURL = os.Getenv("MONGO_URL")
+	if mongoURL == "" {
+		fmt.Println("MONGO_URL not found")
+		os.Exit(1)
+	}
 
 	// TODO: REMOVE! AND CONFIGURE PROPERLY
 	address := "sessions:8082"
@@ -36,7 +41,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	mongo, err = db.NewMongo("mongodb://mongodb:27017")
+	mongo, err = db.NewMongo(mongoURL)
 	er(err)
 
 	inst, err = instrumentation.New("0.0.0.0:8184", true)
@@ -62,6 +67,14 @@ func main() {
 			"/applications/:id": {
 				Handler: api.getApplicationByID,
 				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/applications/:id/functions": {
+				Handler: api.getFunctions,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", ""},
+			},
+			"/applications/:id/functions/:name": {
+				Handler: api.getFunctionByID,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", "", "^[a-zA-Z0-9-]{2,32}$"},
 			},
 			"/domains": {
 				Handler: api.getDomains,
@@ -105,6 +118,10 @@ func main() {
 				Handler: api.rbacApplications,
 				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", ""},
 			},
+			"/applications/:id/functions": {
+				Handler: api.postFunction,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", ""},
+			},
 			"/bootstrap": {
 				Handler: api.postBootstrap,
 				Matcher: []string{""},
@@ -131,6 +148,10 @@ func main() {
 				Handler: api.putApplication,
 				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
 			},
+			"/applications/:id/functions/:name": {
+				Handler: api.putFunction,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", "", "^[a-zA-Z0-9-]{2,32}$"},
+			},
 			"/domains/:domain": {
 				Handler: api.putDomain,
 				Matcher: []string{"", "^[a-zA-Z0-9-]{1,32}$"},
@@ -152,6 +173,10 @@ func main() {
 			"/applications/:id": {
 				Handler: api.deleteApplication,
 				Matcher: []string{"", "^[a-zA-Z0-9]{20}$"},
+			},
+			"/applications/:id/functions/:name": {
+				Handler: api.deleteFunction,
+				Matcher: []string{"", "^[a-zA-Z0-9]{20}$", "", "^[a-zA-Z0-9-]{1,32}$"},
 			},
 			"/domains/:domain": {
 				Handler: api.deleteDomain,

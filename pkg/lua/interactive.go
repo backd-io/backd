@@ -47,6 +47,12 @@ func (l *Lang) Interactive() int {
 	// preload rbac
 	l.env.PreloadModule("backd.rbac", l.backdRBACModule)
 
+	// preload rbac
+	l.env.PreloadModule("backd.functions", l.backdFunctionsModule)
+
+	// preload ssh
+	l.env.PreloadModule("ssh", packageSSHModule)
+
 	// Find home directory.
 	homeDirectory, err := homedir.Dir()
 	if err != nil {

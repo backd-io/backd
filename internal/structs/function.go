@@ -2,11 +2,11 @@ package structs
 
 // Function defines a function to be called from other places API, scheduler, etc
 type Function struct {
-	ID       string `json:"_id" bson:"_id"`
-	Name     string `json:"name" bson:"name"`
-	API      bool   `json:"api" bson:"api"`
-	RunAs    string `json:"run_as" bson:"run_as"`
-	Code     string `json:"code" bson:"code"`
+	ID       string `json:"_id" bson:"_id"`       // xid.ID
+	Name     string `json:"name" bson:"name"`     // function friendly name (regexp: ^[a-zA-Z0-9]{2,32}$)
+	API      bool   `json:"api" bson:"api"`       // usable from functions API?
+	RunAs    string `json:"run_as" bson:"run_as"` // domain and userID that will run the function
+	Code     string `json:"code" bson:"code"`     // source code
 	Metadata `json:"meta" bson:"meta"`
 }
 

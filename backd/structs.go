@@ -168,3 +168,13 @@ type Relation struct {
 	Relation      string `json:"rel"`
 	Metadata      `json:"meta"`
 }
+
+// Function defines a function to be called from other places API, scheduler, etc
+type Function struct {
+	ID       string `json:"_id"`
+	Name     string `json:"name"`
+	API      bool   `json:"api"`
+	RunAs    string `json:"run_as"`
+	Code     string `json:"code"`
+	Metadata `json:"meta"`
+}

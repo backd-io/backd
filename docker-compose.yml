@@ -3,12 +3,8 @@ services:
 
   traefik:
     image: traefik
-    command: --web \
-      --docker \
-      --docker.swarmmode \
-      --docker.domain=local.backd.io \
-      --docker.watch \
-      --logLevel=DEBUG
+    command: -c \
+      /traefik.toml
     networks:
       - public
       - private
@@ -22,9 +18,14 @@ services:
       placement:
         constraints: 
           - node.role==manager
+      labels:
+        prometheus.enable: "true"
+        prometheus.port: 8080
+        prometheus.path: /metrics
+        prometheus.job: traefik
 
   admin: 
-    image: backd/admin
+    image: backd/admin:latest
     ports: 
       - "8084"
       - "8184"
@@ -32,7 +33,7 @@ services:
       - public
       - private
     environment:
-      - METRICS_ENDPOINT=:8184/metrics
+      MONGO_URL: "mongodb://mongodb:27017"
     depends_on:
       - mongodb
     deploy:
@@ -40,18 +41,18 @@ services:
       restart_policy:
         condition: on-failure
       labels:
-        - "traefik.enable=true"
-        - "traefik.port=8084"
-        - "traefik.docker.network=backd_public"
-        - "traefik.frontend.rule=Host:admin.local.backd.io"
-        - "traefik.frontend.protocol=http"
-        - "prometheus.enable=true"
-        - "prometheus.port=8184"
-        - "prometheus.path=/metrics"
-        - "prometheus.job=admin"
+        traefik.enable: "true"
+        traefik.port: 8084
+        traefik.docker.network: backd_public
+        traefik.frontend.rule: "Host:admin.local.backd.io"
+        traefik.frontend.protocol: http
+        prometheus.enable: "true"
+        prometheus.port: 8184
+        prometheus.path: /metrics
+        prometheus.job: admin
 
   auth: 
-    image: backd/auth
+    image: backd/auth:latest
     ports: 
       - "8083"
       - "8183"
@@ -59,7 +60,7 @@ services:
       - public
       - private
     environment:
-      - METRICS_ENDPOINT=:8183/metrics
+      MONGO_URL: "mongodb://mongodb:27017"
     depends_on:
       - mongodb
     deploy:
@@ -67,18 +68,21 @@ services:
       restart_policy:
         condition: on-failure
       labels:
-        - "traefik.enable=true"
-        - "traefik.port=8083"
-        - "traefik.docker.network=backd_public"
-        - "traefik.frontend.rule=Host:auth.local.backd.io"
-        - "traefik.frontend.protocol=http"
-        - "prometheus.enable=true"
-        - "prometheus.port=8183"
-        - "prometheus.path=/metrics"
-        - "prometheus.job=auth"
+        traefik.enable: "true"
+        traefik.docker.network: backd_public
+        traefik.api.port: 8083
+        traefik.api.frontend.rule: "Host:auth.local.backd.io"
+        traefik.api.frontend.protocol: http
+        traefik.metrics.port: 8183
+        traefik.metrics.frontend.rule: "Host:auth-metrics.local.backd.io"
+        traefik.metrics.frontend.protocol: http
+        prometheus.enable: "true"
+        prometheus.port: 8183
+        prometheus.path: /metrics
+        prometheus.job: auth
 
   functions: 
-    image: backd/functions
+    image: backd/functions:latest
     ports: 
       - "8085"
       - "8185"
@@ -86,7 +90,7 @@ services:
       - public
       - private
     environment:
-      - METRICS_ENDPOINT=:8185/metrics
+      MONGO_URL: "mongodb://mongodb:27017"
     depends_on:
       - mongodb
     deploy:
@@ -94,18 +98,18 @@ services:
       restart_policy:
         condition: on-failure
       labels:
-        - "traefik.enable=true"
-        - "traefik.port=8085"
-        - "traefik.docker.network=backd_public"
-        - "traefik.frontend.rule=Host:functions.local.backd.io"
-        - "traefik.frontend.protocol=http"
-        - "prometheus.enable=true"
-        - "prometheus.port=8185"
-        - "prometheus.path=/metrics"
-        - "prometheus.job=functions"
+        traefik.enable: "true"
+        traefik.port: 8085
+        traefik.docker.network: backd_public
+        traefik.frontend.rule: "Host:functions.local.backd.io"
+        traefik.frontend.protocol: http
+        prometheus.enable: "true"
+        prometheus.port: 8185
+        prometheus.path: /metrics
+        prometheus.job: functions
 
   objects: 
-    image: backd/objects
+    image: backd/objects:latest
     ports: 
       - "8081"
       - "8181"
@@ -113,7 +117,7 @@ services:
       - public
       - private
     environment:
-      - METRICS_ENDPOINT=:8181/metrics
+      MONGO_URL: "mongodb://mongodb:27017"
     depends_on:
       - mongodb
     deploy:
@@ -121,36 +125,39 @@ services:
       restart_policy:
         condition: on-failure
       labels:
-        - "traefik.enable=true"
-        - "traefik.port=8081"
-        - "traefik.docker.network=backd_public"
-        - "traefik.frontend.rule=Host:objects.local.backd.io"
-        - "traefik.frontend.protocol=http"
-        - "prometheus.enable=true"
-        - "prometheus.port=8181"
-        - "prometheus.path=/metrics"
-        - "prometheus.job=objects"
+        traefik.enable: "true"
+        traefik.docker.network: backd_public
+        traefik.api.port: 8081
+        traefik.api.frontend.rule: "Host:objects.local.backd.io"
+        traefik.api.frontend.protocol: http
+        traefik.metrics.port: 8181
+        traefik.metrics.frontend.rule: "Host:objects-metrics.local.backd.io"
+        traefik.metrics.frontend.protocol: http
+        prometheus.enable: "true"
+        prometheus.port: 8181
+        prometheus.path: /metrics
+        prometheus.job: objects
 
   sessions: 
-    image: backd/sessions
+    image: backd/sessions:latest
     ports: 
       - "8082"
       - "8182"
     networks:
       - private
-    environment:
-      - METRICS_ENDPOINT=:8182/metrics
     depends_on:
       - mongodb
+    environment:
+      MONGO_URL: "mongodb://mongodb:27017"
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
       labels:
-        - "prometheus.enable=true"
-        - "prometheus.port=8182"
-        - "prometheus.path=/metrics"
-        - "prometheus.job=sessions"
+        prometheus.enable: "true"
+        prometheus.port: 8182
+        prometheus.path: /metrics
+        prometheus.job: sessions
 
   mongodb:
     image: mongo:4.0.5
@@ -185,15 +192,15 @@ services:
       restart_policy:
         condition: on-failure
       labels:
-        - "traefik.enable=true"
-        - "traefik.port=9090"
-        - "traefik.docker.network=backd_public"
-        - "traefik.frontend.rule=Host:prometheus.local.backd.io"
-        - "traefik.frontend.protocol=http"
-        - "prometheus.enable=true"
-        - "prometheus.port=9090"
-        - "prometheus.path=/metrics"
-        - "prometheus.job=prometheus"
+        traefik.enable: "true"
+        traefik.port: 9090
+        traefik.docker.network: backd_public
+        traefik.frontend.rule: "Host:prometheus.local.backd.io"
+        traefik.frontend.protocol: http
+        prometheus.enable: "true"
+        prometheus.port: 9090
+        prometheus.path: /metrics
+        prometheus.job: prometheus
 
   grafana:
     image: grafana/grafana:master
@@ -211,11 +218,14 @@ services:
       restart_policy:
         condition: on-failure
       labels:
-        - "traefik.enable=true"
-        - "traefik.port=3000"
-        - "traefik.docker.network=backd_public"
-        - "traefik.frontend.rule=Host:grafana.local.backd.io"
-        - "traefik.frontend.protocol=http"
+        traefik.enable: "true"
+        traefik.port: 3000
+        traefik.docker.network: backd_public
+        traefik.frontend.rule: "Host:grafana.local.backd.io"
+        traefik.frontend.protocol: http
+  
+  # loki:
+  #   image: grafana/loki:master-a196c27
 
   swarm-discovery-server:
     image: jmendiara/prometheus-swarm-discovery:0.2.0

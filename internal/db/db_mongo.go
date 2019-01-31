@@ -172,18 +172,42 @@ func (db *Mongo) Count(database, collection string, query map[string]interface{}
 // GetMany returns all records that meets the desired filter,
 //   skip and limit must be passed to limit the number of results
 func (db *Mongo) GetMany(database, collection string, query interface{}, sort []string, this interface{}, skip, limit int) error {
+
+	var err error
+
 	if len(sort) > 0 {
-		return db.session.DB(database).C(collection).Find(query).Sort(sort...).Skip(skip).Limit(limit).All(this)
+		err = db.session.DB(database).C(collection).Find(query).Sort(sort...).Skip(skip).Limit(limit).All(this)
+		if err == mgo.ErrNotFound {
+			return nil // do no return error, return an empty array
+		}
+		return err
 	}
-	return db.session.DB(database).C(collection).Find(query).Skip(skip).Limit(limit).All(this)
+	err = db.session.DB(database).C(collection).Find(query).Skip(skip).Limit(limit).All(this)
+	if err == mgo.ErrNotFound {
+		return nil // do no return error, return an empty array
+	}
+	return err
+
 }
 
 // GetAll returns all records that meets the desired filter
 func (db *Mongo) GetAll(database, collection string, query interface{}, sort []string, this interface{}) error {
+
+	var err error
+
 	if len(sort) > 0 {
-		return db.session.DB(database).C(collection).Find(query).Sort(sort...).All(this)
+		err = db.session.DB(database).C(collection).Find(query).Sort(sort...).All(this)
+		if err == mgo.ErrNotFound {
+			return nil // do no return error, return an empty array
+		}
+		return err
 	}
-	return db.session.DB(database).C(collection).Find(query).All(this)
+	err = db.session.DB(database).C(collection).Find(query).All(this)
+	if err == mgo.ErrNotFound {
+		return nil // do no return error, return an empty array
+	}
+	return err
+
 }
 
 // GetOne returns one object by query

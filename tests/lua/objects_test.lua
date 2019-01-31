@@ -23,8 +23,9 @@ end
 -- pre - cleanup
 query = {}
 items, count = objects.get_many(col, query, {}, 1, 5000)
-
-for i = 1, count do 
+-- print(items)
+-- print(count)
+for i = 1, count do
   print(string.format("delete.id: '%s'", items[i]._id))
   assert(objects.delete(col, items[i]._id) == true)
 end

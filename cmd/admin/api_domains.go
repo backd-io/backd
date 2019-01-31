@@ -90,6 +90,12 @@ func (a *apiStruct) postDomain(w http.ResponseWriter, r *http.Request, ps httpro
 	domain.SetCreate(session.GetDomainId(), session.GetUserId())
 	domain.ID = db.NewXID().String()
 
+	err = a.mongo.CreateDomainDatabase(domain.ID)
+	if err != nil {
+		rest.ResponseErr(w, err)
+		return
+	}
+
 	err = a.mongo.InsertRBACInterface(session, true, constants.DBBackdApp, constants.ColDomains, &domain)
 	rest.Response(w, domain, err, http.StatusCreated, "")
 

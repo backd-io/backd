@@ -62,6 +62,35 @@ func title(message string) {
 	printlnColor(message, true, color.FgGreen, color.Underline)
 }
 
+func promptOptionsBool(promptLabel, trueString, falseString string, initialValue bool) bool {
+
+	var (
+		items  []string
+		result string
+		err    error
+	)
+
+	if initialValue {
+		items = []string{trueString, falseString}
+	} else {
+		items = []string{falseString, trueString}
+	}
+
+	prompt := promptui.Select{
+		Label: promptLabel,
+		Items: items,
+	}
+
+	_, result, err = prompt.Run()
+	er(err)
+
+	if result == trueString {
+		return true
+	}
+	return false
+
+}
+
 func promptOptions(promptLabel, cancelLabel string, promptItems []string) string {
 
 	var (
@@ -144,7 +173,11 @@ func validateURL(input string) error {
 }
 
 func min2max254(input string) error {
-	return minmax(input, 0, 254)
+	return minmax(input, 2, 254)
+}
+
+func min2max32(input string) error {
+	return minmax(input, 2, 32)
 }
 
 func max254(input string) error {

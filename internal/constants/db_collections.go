@@ -22,6 +22,6 @@ const (
 
 //  Databases for Backd
 const (
-	DBBackdApp = "_backd"
+	DBBackdApp = "_backd" // this application cannot be browseable by API because of its name. It must not contain any collection or function created by users
 	DBBackdDom = "backd"
 )

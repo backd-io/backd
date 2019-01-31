@@ -89,7 +89,14 @@ func (a *apiStruct) postApplication(w http.ResponseWriter, r *http.Request, ps h
 	application.SetCreate(session.GetDomainId(), session.GetUserId())
 	application.ID = db.NewXID().String()
 
-	err = a.mongo.InsertRBACInterface(session, true, constants.DBBackdApp, constants.ColApplications, &application)
+	// Create application skeleton
+	err = a.mongo.CreateApplicationDatabase(application.ID)
+	if err != nil {
+		rest.ResponseErr(w, err)
+		return
+	}
+
+	err = a.mongo.InsertRBACInterface(session, false, constants.DBBackdApp, constants.ColApplications, &application)
 	rest.Response(w, application, err, http.StatusCreated, "")
 
 }
@@ -117,7 +124,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &oldApplication)
+	err = a.mongo.GetOneByIDRBACInterface(session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &oldApplication)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -130,7 +137,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 
 	application.SetUpdate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.UpdateByIDRBACInterface(session, true, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
+	err = a.mongo.UpdateByIDRBACInterface(session, false, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
 	rest.Response(w, application, err, http.StatusOK, "")
 
 }
@@ -139,5 +146,20 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 func (a *apiStruct) deleteApplication(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	a.delete(w, r, ps, constants.DBBackdApp, constants.ColApplications)
+
+	var (
+		session *pbsessions.Session
+		err     error
+	)
+
+	// getSession & rbac
+	session, err = a.getSession(r)
+	if err != nil {
+		rest.ResponseErr(w, err)
+		return
+	}
+
+	err = a.mongo.DeleteByIDRBAC(session, false, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"))
+	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }
