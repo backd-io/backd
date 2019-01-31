@@ -85,6 +85,32 @@ func (i *Instrumentation) Shutdown() error {
 	return i.httpServer.Shutdown(context.Background())
 }
 
+// RegisterCounter registers gauges
+func (i *Instrumentation) RegisterCounter(name, help string, labels []string) {
+
+	i.Lock()
+	defer i.Unlock()
+
+	switch len(labels) {
+	case 0:
+		i.metrics[name] = prometheus.NewCounter(
+			prometheus.CounterOpts{
+				Name: name,
+				Help: help,
+			})
+	default:
+		i.metrics[name] = prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Name: name,
+				Help: help,
+			},
+			labels)
+	}
+
+	prometheus.MustRegister(i.metrics[name])
+
+}
+
 // RegisterGauge registers gauges
 func (i *Instrumentation) RegisterGauge(name, help string, labels []string) {
 
@@ -131,6 +157,33 @@ func (i *Instrumentation) RegisterHistogram(name, help string, labels []string, 
 				Name:    name,
 				Help:    help,
 				Buckets: buckets,
+			},
+			labels)
+	}
+
+	prometheus.MustRegister(i.metrics[name])
+
+}
+
+// RegisterSummary registers a new summany to be consumed by Prometheus
+func (i *Instrumentation) RegisterSummary(name, help string, labels []string) {
+
+	i.Lock()
+	defer i.Unlock()
+
+	switch len(labels) {
+	case 0:
+		i.metrics[name] = prometheus.NewSummary(
+			prometheus.SummaryOpts{
+				Name: name,
+				Help: help,
+			},
+		)
+	default:
+		i.metrics[name] = prometheus.NewSummaryVec(
+			prometheus.SummaryOpts{
+				Name: name,
+				Help: help,
 			},
 			labels)
 	}

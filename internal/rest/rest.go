@@ -26,9 +26,10 @@ func New(ipPort string) *REST {
 	}
 }
 
-func (rr *REST) log(isErr bool, msg, method, uri, remote string, httpErrorCode, size int, duration time.Duration) {
+func (rr *REST) log(isErr bool, msg, method, route, uri, remote string, httpErrorCode, size int, duration time.Duration) {
 
-	rr.addOperationDuration("backd_rest_ops", method, uri, strconv.Itoa(httpErrorCode), duration)
+	rr.addOperationDuration("backd_rest_ops", method, route, strconv.Itoa(httpErrorCode), duration)
+	rr.addOperationCounter("backd_rest_counter", method, route, strconv.Itoa(httpErrorCode))
 
 	if isErr {
 		rr.inst.Error(msg,

@@ -41,13 +41,13 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *inst
 					ww := NewLogResponseWriter(w)
 					localFunction(ww, r, ps)
 
-					rr.log(false, "hit", localMethod, r.RequestURI, r.RemoteAddr, ww.Status(), ww.Size(), time.Since(now))
+					rr.log(false, "hit", localMethod, localRoute, r.RequestURI, r.RemoteAddr, ww.Status(), ww.Size(), time.Since(now))
 					return
 				}
 
 				BadRequest(w, r, "route not match")
 
-				rr.log(true, "hit", localMethod, r.RequestURI, r.RemoteAddr, http.StatusBadRequest, 0, time.Since(now))
+				rr.log(true, "hit", localMethod, localRoute, r.RequestURI, r.RemoteAddr, http.StatusBadRequest, 0, time.Since(now))
 
 			}
 
@@ -67,12 +67,12 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *inst
 	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()
 		ErrorResponse(w, http.StatusNotFound, "")
-		rr.log(false, "hit", r.Method, r.RequestURI, r.RemoteAddr, http.StatusNotFound, 0, time.Since(now))
+		rr.log(false, "hit", r.Method, r.RequestURI, r.RequestURI, r.RemoteAddr, http.StatusNotFound, 0, time.Since(now))
 	})
 	router.MethodNotAllowed = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()
 		ErrorResponse(w, http.StatusMethodNotAllowed, "")
-		rr.log(false, "hit", r.Method, r.RequestURI, r.RemoteAddr, http.StatusMethodNotAllowed, 0, time.Since(now))
+		rr.log(false, "hit", r.Method, r.RequestURI, r.RequestURI, r.RemoteAddr, http.StatusMethodNotAllowed, 0, time.Since(now))
 	})
 
 	rr.router = router
