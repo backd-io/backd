@@ -252,6 +252,12 @@
 			"revisionTime": "2017-10-03T22:09:13Z"
 		},
 		{
+			"checksumSHA1": "40vJyUB4ezQSn/NSadsKEOrudMc=",
+			"path": "github.com/inconshreveable/mousetrap",
+			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
+			"revisionTime": "2014-10-17T20:07:13Z"
+		},
+		{
 			"checksumSHA1": "2yHsOHB95SPL7kfDi21cDpq6Sxg=",
 			"path": "github.com/json-iterator/go",
 			"revision": "d05f387f50c0c406889b62cb5ec51c76a64d89ee",
