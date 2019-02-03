@@ -29,3 +29,15 @@ spec:
       - backend:
           serviceName: functions
           servicePort: "api"
+  - host: www.backd.io
+    http:
+      paths:
+      - backend:
+          serviceName: docs
+          servicePort: "api"
+  - host: backd.io
+    http:
+      paths:
+      - backend:
+          serviceName: docs
+          servicePort: "api"
