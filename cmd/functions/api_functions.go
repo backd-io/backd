@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/backd-io/backd/internal/constants"
-	"github.com/backd-io/backd/internal/pbsessions"
-	"github.com/backd-io/backd/internal/rest"
-	"github.com/backd-io/backd/internal/structs"
-	"github.com/backd-io/backd/pkg/lua"
+	"github.com/fernandezvara/backd/internal/constants"
+	"github.com/fernandezvara/backd/internal/pbsessions"
+	"github.com/fernandezvara/backd/internal/rest"
+	"github.com/fernandezvara/backd/internal/structs"
+	"github.com/fernandezvara/backd/pkg/lua"
 	"github.com/julienschmidt/httprouter"
 )
 

@@ -1,7 +1,7 @@
 package lua
 
 import (
-	"github.com/backd-io/backd/backd"
+	"github.com/fernandezvara/backd/backd"
 	lua "github.com/yuin/gopher-lua"
 	luajson "layeh.com/gopher-json"
 )

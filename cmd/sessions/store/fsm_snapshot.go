@@ -3,7 +3,7 @@ package store
 import (
 	"encoding/json"
 
-	"github.com/backd-io/backd/internal/structs"
+	"github.com/fernandezvara/backd/internal/structs"
 	"github.com/hashicorp/raft"
 )
 

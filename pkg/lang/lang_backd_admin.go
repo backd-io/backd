@@ -1,7 +1,7 @@
 package lang
 
 import (
-	"github.com/backd-io/backd/backd"
+	"github.com/fernandezvara/backd/backd"
 )
 
 func (l *Lang) addBackdAdminCommands() {

@@ -3,11 +3,11 @@ package main
 import (
 	"net/http"
 
-	"github.com/backd-io/backd/backd"
-	"github.com/backd-io/backd/internal/constants"
-	"github.com/backd-io/backd/internal/db"
-	"github.com/backd-io/backd/internal/rest"
-	"github.com/backd-io/backd/internal/structs"
+	"github.com/fernandezvara/backd/backd"
+	"github.com/fernandezvara/backd/internal/constants"
+	"github.com/fernandezvara/backd/internal/db"
+	"github.com/fernandezvara/backd/internal/rest"
+	"github.com/fernandezvara/backd/internal/structs"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sethvargo/go-password/password"
 	"go.uber.org/zap"

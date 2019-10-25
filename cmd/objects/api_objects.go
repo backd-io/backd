@@ -3,10 +3,10 @@ package main
 import (
 	"net/http"
 
-	"github.com/backd-io/backd/backd"
-	"github.com/backd-io/backd/internal/constants"
-	"github.com/backd-io/backd/internal/pbsessions"
-	"github.com/backd-io/backd/internal/rest"
+	"github.com/fernandezvara/backd/backd"
+	"github.com/fernandezvara/backd/internal/constants"
+	"github.com/fernandezvara/backd/internal/pbsessions"
+	"github.com/fernandezvara/backd/internal/rest"
 	"github.com/julienschmidt/httprouter"
 )
 

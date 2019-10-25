@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/backd-io/backd/internal/instrumentation"
+	"github.com/fernandezvara/backd/internal/instrumentation"
 	"github.com/julienschmidt/httprouter"
 	"go.uber.org/zap"
 )

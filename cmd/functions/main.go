@@ -6,12 +6,12 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/backd-io/backd/backd"
-	"github.com/backd-io/backd/pkg/lua"
+	"github.com/fernandezvara/backd/backd"
+	"github.com/fernandezvara/backd/pkg/lua"
 
-	"github.com/backd-io/backd/internal/db"
-	"github.com/backd-io/backd/internal/instrumentation"
-	"github.com/backd-io/backd/internal/rest"
+	"github.com/fernandezvara/backd/internal/db"
+	"github.com/fernandezvara/backd/internal/instrumentation"
+	"github.com/fernandezvara/backd/internal/rest"
 	"google.golang.org/grpc"
 )
 

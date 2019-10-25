@@ -3,8 +3,8 @@ package db
 import (
 	"fmt"
 
-	"github.com/backd-io/backd/internal/constants"
-	"github.com/backd-io/backd/internal/structs"
+	"github.com/fernandezvara/backd/internal/constants"
+	"github.com/fernandezvara/backd/internal/structs"
 	mgo "github.com/globalsign/mgo"
 )
 

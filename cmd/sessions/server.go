@@ -5,12 +5,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/backd-io/backd/cmd/sessions/store"
-	"github.com/backd-io/backd/internal/constants"
-	"github.com/backd-io/backd/internal/db"
-	"github.com/backd-io/backd/internal/instrumentation"
-	"github.com/backd-io/backd/internal/pbsessions"
-	"github.com/backd-io/backd/internal/structs"
+	"github.com/fernandezvara/backd/cmd/sessions/store"
+	"github.com/fernandezvara/backd/internal/constants"
+	"github.com/fernandezvara/backd/internal/db"
+	"github.com/fernandezvara/backd/internal/instrumentation"
+	"github.com/fernandezvara/backd/internal/pbsessions"
+	"github.com/fernandezvara/backd/internal/structs"
 )
 
 type sessionsServer struct {

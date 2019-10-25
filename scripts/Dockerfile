@@ -1,6 +1,7 @@
-FROM alpine:3.8
+FROM alpine:3.10
 
 ARG ARTIFACT
+ARG ARCH
 ARG BUILD_DATE
 ARG VCS_URL
 ARG VCS_REF
@@ -9,7 +10,7 @@ ARG API_PORT
 ARG METRICS_PORT
 
 LABEL org.label-schema.build-date=${BUILD_DATE}                      \
-      org.label-schema.name="backd - ${ARTIFACT}"                    \
+      org.label-schema.name="backd - ${ARTIFACT} (${ARCH})"          \
       org.label-schema.description="backd - Application Backend"     \
       org.label-schema.url="http://backd.io/"                        \
       org.label-schema.vcs-ref=${VCS_REF}                            \
@@ -21,7 +22,7 @@ LABEL org.label-schema.build-date=${BUILD_DATE}                      \
 
 RUN apk add --update --no-cache ca-certificates
 
-COPY bin/${ARTIFACT} /artifact 
+COPY bin/${ARTIFACT}_linux_${ARCH} /artifact 
 
 EXPOSE ${API_PORT}
 EXPOSE ${METRICS_PORT}

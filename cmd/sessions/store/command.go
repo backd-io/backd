@@ -1,6 +1,6 @@
 package store
 
-import "github.com/backd-io/backd/internal/structs"
+import "github.com/fernandezvara/backd/internal/structs"
 
 type command struct {
 	Op    string          `json:"op,omitempty"`
