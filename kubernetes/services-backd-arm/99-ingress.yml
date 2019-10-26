@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: backd-ingress
+  namespace: backd
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: admin.backd.io
+    http:
+      paths:
+      - path: /
+        backend:
+            serviceName: admin
+            servicePort: "api"
+  - host: auth.backd.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: auth
+          servicePort: "api"
+  - host: objects.backd.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: objects
+          servicePort: "api"
+  - host: functions.backd.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: functions
+          servicePort: "api"
+  # - host: www.backd.io
+  #   http:
+  #     paths:
+  #  -path: /
+    #     backend:
+  #         serviceName: docs
+  #         servicePort: "api"
+  # - host: backd.io
+  #   http:
+  #     paths:
+  # -path: /
+    #     backend:
+  #         serviceName: docs
+  #         servicePort: "api"

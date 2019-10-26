@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: functions
+  labels:
+    app: functions
+  namespace: backd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: functions
+  template:
+    metadata:
+      labels:
+        app: functions
+    spec:
+      containers:
+      - name: functions
+        image: backd/functions:arm
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8085
+        - containerPort: 8185
+        env:
+        - name: MONGO_URL
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: mongo-url
