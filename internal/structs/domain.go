@@ -52,7 +52,7 @@ func DomainValidator() map[string]interface{} {
 var (
 	DomainIndexes = []Index{
 		{
-			Fields: []string{"_id"},
+			Fields: map[string]interface{}{"_id": 1},
 			Unique: true,
 		},
 	}

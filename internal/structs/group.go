@@ -39,11 +39,11 @@ func GroupValidator() map[string]interface{} {
 var (
 	GroupIndexes = []Index{
 		{
-			Fields: []string{"_id"},
+			Fields: map[string]interface{}{"_id": 1},
 			Unique: true,
 		},
 		{
-			Fields: []string{"name"},
+			Fields: map[string]interface{}{"name": 1},
 			Unique: true,
 		},
 	}

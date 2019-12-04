@@ -2,5 +2,5 @@ package constants
 
 // Default values for common actions
 const (
-	DefaultPerPage int = 20
+	DefaultPerPage int64 = 20
 )

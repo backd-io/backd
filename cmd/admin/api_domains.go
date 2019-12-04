@@ -18,9 +18,9 @@ func (a *apiStruct) getDomains(w http.ResponseWriter, r *http.Request, ps httpro
 
 	var (
 		query   map[string]interface{}
-		sort    []string
-		skip    int
-		limit   int
+		sort    map[string]interface{}
+		skip    int64
+		limit   int64
 		data    []structs.Domain
 		session *pbsessions.Session
 		err     error
@@ -38,7 +38,7 @@ func (a *apiStruct) getDomains(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, query, sort, &data, skip, limit)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, query, sort, &data, skip, limit)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -60,7 +60,7 @@ func (a *apiStruct) getDomainByID(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// domains reside on backd application database
-	err = a.mongo.GetOneByIDRBACInterface(session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, ps.ByName("domain"), &domain)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, ps.ByName("domain"), &domain)
 	rest.Response(w, domain, err, http.StatusOK, "")
 
 }
@@ -90,13 +90,13 @@ func (a *apiStruct) postDomain(w http.ResponseWriter, r *http.Request, ps httpro
 	domain.SetCreate(session.GetDomainId(), session.GetUserId())
 	domain.ID = db.NewXID().String()
 
-	err = a.mongo.CreateDomainDatabase(domain.ID)
+	err = a.mongo.CreateDomainDatabase(r.Context(), domain.ID)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
 	}
 
-	err = a.mongo.InsertRBACInterface(session, true, constants.DBBackdApp, constants.ColDomains, &domain)
+	err = a.mongo.InsertRBACInterface(r.Context(), session, true, constants.DBBackdApp, constants.ColDomains, &domain)
 	rest.Response(w, domain, err, http.StatusCreated, "")
 
 }
@@ -124,7 +124,7 @@ func (a *apiStruct) putDomain(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, ps.ByName("id"), &oldDomain)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColDomains, ps.ByName("id"), &oldDomain)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -137,7 +137,7 @@ func (a *apiStruct) putDomain(w http.ResponseWriter, r *http.Request, ps httprou
 
 	domain.SetUpdate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.UpdateByIDRBACInterface(session, true, constants.DBBackdApp, constants.ColDomains, ps.ByName("id"), &domain)
+	err = a.mongo.UpdateByIDRBACInterface(r.Context(), session, true, constants.DBBackdApp, constants.ColDomains, ps.ByName("id"), &domain)
 	rest.Response(w, domain, err, http.StatusOK, "")
 
 }

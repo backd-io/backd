@@ -17,7 +17,7 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 	var (
 		query           map[string]interface{}
 		membershipQuery map[string]interface{}
-		sort            []string
+		sort            map[string]interface{}
 		ids             []string
 		data            []structs.User
 		session         *pbsessions.Session
@@ -41,10 +41,20 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 		"g": ps.ByName("id"),
 	}
 
-	err = a.mongo.Session().DB(ps.ByName("domain")).C(constants.ColMembership).Find(membershipQuery).Distinct("u", &ids)
+	var result []interface{}
+	result, err = a.mongo.Client().Database(ps.ByName("domain")).Collection(constants.ColMembership).Distinct(r.Context(), "u", membershipQuery)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
+	}
+
+	// see if can see all the items to simplify the query
+	for _, id := range result {
+		// results must be string....
+		thisID, ok := id.(string)
+		if ok {
+			ids = append(ids, thisID)
+		}
 	}
 
 	if query == nil {
@@ -56,7 +66,7 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 		"$in": ids,
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, 0, 0)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, 0, 0)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -80,7 +90,7 @@ func (a *apiStruct) putMembership(w http.ResponseWriter, r *http.Request, ps htt
 	membership.GroupID = ps.ByName("id")
 	membership.UserID = ps.ByName("user_id")
 
-	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColMembership, &membership)
+	err = a.mongo.InsertRBACInterface(r.Context(), session, true, ps.ByName("domain"), constants.ColMembership, &membership)
 	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }
@@ -100,7 +110,7 @@ func (a *apiStruct) deleteMembership(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	err = a.mongo.DeleteByQueryRBAC(session, true, ps.ByName("domain"), constants.ColMembership, map[string]interface{}{
+	_, err = a.mongo.DeleteByQueryRBAC(r.Context(), session, true, ps.ByName("domain"), constants.ColMembership, map[string]interface{}{
 		"g": ps.ByName("id"),
 		"u": ps.ByName("user_id"),
 	})

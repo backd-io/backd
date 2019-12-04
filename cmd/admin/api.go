@@ -61,7 +61,7 @@ func (a *apiStruct) delete(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	err = a.mongo.DeleteByIDRBAC(session, true, database, collection, ps.ByName("id"))
+	_, err = a.mongo.DeleteByIDRBAC(r.Context(), session, true, database, collection, ps.ByName("id"))
 	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

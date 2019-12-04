@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
@@ -41,7 +43,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	mongo, err = db.NewMongo(mongoURL)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mongo, err = db.NewMongo(ctx, mongoURL)
 	er(err)
 
 	inst, err = instrumentation.New("0.0.0.0:8184", true)
@@ -53,7 +57,7 @@ func main() {
 		sessions: conn,
 	}
 
-	err = api.isBootstrapped()
+	err = api.isBootstrapped(ctx)
 	er(err)
 
 	// "^[a-zA-Z0-9-]{1,32}$", "^[a-zA-Z0-9]{20}$"

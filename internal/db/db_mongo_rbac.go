@@ -1,16 +1,18 @@
 package db
 
 import (
+	"context"
+
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/backd-io/backd/internal/structs"
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Can validates the ability to make something by an user
-func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, collection, id string, perm backd.Permission) bool {
+func (db *Mongo) Can(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection, id string, perm backd.Permission) bool {
 
 	var (
 		rbac  structs.RBAC
@@ -45,7 +47,7 @@ func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, colle
 		},
 	}
 
-	err = db.GetOne(database, constants.ColRBAC, query, &rbac)
+	err = db.GetOne(ctx, database, constants.ColRBAC, query, &rbac)
 	if err != nil {
 		return false
 	}
@@ -54,7 +56,7 @@ func (db *Mongo) Can(session *pbsessions.Session, isDomain bool, database, colle
 }
 
 // VisibleID returns only those IDs that the user is able to see from a collection
-func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database, collection string, perm backd.Permission) (all bool, ids []string, err error) {
+func (db *Mongo) VisibleID(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection string, perm backd.Permission) (all bool, ids []string, err error) {
 
 	if isDomain {
 		collection = constants.ColDomains
@@ -77,13 +79,19 @@ func (db *Mongo) VisibleID(session *pbsessions.Session, isDomain bool, database,
 		},
 	}
 
-	err = db.session.DB(database).C(constants.ColRBAC).Find(query).Distinct("collection_id", &ids)
+	var result []interface{}
+	result, err = db.client.Database(database).Collection(collection).Distinct(ctx, "collection_id", query)
 
 	// see if can see all the items to simplify the query
-	for _, id := range ids {
-		if id == "*" {
-			all = true
-			break
+	for _, id := range result {
+		// results must be string....
+		thisID, ok := id.(string)
+		if ok {
+			if thisID == "*" {
+				all = true
+				break
+			}
+			ids = append(ids, thisID)
 		}
 	}
 	return
@@ -103,14 +111,14 @@ func (db *Mongo) getIdentities(session *pbsessions.Session) (identities []string
 }
 
 // GetOneRBAC returns one object by query
-func (db *Mongo) GetOneRBAC(session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection string, query map[string]interface{}) (map[string]interface{}, error) {
+func (db *Mongo) GetOneRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection string, query map[string]interface{}) (map[string]interface{}, error) {
 
 	var (
 		data map[string]interface{}
 		err  error
 	)
 
-	err = db.GetOne(database, collection, query, &data)
+	err = db.GetOne(ctx, database, collection, query, &data)
 	if err != nil {
 		return data, err
 	}
@@ -120,7 +128,7 @@ func (db *Mongo) GetOneRBAC(session *pbsessions.Session, isDomain bool, perm bac
 	}
 
 	// allowed
-	if db.Can(session, isDomain, database, collection, data["_id"].(string), perm) {
+	if db.Can(ctx, session, isDomain, database, collection, data["_id"].(string), perm) {
 		return data, nil
 	}
 
@@ -128,7 +136,7 @@ func (db *Mongo) GetOneRBAC(session *pbsessions.Session, isDomain bool, perm bac
 }
 
 // GetOneByIDRBAC returns one object by ID
-func (db *Mongo) GetOneByIDRBAC(session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection, id string) (map[string]interface{}, error) {
+func (db *Mongo) GetOneByIDRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection, id string) (map[string]interface{}, error) {
 
 	var (
 		data map[string]interface{}
@@ -136,8 +144,8 @@ func (db *Mongo) GetOneByIDRBAC(session *pbsessions.Session, isDomain bool, perm
 	)
 
 	// allowed
-	if db.Can(session, isDomain, database, collection, id, perm) {
-		err = db.GetOneByID(database, collection, id, &data)
+	if db.Can(ctx, session, isDomain, database, collection, id, perm) {
+		err = db.GetOneByID(ctx, database, collection, id, &data)
 		if err != nil {
 			return data, err
 		}
@@ -153,11 +161,11 @@ func (db *Mongo) GetOneByIDRBAC(session *pbsessions.Session, isDomain bool, perm
 }
 
 // GetOneByIDRBACInterface returns one object by ID
-func (db *Mongo) GetOneByIDRBACInterface(session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection, id string, this interface{}) error {
+func (db *Mongo) GetOneByIDRBACInterface(ctx context.Context, session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection, id string, this interface{}) error {
 
 	// allowed
-	if db.Can(session, isDomain, database, collection, id, perm) {
-		return db.GetOneByID(database, collection, id, this)
+	if db.Can(ctx, session, isDomain, database, collection, id, perm) {
+		return db.GetOneByID(ctx, database, collection, id, this)
 	}
 
 	return rest.ErrUnauthorized
@@ -165,7 +173,7 @@ func (db *Mongo) GetOneByIDRBACInterface(session *pbsessions.Session, isDomain b
 
 // GetManyRBAC returns all records that meets RBAC and the desired filter,
 //   skip and limit must be passed to limit the number of results
-func (db *Mongo) GetManyRBAC(session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection string, query map[string]interface{}, sort []string, this interface{}, skip, limit int) error {
+func (db *Mongo) GetManyRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, perm backd.Permission, database, collection string, query, sort map[string]interface{}, this interface{}, skip, limit int64) error {
 
 	var (
 		all          bool
@@ -177,7 +185,7 @@ func (db *Mongo) GetManyRBAC(session *pbsessions.Session, isDomain bool, perm ba
 		query = make(map[string]interface{})
 	}
 
-	all, accesibleIDs, err = db.VisibleID(session, isDomain, database, collection, perm)
+	all, accesibleIDs, err = db.VisibleID(ctx, session, isDomain, database, collection, perm)
 	// fmt.Println("all, accesibleIDs, err:", all, accesibleIDs, err)
 	if err != nil {
 		return err
@@ -190,32 +198,36 @@ func (db *Mongo) GetManyRBAC(session *pbsessions.Session, isDomain bool, perm ba
 		}
 	}
 
-	if len(sort) > 0 {
-		return db.session.DB(database).C(collection).Find(query).Sort(sort...).Skip(skip).Limit(limit).All(this)
-	}
-	return db.session.DB(database).C(collection).Find(query).Skip(skip).Limit(limit).All(this)
+	return db.GetMany(ctx, database, collection, query, sort, this, skip, limit)
+
 }
 
 // InsertRBAC a new entry on the collection, adding metadata, returns errors if any
-func (db *Mongo) InsertRBAC(session *pbsessions.Session, isDomain bool, database, collection string, this map[string]interface{}) (map[string]interface{}, error) {
+func (db *Mongo) InsertRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection string, this map[string]interface{}) (map[string]interface{}, error) {
 
-	if db.Can(session, isDomain, database, collection, "*", backd.PermissionCreate) {
+	var err error
+
+	if db.Can(ctx, session, isDomain, database, collection, "*", backd.PermissionCreate) {
 		// set metadata
 		var metadata structs.Metadata
 		metadata.SetCreate(session.GetDomainId(), session.GetUserId())
 		this["_id"] = NewXID().String()
 		this["meta"] = metadata
-		return this, db.Insert(database, collection, this)
+		_, err = db.Insert(ctx, database, collection, this)
+		return this, err
 	}
 
 	return map[string]interface{}{}, rest.ErrUnauthorized
 }
 
 // InsertRBACInterface a new entry on the collection, metadata and ID must be written in advance
-func (db *Mongo) InsertRBACInterface(session *pbsessions.Session, isDomain bool, database, collection string, this interface{}) error {
+func (db *Mongo) InsertRBACInterface(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection string, this interface{}) error {
 
-	if db.Can(session, isDomain, database, collection, "*", backd.PermissionCreate) {
-		return db.Insert(database, collection, this)
+	var err error
+
+	if db.Can(ctx, session, isDomain, database, collection, "*", backd.PermissionCreate) {
+		_, err = db.Insert(ctx, database, collection, this)
+		return err
 	}
 
 	return rest.ErrUnauthorized
@@ -223,7 +235,7 @@ func (db *Mongo) InsertRBACInterface(session *pbsessions.Session, isDomain bool,
 }
 
 // UpdateByIDRBAC updates the data and metadata on the collections, returning errors if any
-func (db *Mongo) UpdateByIDRBAC(session *pbsessions.Session, isDomain bool, database, collection, id string, this map[string]interface{}) (map[string]interface{}, error) {
+func (db *Mongo) UpdateByIDRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection, id string, this map[string]interface{}) (map[string]interface{}, error) {
 
 	var (
 		thisID  string
@@ -239,10 +251,10 @@ func (db *Mongo) UpdateByIDRBAC(session *pbsessions.Session, isDomain bool, data
 		return nil, rest.ErrConflict
 	}
 
-	if db.Can(session, isDomain, database, collection, id, backd.PermissionUpdate) {
+	if db.Can(ctx, session, isDomain, database, collection, id, backd.PermissionUpdate) {
 
 		// first get the old entry
-		err = db.GetOneByID(database, collection, id, &oldData)
+		err = db.GetOneByID(ctx, database, collection, id, &oldData)
 		if err != nil {
 			return nil, err
 		}
@@ -252,7 +264,7 @@ func (db *Mongo) UpdateByIDRBAC(session *pbsessions.Session, isDomain bool, data
 		err = metadata.FromInterface(oldData["meta"].(map[string]interface{}))
 		metadata.SetUpdate(session.GetDomainId(), session.GetUserId())
 		this["meta"] = metadata
-		return this, db.UpdateByID(database, collection, id, this)
+		return this, db.UpdateByID(ctx, database, collection, id, this)
 	}
 
 	return nil, rest.ErrUnauthorized
@@ -260,10 +272,10 @@ func (db *Mongo) UpdateByIDRBAC(session *pbsessions.Session, isDomain bool, data
 }
 
 // UpdateByIDRBACInterface updates the data passed as interface and updates the database if ok
-func (db *Mongo) UpdateByIDRBACInterface(session *pbsessions.Session, isDomain bool, database, collection, id string, this interface{}) error {
+func (db *Mongo) UpdateByIDRBACInterface(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection, id string, this interface{}) error {
 
-	if db.Can(session, isDomain, database, collection, id, backd.PermissionUpdate) {
-		return db.UpdateByID(database, collection, id, this)
+	if db.Can(ctx, session, isDomain, database, collection, id, backd.PermissionUpdate) {
+		return db.UpdateByID(ctx, database, collection, id, this)
 	}
 
 	return rest.ErrUnauthorized
@@ -271,21 +283,21 @@ func (db *Mongo) UpdateByIDRBACInterface(session *pbsessions.Session, isDomain b
 }
 
 // DeleteByIDRBAC deletes from the item from the collection if user has permission for it
-func (db *Mongo) DeleteByIDRBAC(session *pbsessions.Session, isDomain bool, database, collection, id string) error {
+func (db *Mongo) DeleteByIDRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection, id string) (int64, error) {
 
-	if db.Can(session, isDomain, database, collection, id, backd.PermissionDelete) {
-		return db.session.DB(database).C(collection).RemoveId(id)
+	if db.Can(ctx, session, isDomain, database, collection, id, backd.PermissionDelete) {
+		return db.DeleteByID(ctx, database, collection, id)
 	}
 
-	return rest.ErrUnauthorized
+	return 0, rest.ErrUnauthorized
 }
 
 // DeleteByQueryRBAC deletes from the item from the collection if user has permission for it
-func (db *Mongo) DeleteByQueryRBAC(session *pbsessions.Session, isDomain bool, database, collection string, query map[string]interface{}) error {
+func (db *Mongo) DeleteByQueryRBAC(ctx context.Context, session *pbsessions.Session, isDomain bool, database, collection string, query map[string]interface{}) (int64, error) {
 
-	if db.Can(session, isDomain, database, collection, "*", backd.PermissionDelete) {
-		return db.session.DB(database).C(collection).Remove(query)
+	if db.Can(ctx, session, isDomain, database, collection, "*", backd.PermissionDelete) {
+		return db.Delete(ctx, database, collection, query)
 	}
 
-	return rest.ErrUnauthorized
+	return 0, rest.ErrUnauthorized
 }

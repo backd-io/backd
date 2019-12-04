@@ -1,61 +1,56 @@
 package db
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/structs"
-	mgo "github.com/globalsign/mgo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // CreateCollection creates a collection and its indexes on the required database
 //   adding the validation if required
-func (db *Mongo) CreateCollection(database, collectionName string, validator map[string]interface{}, indexes []structs.Index) error {
-
-	var (
-		colInfo mgo.CollectionInfo
-		err     error
-	)
+func (db *Mongo) CreateCollection(ctx context.Context, database, collection string, validator map[string]interface{}, indexes []structs.Index) (err error) {
 
 	if validator != nil {
-		colInfo.Validator = validator
-	}
+		command := bson.D{{"create", collection}, {"validator", validator}, {"validationLevel", "strict"}}
 
-	err = db.Session().DB(database).C(collectionName).Create(&colInfo)
-	if err != nil {
-		return err
-	}
-
-	for _, index := range indexes {
-		err = db.CreateIndex(database, collectionName, index.Fields, index.Unique)
+		err = db.client.Database(database).RunCommand(ctx, command).Err()
 		if err != nil {
-			return err
+			return
 		}
 	}
 
-	return nil
+	for _, index := range indexes {
+		err = db.CreateIndex(ctx, database, collection, index.Fields, index.Unique)
+		if err != nil {
+			return
+		}
+	}
+
+	return
 
 }
 
 // CreateBackdDatabases is called on bootstrap to create
-func (db *Mongo) CreateBackdDatabases() (err error) {
+func (db *Mongo) CreateBackdDatabases(ctx context.Context) (err error) {
 
-	err = db.CreateCollection(constants.DBBackdApp, constants.ColApplications, structs.ApplicationValidator(), structs.ApplicationIndexes)
+	err = db.CreateCollection(ctx, constants.DBBackdApp, constants.ColApplications, structs.ApplicationValidator(), structs.ApplicationIndexes)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateCollection(constants.DBBackdApp, constants.ColDomains, structs.DomainValidator(), structs.DomainIndexes)
+	err = db.CreateCollection(ctx, constants.DBBackdApp, constants.ColDomains, structs.DomainValidator(), structs.DomainIndexes)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateApplicationDatabase(constants.DBBackdApp)
+	err = db.CreateApplicationDatabase(ctx, constants.DBBackdApp)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateDomainDatabase(constants.DBBackdDom)
+	err = db.CreateDomainDatabase(ctx, constants.DBBackdDom)
 	if err != nil {
 		return
 	}
@@ -68,49 +63,48 @@ func (db *Mongo) CreateBackdDatabases() (err error) {
 	thisDomain.Description = "backd domain"
 	thisDomain.SetCreate(constants.DBBackdDom, constants.SystemUserID) // system ID (this domain must no mutate over the time)
 
-	err = db.Insert(constants.DBBackdApp, constants.ColDomains, &thisDomain)
+	_, err = db.Insert(ctx, constants.DBBackdApp, constants.ColDomains, &thisDomain)
 	return
 
 }
 
 // CreateApplicationDatabase creates the required collection for an application to be usable
-func (db *Mongo) CreateApplicationDatabase(name string) (err error) {
+func (db *Mongo) CreateApplicationDatabase(ctx context.Context, name string) (err error) {
 
-	err = db.CreateCollection(name, constants.ColRelations, structs.RelationValidator(), structs.RelationIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColRelations, structs.RelationValidator(), structs.RelationIndexes)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateCollection(name, constants.ColFunctions, structs.FunctionValidator(), structs.FunctionIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColFunctions, structs.FunctionValidator(), structs.FunctionIndexes)
 	if err != nil {
-		fmt.Println("err:", err)
 		return
 	}
 
-	err = db.CreateCollection(name, constants.ColRBAC, structs.RBACValidator(), structs.RBACIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColRBAC, structs.RBACValidator(), structs.RBACIndexes)
 	return
 
 }
 
 // CreateDomainDatabase creates the required collections on the domain to be usable
-func (db *Mongo) CreateDomainDatabase(name string) (err error) {
+func (db *Mongo) CreateDomainDatabase(ctx context.Context, name string) (err error) {
 
-	err = db.CreateCollection(name, constants.ColRBAC, structs.RBACValidator(), structs.RBACIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColRBAC, structs.RBACValidator(), structs.RBACIndexes)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateCollection(name, constants.ColUsers, structs.UserValidator(), structs.UserIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColUsers, structs.UserValidator(), structs.UserIndexes)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateCollection(name, constants.ColGroups, structs.GroupValidator(), structs.GroupIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColGroups, structs.GroupValidator(), structs.GroupIndexes)
 	if err != nil {
 		return
 	}
 
-	err = db.CreateCollection(name, constants.ColMembership, structs.MembershipValidator(), structs.MembershipIndexes)
+	err = db.CreateCollection(ctx, name, constants.ColMembership, structs.MembershipValidator(), structs.MembershipIndexes)
 	return
 
 }

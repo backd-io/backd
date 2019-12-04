@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/backd-io/backd/internal/constants"
 )
@@ -24,15 +23,15 @@ func GetFromBody(r *http.Request, obj interface{}) error {
 }
 
 // QueryStrings returns query and sort formatted for db request
-func QueryStrings(r *http.Request) (query map[string]interface{}, sort []string, skip, limit int, err error) {
+func QueryStrings(r *http.Request) (query, sort map[string]interface{}, skip, limit int64, err error) {
 
 	var (
 		queryString   string
 		sortString    string
 		pageString    string
 		perPageString string
-		pageNumber    int
-		perPageI      int
+		pageNumber    int64
+		perPageI      int64
 	)
 
 	queryString = r.URL.Query().Get("q")
@@ -43,18 +42,25 @@ func QueryStrings(r *http.Request) (query map[string]interface{}, sort []string,
 	// if queryString is empty return a nil interface (do nothing)
 	if queryString != "" {
 		err = json.Unmarshal([]byte(queryString), &query)
+		if err != nil {
+			return
+		}
 	}
 
 	// if sortString is empty it will return a sort array already empty
 	if sortString != "" {
-		sort = strings.Split(sortString, ",")
+		err = json.Unmarshal([]byte(sortString), &sort)
+		if err != nil {
+			return
+		}
 	}
 
 	// pagination
 	if pageString == "" {
 		pageNumber = 1
 	} else {
-		pageNumber, err = strconv.Atoi(pageString)
+
+		pageNumber, err = strconv.ParseInt(pageString, 10, 64)
 		if err != nil {
 			skip = 0
 			limit = constants.DefaultPerPage
@@ -65,7 +71,7 @@ func QueryStrings(r *http.Request) (query map[string]interface{}, sort []string,
 	if perPageString == "" {
 		perPageI = constants.DefaultPerPage
 	} else {
-		perPageI, err = strconv.Atoi(perPageString)
+		perPageI, err = strconv.ParseInt(pageString, 10, 64)
 		if err != nil {
 			skip = 0
 			limit = constants.DefaultPerPage

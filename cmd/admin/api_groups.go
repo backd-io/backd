@@ -17,9 +17,9 @@ func (a *apiStruct) getGroups(w http.ResponseWriter, r *http.Request, ps httprou
 
 	var (
 		query   map[string]interface{}
-		sort    []string
-		skip    int
-		limit   int
+		sort    map[string]interface{}
+		skip    int64
+		limit   int64
 		data    []structs.Group
 		session *pbsessions.Session
 		err     error
@@ -37,7 +37,7 @@ func (a *apiStruct) getGroups(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, skip, limit)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, skip, limit)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -58,7 +58,7 @@ func (a *apiStruct) getGroupByID(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, ps.ByName("id"), &group)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, ps.ByName("id"), &group)
 	rest.Response(w, group, err, http.StatusOK, "")
 
 }
@@ -88,7 +88,7 @@ func (a *apiStruct) postGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	group.SetCreate(session.GetDomainId(), session.GetUserId())
 	group.ID = db.NewXID().String()
 
-	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColGroups, &group)
+	err = a.mongo.InsertRBACInterface(r.Context(), session, true, ps.ByName("domain"), constants.ColGroups, &group)
 	rest.Response(w, group, err, http.StatusCreated, "")
 
 }
@@ -116,7 +116,7 @@ func (a *apiStruct) putGroup(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, ps.ByName("id"), &oldGroup)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, ps.ByName("id"), &oldGroup)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -129,7 +129,7 @@ func (a *apiStruct) putGroup(w http.ResponseWriter, r *http.Request, ps httprout
 
 	group.SetUpdate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.UpdateByIDRBACInterface(session, true, ps.ByName("domain"), constants.ColGroups, ps.ByName("id"), &group)
+	err = a.mongo.UpdateByIDRBACInterface(r.Context(), session, true, ps.ByName("domain"), constants.ColGroups, ps.ByName("id"), &group)
 	rest.Response(w, group, err, http.StatusOK, "")
 
 }

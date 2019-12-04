@@ -56,15 +56,26 @@ func RBACValidator() map[string]interface{} {
 var (
 	RBACIndexes = []Index{
 		{
-			Fields: []string{"_id"},
+			Fields: map[string]interface{}{"_id": 1},
 			Unique: true,
 		},
 		{
-			Fields: []string{"domain_id", "identity_id", "collection", "collection_id", "perm"}, // can queries
+			Fields: map[string]interface{}{
+				"domain_id":     1,
+				"identity_id":   1,
+				"collection":    1,
+				"collection_id": 1,
+				"perm":          1,
+			}, // can queries
 			Unique: false,
 		},
 		{
-			Fields: []string{"domain_id", "identity_id", "collection", "perm"}, // visibleIDs queries
+			Fields: map[string]interface{}{
+				"domain_id":   1,
+				"identity_id": 1,
+				"collection":  1,
+				"perm":        1,
+			}, // visibleIDs queries
 			Unique: false,
 		},
 	}

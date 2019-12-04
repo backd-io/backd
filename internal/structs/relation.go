@@ -50,15 +50,23 @@ func RelationValidator() map[string]interface{} {
 var (
 	RelationIndexes = []Index{
 		{
-			Fields: []string{"_id"},
+			Fields: map[string]interface{}{"_id": 1},
 			Unique: true,
 		},
 		{
-			Fields: []string{"src", "sid", "rel"},
+			Fields: map[string]interface{}{
+				"src": 1,
+				"sid": 1,
+				"rel": 1,
+			},
 			Unique: false,
 		},
 		{
-			Fields: []string{"dst", "did", "rel"},
+			Fields: map[string]interface{}{
+				"dst": 1,
+				"did": 1,
+				"rel": 1,
+			},
 			Unique: false,
 		},
 	}

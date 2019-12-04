@@ -61,7 +61,7 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 
 	// ensure the current user can administer the resource
-	if !a.mongo.Can(session, isDomain, database, rbac.Collection, rbac.CollectionID, backd.PermissionAdmin) {
+	if !a.mongo.Can(r.Context(), session, isDomain, database, rbac.Collection, rbac.CollectionID, backd.PermissionAdmin) {
 		rest.Unauthorized(w, r)
 		return
 	}
@@ -76,11 +76,12 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 				"collection_id": rbac.CollectionID,
 				"perm":          perm,
 			}
-			var count int
-			count, err = a.mongo.Count(database, constants.ColRBAC, query)
+			var count int64
+			count, err = a.mongo.Count(r.Context(), database, constants.ColRBAC, query)
 			if count == 0 {
 				// insert
-				if err = a.mongo.Insert(database, constants.ColRBAC, query); err != nil {
+				_, err = a.mongo.Insert(r.Context(), database, constants.ColRBAC, query)
+				if err != nil {
 					rest.ResponseErr(w, err)
 					return
 				}
@@ -97,11 +98,12 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 				"collection_id": rbac.CollectionID,
 				"perm":          perm,
 			}
-			var count int
-			count, err = a.mongo.Count(database, constants.ColRBAC, query)
+			var count int64
+			count, err = a.mongo.Count(r.Context(), database, constants.ColRBAC, query)
 			if count == 1 {
-				// insert
-				if err = a.mongo.Delete(database, constants.ColRBAC, query); err != nil {
+				// remove
+				_, err = a.mongo.Delete(r.Context(), database, constants.ColRBAC, query)
+				if err != nil {
 					rest.ResponseErr(w, err)
 					return
 				}
@@ -117,7 +119,8 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			"collection_id": rbac.CollectionID,
 		}
 		// remove all
-		if err = a.mongo.Delete(database, constants.ColRBAC, query); err != nil {
+		_, err = a.mongo.Delete(r.Context(), database, constants.ColRBAC, query)
+		if err != nil {
 			rest.ResponseErr(w, err)
 			return
 		}
@@ -129,7 +132,8 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 				"collection_id": rbac.CollectionID,
 				"perm":          perm,
 			}
-			if err = a.mongo.Insert(database, constants.ColRBAC, query); err != nil {
+			_, err = a.mongo.Insert(r.Context(), database, constants.ColRBAC, query)
+			if err != nil {
 				rest.ResponseErr(w, err)
 				return
 			}
@@ -168,7 +172,8 @@ func (a *apiStruct) rbac(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			},
 		}
 
-		if err = a.mongo.GetAll(database, constants.ColRBAC, query, []string{}, &permissions); err != nil {
+		err = a.mongo.GetMany(r.Context(), database, constants.ColRBAC, query, nil, &permissions, 0, 0)
+		if err != nil {
 			rest.ResponseErr(w, err)
 			return
 		}

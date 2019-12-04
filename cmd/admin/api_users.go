@@ -17,9 +17,9 @@ func (a *apiStruct) getUsers(w http.ResponseWriter, r *http.Request, ps httprout
 
 	var (
 		query   map[string]interface{}
-		sort    []string
-		skip    int
-		limit   int
+		sort    map[string]interface{}
+		skip    int64
+		limit   int64
 		data    []structs.User
 		session *pbsessions.Session
 		err     error
@@ -37,7 +37,7 @@ func (a *apiStruct) getUsers(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, skip, limit)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, query, sort, &data, skip, limit)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -58,7 +58,7 @@ func (a *apiStruct) getUserByID(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &user)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &user)
 	rest.Response(w, user, err, http.StatusOK, "")
 
 }
@@ -94,7 +94,7 @@ func (a *apiStruct) postUser(w http.ResponseWriter, r *http.Request, ps httprout
 	user.SetCreate(session.GetDomainId(), session.GetUserId())
 	user.ID = db.NewXID().String()
 
-	err = a.mongo.InsertRBACInterface(session, true, ps.ByName("domain"), constants.ColUsers, &user)
+	err = a.mongo.InsertRBACInterface(r.Context(), session, true, ps.ByName("domain"), constants.ColUsers, &user)
 	rest.Response(w, user, err, http.StatusCreated, "")
 
 }
@@ -122,7 +122,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &oldUser)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &oldUser)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -144,7 +144,7 @@ func (a *apiStruct) putUser(w http.ResponseWriter, r *http.Request, ps httproute
 
 	user.SetUpdate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.UpdateByIDRBACInterface(session, true, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &user)
+	err = a.mongo.UpdateByIDRBACInterface(r.Context(), session, true, ps.ByName("domain"), constants.ColUsers, ps.ByName("id"), &user)
 	rest.Response(w, user, err, http.StatusOK, "")
 
 }
@@ -162,7 +162,7 @@ func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps htt
 	var (
 		query           map[string]interface{}
 		membershipQuery map[string]interface{}
-		sort            []string
+		sort            map[string]interface{}
 		ids             []string
 		data            []structs.Group
 		session         *pbsessions.Session
@@ -186,10 +186,20 @@ func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps htt
 		"u": ps.ByName("id"),
 	}
 
-	err = a.mongo.Session().DB(ps.ByName("domain")).C(constants.ColMembership).Find(membershipQuery).Distinct("g", &ids)
+	var result []interface{}
+	result, err = a.mongo.Client().Database(ps.ByName("domain")).Collection(constants.ColMembership).Distinct(r.Context(), "g", membershipQuery)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
+	}
+
+	// see if can see all the items to simplify the query
+	for _, id := range result {
+		// results must be string....
+		thisID, ok := id.(string)
+		if ok {
+			ids = append(ids, thisID)
+		}
 	}
 
 	if query == nil {
@@ -201,7 +211,7 @@ func (a *apiStruct) getUserGroups(w http.ResponseWriter, r *http.Request, ps htt
 		"$in": ids,
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, 0, 0)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, ps.ByName("domain"), constants.ColGroups, query, sort, &data, 0, 0)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
