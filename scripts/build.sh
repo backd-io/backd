@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
-PROJECT_REPO="github.com/fernandezvara/backd"
+PROJECT_REPO="github.com/backd-io/backd"
+
+cd $GOPATH/src/${PROJECT_REPO}
+
+for i in {admin,auth,backd,functions,objects,sessions} 
+do 
+    gox -osarch="linux/amd64" -output="bin/{{.Dir}}" github.com/backd-io/backd/cmd/$i
+done
+
 GIT_COMMIT=$(git rev-parse HEAD)
 
 function build () {

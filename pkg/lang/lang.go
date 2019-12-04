@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/backd-io/anko/vm"
-	"github.com/fernandezvara/backd/backd"
+	"github.com/backd-io/backd/backd"
 )
 
 const (

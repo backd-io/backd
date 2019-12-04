@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fernandezvara/backd/internal/instrumentation"
-	"github.com/fernandezvara/backd/internal/structs"
+	"github.com/backd-io/backd/internal/instrumentation"
+	"github.com/backd-io/backd/internal/structs"
 	"github.com/hashicorp/raft"
 	"go.uber.org/zap"
 )

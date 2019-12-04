@@ -5,8 +5,8 @@ package cmd
 // 	"io/ioutil"
 // 	"os"
 
-// 	"github.com/fernandezvara/backd/backd"
-// 	"github.com/fernandezvara/backd/internal/utils"
+// 	"github.com/backd-io/backd/backd"
+// 	"github.com/backd-io/backd/internal/utils"
 // 	"github.com/spf13/cobra"
 // )
 

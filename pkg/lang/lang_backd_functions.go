@@ -1,6 +1,6 @@
 package lang
 
-import "github.com/fernandezvara/backd/backd"
+import "github.com/backd-io/backd/backd"
 
 func (l *Lang) addBackdFunctionsCommands() {
 

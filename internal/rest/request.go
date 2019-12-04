@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fernandezvara/backd/internal/constants"
+	"github.com/backd-io/backd/internal/constants"
 )
 
 // GetFromBody is a simple function to fill an object from the Request
