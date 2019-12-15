@@ -154,8 +154,9 @@ func (db *Mongo) Update(ctx context.Context, database, collection string, select
 }
 
 // UpdateByID updates the database when object used ObjectID as unique ID
-func (db *Mongo) UpdateByID(ctx context.Context, database, collection, id string, to interface{}) error {
-	return db.client.Database(database).Collection(collection).FindOneAndUpdate(ctx, bson.M{"_id": id}, to).Decode(to)
+func (db *Mongo) UpdateByID(ctx context.Context, database, collection, id string, to interface{}) (err error) {
+	_, err = db.client.Database(database).Collection(collection).UpdateOne(ctx, bson.D{{"_id", id}}, bson.D{{"$set", to}})
+	return
 }
 
 // Delete deletes from the collection the referenced object

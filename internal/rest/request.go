@@ -71,7 +71,7 @@ func QueryStrings(r *http.Request) (query, sort map[string]interface{}, skip, li
 	if perPageString == "" {
 		perPageI = constants.DefaultPerPage
 	} else {
-		perPageI, err = strconv.ParseInt(pageString, 10, 64)
+		perPageI, err = strconv.ParseInt(perPageString, 10, 64)
 		if err != nil {
 			skip = 0
 			limit = constants.DefaultPerPage

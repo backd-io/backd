@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/backd-io/backd/backd"
@@ -60,6 +61,8 @@ func (a *apiStruct) getMembers(w http.ResponseWriter, r *http.Request, ps httpro
 	if query == nil {
 		query = make(map[string]interface{})
 	}
+
+	fmt.Println("len(ids), ids:", len(ids), ids)
 
 	// query for the users with the id received on the last step
 	query["_id"] = map[string]interface{}{

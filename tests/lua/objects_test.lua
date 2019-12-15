@@ -1,4 +1,3 @@
-
 appid("_backd")
 
 objects = require('backd.objects')
@@ -31,14 +30,13 @@ for i = 1, count do
 end
 
 -- create 5 objects
-for i = 1,5 do
+for i = 1,5000 do
 
   n = objects.new()
   n.name = string.format("John %d", i)
   n.surname = "Doe"
 
   this = objects.create(col, n)
-
 end
 
 -- test complex query

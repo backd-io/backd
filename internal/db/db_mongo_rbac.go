@@ -186,13 +186,12 @@ func (db *Mongo) GetManyRBAC(ctx context.Context, session *pbsessions.Session, i
 	}
 
 	all, accesibleIDs, err = db.VisibleID(ctx, session, isDomain, database, collection, perm)
-	// fmt.Println("all, accesibleIDs, err:", all, accesibleIDs, err)
 	if err != nil {
 		return err
 	}
 
 	// restrict only if the user can see a limited amount of items
-	if all == false {
+	if all == false && len(accesibleIDs) > 0 {
 		query["_ids"] = bson.M{
 			"$in": accesibleIDs,
 		}
@@ -264,7 +263,8 @@ func (db *Mongo) UpdateByIDRBAC(ctx context.Context, session *pbsessions.Session
 		err = metadata.FromInterface(oldData["meta"].(map[string]interface{}))
 		metadata.SetUpdate(session.GetDomainId(), session.GetUserId())
 		this["meta"] = metadata
-		return this, db.UpdateByID(ctx, database, collection, id, this)
+		err = db.UpdateByID(ctx, database, collection, id, this)
+		return this, err
 	}
 
 	return nil, rest.ErrUnauthorized

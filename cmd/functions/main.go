@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/backd-io/backd/backd"
 	"github.com/backd-io/backd/pkg/lua"
@@ -55,7 +57,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	mongo, err = db.NewMongo(mongoURL)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mongo, err = db.NewMongo(ctx, mongoURL)
 	er(err)
 
 	inst, err = instrumentation.New("0.0.0.0:8185", true)

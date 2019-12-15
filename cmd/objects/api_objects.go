@@ -27,7 +27,7 @@ func (a *apiStruct) getObjectID(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	data, err = a.mongo.GetOneByIDRBAC(session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), ps.ByName("id"))
+	data, err = a.mongo.GetOneByIDRBAC(r.Context(), session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), ps.ByName("id"))
 	rest.Response(w, data, err, http.StatusOK, "")
 }
 
@@ -36,9 +36,9 @@ func (a *apiStruct) getObject(w http.ResponseWriter, r *http.Request, ps httprou
 
 	var (
 		query         map[string]interface{}
-		sort          []string
-		skip          int
-		limit         int
+		sort          map[string]interface{}
+		skip          int64
+		limit         int64
 		data          []map[string]interface{}
 		session       *pbsessions.Session
 		applicationID string
@@ -57,7 +57,11 @@ func (a *apiStruct) getObject(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), query, sort, &data, skip, limit)
+	err = a.mongo.GetManyRBAC(r.Context(), session, false, backd.PermissionRead, applicationID, ps.ByName("collection"), query, sort, &data, skip, limit)
+	if data == nil {
+		data = []map[string]interface{}{}
+	}
+
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -85,7 +89,7 @@ func (a *apiStruct) postObject(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	inserted, err = a.mongo.InsertRBAC(session, false, applicationID, ps.ByName("collection"), data)
+	inserted, err = a.mongo.InsertRBAC(r.Context(), session, false, applicationID, ps.ByName("collection"), data)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -118,7 +122,7 @@ func (a *apiStruct) putObjectID(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	updated, err = a.mongo.UpdateByIDRBAC(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), data)
+	updated, err = a.mongo.UpdateByIDRBAC(r.Context(), session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), data)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -143,7 +147,7 @@ func (a *apiStruct) deleteObjectID(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	err = a.mongo.DeleteByIDRBAC(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"))
+	_, err = a.mongo.DeleteByIDRBAC(r.Context(), session, false, applicationID, ps.ByName("collection"), ps.ByName("id"))
 	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

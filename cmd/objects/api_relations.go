@@ -33,7 +33,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 	switch ps.ByName("direction") {
 	case "in": // incoming relations */* -> relation_name -> collection:/id
 		// if requester can not read the item stop here, it's unauthorized
-		if a.mongo.Can(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
+		if a.mongo.Can(r.Context(), session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
 			rest.Unauthorized(w, r)
 			return
 		}
@@ -44,7 +44,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 			"rel": ps.ByName("relation"),
 		}
 
-		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
+		err = a.mongo.GetMany(r.Context(), applicationID, constants.ColRelations, query, nil, &relations, 0, 0)
 		if err != nil {
 			rest.ResponseErr(w, err)
 			return
@@ -53,14 +53,14 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 		// add only those relations the user can manage
 		for _, relation := range relations {
 			var obj map[string]interface{}
-			obj, err = a.mongo.GetOneByIDRBAC(session, false, backd.PermissionUpdate, applicationID, relation.Source, relation.SourceID)
+			obj, err = a.mongo.GetOneByIDRBAC(r.Context(), session, false, backd.PermissionUpdate, applicationID, relation.Source, relation.SourceID)
 			if err == nil {
 				objects = append(objects, obj)
 			}
 		}
 	case "out": // outcoming relations collection:/id -> relation_name -> */*
 		// if requester can not read the item stop here, it's unauthorized
-		if a.mongo.Can(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
+		if a.mongo.Can(r.Context(), session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
 			rest.Unauthorized(w, r)
 			return
 		}
@@ -71,7 +71,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 			"rel": ps.ByName("relation"),
 		}
 
-		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
+		err = a.mongo.GetMany(r.Context(), applicationID, constants.ColRelations, query, nil, &relations, 0, 0)
 		if err != nil {
 			rest.ResponseErr(w, err)
 			return
@@ -80,7 +80,7 @@ func (a *apiStruct) getObjectIDRelations(w http.ResponseWriter, r *http.Request,
 		// add only those relations the user can manage
 		for _, relation := range relations {
 			var obj map[string]interface{}
-			obj, err = a.mongo.GetOneByIDRBAC(session, false, backd.PermissionUpdate, applicationID, relation.Destination, relation.DestinationID)
+			obj, err = a.mongo.GetOneByIDRBAC(r.Context(), session, false, backd.PermissionUpdate, applicationID, relation.Destination, relation.DestinationID)
 			if err == nil {
 				objects = append(objects, obj)
 			}
@@ -116,7 +116,7 @@ func (a *apiStruct) getRelationID(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	err = a.mongo.GetOneByID(applicationID, constants.ColRelations, ps.ByName("id"), &relation)
+	err = a.mongo.GetOneByID(r.Context(), applicationID, constants.ColRelations, ps.ByName("id"), &relation)
 	if err != nil {
 		rest.NotFound(w, r)
 		return
@@ -124,13 +124,13 @@ func (a *apiStruct) getRelationID(w http.ResponseWriter, r *http.Request, ps htt
 
 	// in order to make a relation the requester must be able to write the item.
 	// adding a relation can be considered like update the item data itself.
-	if a.mongo.Can(session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) == false {
+	if a.mongo.Can(r.Context(), session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) == false {
 		rest.Unauthorized(w, r)
 		return
 	}
 
 	// also... to be able to make a relation the requester must be able to read the destination item.
-	if a.mongo.Can(session, false, applicationID, relation.Destination, relation.DestinationID, backd.PermissionRead) == false {
+	if a.mongo.Can(r.Context(), session, false, applicationID, relation.Destination, relation.DestinationID, backd.PermissionRead) == false {
 		rest.Unauthorized(w, r)
 		return
 	}
@@ -161,7 +161,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 	switch ps.ByName("direction") {
 	case "in": // incoming relations */* -> relation_name -> collection:/id
 		// if requester can not read the item stop here, it's unauthorized
-		if a.mongo.Can(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
+		if a.mongo.Can(r.Context(), session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
 			rest.Unauthorized(w, r)
 			return
 		}
@@ -171,7 +171,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 			"did": ps.ByName("id"),
 		}
 
-		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
+		err = a.mongo.GetMany(r.Context(), applicationID, constants.ColRelations, query, nil, &relations, 0, 0)
 		if err != nil {
 			rest.ResponseErr(w, err)
 			return
@@ -179,13 +179,13 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 
 		// add only those relations the user can manage
 		for _, relation := range relations {
-			if a.mongo.Can(session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) {
+			if a.mongo.Can(r.Context(), session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) {
 				relationsToReturn = append(relationsToReturn, relation)
 			}
 		}
 	case "out": // outcoming relations collection:/id -> relation_name -> */*
 		// if requester can not read the item stop here, it's unauthorized
-		if a.mongo.Can(session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
+		if a.mongo.Can(r.Context(), session, false, applicationID, ps.ByName("collection"), ps.ByName("id"), backd.PermissionRead) == false {
 			rest.Unauthorized(w, r)
 			return
 		}
@@ -195,7 +195,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 			"sid": ps.ByName("id"),
 		}
 
-		err = a.mongo.GetAll(applicationID, constants.ColRelations, query, []string{}, &relations)
+		err = a.mongo.GetMany(r.Context(), applicationID, constants.ColRelations, query, nil, &relations, 0, 0)
 		if err != nil {
 			rest.ResponseErr(w, err)
 			return
@@ -203,7 +203,7 @@ func (a *apiStruct) getRelations(w http.ResponseWriter, r *http.Request, ps http
 
 		// add only those relations the user can manage
 		for _, relation := range relations {
-			if a.mongo.Can(session, false, applicationID, relation.Destination, relation.DestinationID, backd.PermissionRead) {
+			if a.mongo.Can(r.Context(), session, false, applicationID, relation.Destination, relation.DestinationID, backd.PermissionRead) {
 				relationsToReturn = append(relationsToReturn, relation)
 			}
 		}
@@ -240,13 +240,13 @@ func (a *apiStruct) postRelation(w http.ResponseWriter, r *http.Request, ps http
 
 	// in order to make a relation the requester must be able to write the item.
 	// adding a relation can be considered like update the item data itself.
-	if a.mongo.Can(session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) == false {
+	if a.mongo.Can(r.Context(), session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) == false {
 		rest.Unauthorized(w, r)
 		return
 	}
 
 	// also... to be able to make a relation the requester must be able to read the destination item.
-	if a.mongo.Can(session, false, applicationID, relation.Destination, relation.DestinationID, backd.PermissionRead) == false {
+	if a.mongo.Can(r.Context(), session, false, applicationID, relation.Destination, relation.DestinationID, backd.PermissionRead) == false {
 		rest.Unauthorized(w, r)
 		return
 	}
@@ -254,7 +254,7 @@ func (a *apiStruct) postRelation(w http.ResponseWriter, r *http.Request, ps http
 	relation.ID = db.NewXID().String()
 	relation.SetCreate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.Insert(applicationID, constants.ColRelations, &relation)
+	_, err = a.mongo.Insert(r.Context(), applicationID, constants.ColRelations, &relation)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -280,19 +280,19 @@ func (a *apiStruct) deleteRelationID(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	err = a.mongo.GetOneByID(applicationID, constants.ColRelations, ps.ByName("id"), &relation)
+	err = a.mongo.GetOneByID(r.Context(), applicationID, constants.ColRelations, ps.ByName("id"), &relation)
 	if err != nil {
 		rest.NotFound(w, r)
 		return
 	}
 
 	// in order to delete a relation the requester must be able to write the item.
-	if a.mongo.Can(session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) == false {
+	if a.mongo.Can(r.Context(), session, false, applicationID, relation.Source, relation.SourceID, backd.PermissionUpdate) == false {
 		rest.Unauthorized(w, r)
 		return
 	}
 
-	err = a.mongo.DeleteByID(applicationID, constants.ColRelations, ps.ByName("id"))
+	_, err = a.mongo.DeleteByID(r.Context(), applicationID, constants.ColRelations, ps.ByName("id"))
 	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }
