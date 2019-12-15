@@ -9,10 +9,9 @@ import (
 	"time"
 
 	"github.com/backd-io/backd/backd"
-	"github.com/backd-io/backd/pkg/lua"
-
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
+	"github.com/backd-io/backd/internal/lua"
 	"github.com/backd-io/backd/internal/rest"
 	"google.golang.org/grpc"
 )

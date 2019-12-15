@@ -17,7 +17,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/backd-io/backd/pkg/lua"
+	"github.com/backd-io/backd/internal/lua"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

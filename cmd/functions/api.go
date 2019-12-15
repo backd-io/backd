@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/backd-io/backd/internal/db"
 	"github.com/backd-io/backd/internal/instrumentation"
-	"github.com/backd-io/backd/pkg/lua"
+	"github.com/backd-io/backd/internal/lua"
 	"google.golang.org/grpc"
 )
 

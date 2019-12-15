@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/backd-io/backd/pkg/lua"
+	"github.com/backd-io/backd/internal/lua"
 	"github.com/spf13/cobra"
 )
 
