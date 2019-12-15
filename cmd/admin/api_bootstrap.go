@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/backd-io/backd/backd"
@@ -17,13 +18,13 @@ import (
 //   return 401, but we need to bootstrap the service by using the cli.
 // for the bootstrap process this service will want to receive a struct to create the first
 //   user that will be admin.
-func (a *apiStruct) isBootstrapped() error {
+func (a *apiStruct) isBootstrapped(ctx context.Context) error {
 
 	var (
 		err error
 	)
 
-	err = a.mongo.IsInitialized(constants.DBBackdApp)
+	err = a.mongo.IsInitialized(ctx, constants.DBBackdApp)
 
 	if err == db.ErrDatabaseNotInitialized {
 		a.bootstrapCode, err = password.Generate(32, 16, 0, true, true)
@@ -73,7 +74,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// build db, user and set permissions
-	err = a.mongo.CreateBackdDatabases()
+	err = a.mongo.CreateBackdDatabases(r.Context())
 	if err != nil {
 		rest.BadRequest(w, r, "error creating backd databases")
 		return
@@ -88,7 +89,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	user.Validated = true
 	user.SetPassword(bootstrapRequest.Password)
 	user.SetCreate(constants.DBBackdDom, constants.SystemUserID)
-	err = a.mongo.Insert(constants.DBBackdDom, constants.ColUsers, &user)
+	_, err = a.mongo.Insert(r.Context(), constants.DBBackdDom, constants.ColUsers, &user)
 	if err != nil {
 		rest.BadRequest(w, r, "error creating admin user")
 		return
@@ -99,7 +100,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	group.Name = constants.GroupDomainAdministrators
 	group.Description = "backd Domain Administrators"
 	group.SetCreate(constants.DBBackdDom, constants.SystemUserID)
-	err = a.mongo.Insert(constants.DBBackdDom, constants.ColGroups, &group)
+	_, err = a.mongo.Insert(r.Context(), constants.DBBackdDom, constants.ColGroups, &group)
 	if err != nil {
 		rest.BadRequest(w, r, "error creating admin group")
 		return
@@ -108,7 +109,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	// Add user to group
 	membership.GroupID = group.ID
 	membership.UserID = user.ID
-	err = a.mongo.Insert(constants.DBBackdDom, constants.ColMembership, &membership)
+	_, err = a.mongo.Insert(r.Context(), constants.DBBackdDom, constants.ColMembership, &membership)
 	if err != nil {
 		rest.BadRequest(w, r, "error adding user to admin group")
 		return
@@ -121,7 +122,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	rbac.Collection = constants.ColDomains
 	rbac.CollectionID = "*"
 	rbac.Permission = string(backd.PermissionAdmin)
-	err = a.mongo.Insert(constants.DBBackdDom, constants.ColRBAC, &rbac)
+	_, err = a.mongo.Insert(r.Context(), constants.DBBackdDom, constants.ColRBAC, &rbac)
 	if err != nil {
 		rest.BadRequest(w, r, "error adding user to admin group")
 		return
@@ -133,7 +134,7 @@ func (a *apiStruct) postBootstrap(w http.ResponseWriter, r *http.Request, ps htt
 	rbac1.Collection = "*"
 	rbac1.CollectionID = "*"
 	rbac1.Permission = string(backd.PermissionAdmin)
-	err = a.mongo.Insert(constants.DBBackdApp, constants.ColRBAC, &rbac1)
+	_, err = a.mongo.Insert(r.Context(), constants.DBBackdApp, constants.ColRBAC, &rbac1)
 
 	// do not allow this operation again
 	a.bootstrapCode = ""

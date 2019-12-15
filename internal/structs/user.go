@@ -81,11 +81,11 @@ func UserValidator() map[string]interface{} {
 var (
 	UserIndexes = []Index{
 		{
-			Fields: []string{"_id"},
+			Fields: map[string]interface{}{"_id": 1},
 			Unique: true,
 		},
 		{
-			Fields: []string{"username"},
+			Fields: map[string]interface{}{"username": 1},
 			Unique: true,
 		},
 	}

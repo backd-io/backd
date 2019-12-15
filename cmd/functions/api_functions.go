@@ -40,7 +40,7 @@ func (a *apiStruct) postFunction(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	err = a.mongo.GetOne(applicationID, constants.ColFunctions, map[string]string{
+	err = a.mongo.GetOne(r.Context(), applicationID, constants.ColFunctions, map[string]string{
 		"name": ps.ByName("name"),
 	}, &function)
 	if err != nil {

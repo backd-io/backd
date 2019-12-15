@@ -66,7 +66,7 @@ func (a *apiStruct) getMe(w http.ResponseWriter, r *http.Request, ps httprouter.
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, true, backd.PermissionRead, session.GetDomainId(), constants.ColUsers, session.GetUserId(), &user)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, true, backd.PermissionRead, session.GetDomainId(), constants.ColUsers, session.GetUserId(), &user)
 	rest.Response(w, user, err, http.StatusOK, "")
 
 }

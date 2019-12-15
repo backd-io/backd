@@ -20,13 +20,13 @@ type sessionsServer struct {
 }
 
 // CreateSession ask for a session creation
-func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateSessionRequest) (*pbsessions.Session, error) {
+func (s sessionsServer) CreateSession(ctx context.Context, req *pbsessions.CreateSessionRequest) (*pbsessions.Session, error) {
 
 	var (
 		session     structs.Session
 		user        structs.User
 		response    pbsessions.Session
-		memberships []map[string]string
+		memberships []structs.Membership
 		groups      []string
 		err         error
 	)
@@ -41,31 +41,34 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 		// search an apply groups if those are defined on the database for role enforcing
 		for _, groupName := range req.Groups {
 			var group structs.Group
-			err = s.mongo.GetOne(req.GetDomainId(), constants.ColGroups, map[string]interface{}{"name": groupName}, &group)
+			err = s.mongo.GetOne(ctx, req.GetDomainId(), constants.ColGroups, map[string]interface{}{"name": groupName}, &group)
 			if err == nil {
 				groups = append(groups, group.ID)
 			}
 		}
 	} else {
 		// if no group request then expect to have group membership defined
-		err = s.mongo.GetOneByID(req.GetDomainId(), constants.ColUsers, req.GetUserId(), &user)
+		err = s.mongo.GetOneByID(ctx, req.GetDomainId(), constants.ColUsers, req.GetUserId(), &user)
 		if err != nil {
 			return &response, err
 		}
 
-		err = s.mongo.GetMany(req.GetDomainId(), constants.ColMembership, map[string]interface{}{"user_id": req.GetUserId()}, []string{}, &memberships, 0, 0)
+		err = s.mongo.GetMany(ctx, req.GetDomainId(), constants.ColMembership, map[string]interface{}{"user_id": req.GetUserId()}, nil, &memberships, 0, 0)
 		if err != nil {
 			return &response, err
 		}
 
 		for _, membership := range memberships {
-			groups = append(groups, membership["group_id"])
+			groups = append(groups, membership.GroupID) // ["group_id"])
 		}
-
 	}
 
 	// build session
-	session.ID = db.NewXID().String()
+	err = session.NewToken()
+	if err != nil {
+		return &response, err
+	}
+
 	session.DomainID = req.DomainId
 	session.User = user
 
@@ -90,7 +93,7 @@ func (s sessionsServer) CreateSession(c context.Context, req *pbsessions.CreateS
 }
 
 // GetSession returns a session already established
-func (s sessionsServer) GetSession(c context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Session, error) {
+func (s sessionsServer) GetSession(ctx context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Session, error) {
 
 	var (
 		sess     structs.Session
@@ -118,7 +121,7 @@ func (s sessionsServer) GetSession(c context.Context, req *pbsessions.GetSession
 }
 
 // DeleteSession removes a session if exists, returns transaction status as result
-func (s sessionsServer) DeleteSession(c context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Result, error) {
+func (s sessionsServer) DeleteSession(ctx context.Context, req *pbsessions.GetSessionRequest) (*pbsessions.Result, error) {
 
 	var (
 		response pbsessions.Result

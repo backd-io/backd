@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -46,7 +47,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server.mongo, err = db.NewMongo(mongoURL)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	server.mongo, err = db.NewMongo(ctx, mongoURL)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
-	ldap "gopkg.in/ldap.v2"
-
 	"github.com/backd-io/backd/internal/constants"
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/structs"
 	auth "gopkg.in/korylprince/go-ad-auth.v2"
+	ldap "gopkg.in/ldap.v3"
 )
 
 func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, structs.SessionResponse, error) {
@@ -21,8 +20,11 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 		err             error
 	)
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// search domain
-	err = a.mongo.GetOneByID(constants.DBBackdApp, constants.ColDomains, sessionRequest.DomainID, &domain)
+	err = a.mongo.GetOneByID(ctx, constants.DBBackdApp, constants.ColDomains, sessionRequest.DomainID, &domain)
 	if err != nil {
 		return false, sessionResponse, err
 	}
@@ -31,7 +33,7 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 	case structs.DomainTypeBackd:
 		// try to login the user by its password
 		var user structs.User
-		err = a.mongo.GetOne(domain.ID, constants.ColUsers, map[string]interface{}{"username": sessionRequest.Username}, &user)
+		err = a.mongo.GetOne(ctx, domain.ID, constants.ColUsers, map[string]interface{}{"username": sessionRequest.Username}, &user)
 
 		if err != nil {
 			return false, sessionResponse, err
@@ -44,8 +46,6 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 			var session *pbsessions.Session
 
 			c := pbsessions.NewSessionsClient(a.sessions)
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
 
 			session, err = c.CreateSession(ctx, &pbsessions.CreateSessionRequest{
 				UserId:          user.ID,
@@ -74,14 +74,14 @@ func (a *apiStruct) createSession(sessionRequest structs.SessionRequest) (bool, 
 
 		// if the user does not exists create it on the domain DB to set it an ID
 		var user structs.User
-		err = a.mongo.GetOne(domain.ID, constants.ColUsers, map[string]interface{}{"username": sessionRequest.Username}, &user)
+		err = a.mongo.GetOne(ctx, domain.ID, constants.ColUsers, map[string]interface{}{"username": sessionRequest.Username}, &user)
 		if err != nil {
 			// create user on the DB
 			user.Name = entry.GetAttributeValue("displayName")
 			user.Email = entry.GetAttributeValue("mail")
 			user.Validated = true
 			user.Active = true
-			err = a.mongo.Insert(domain.ID, constants.ColUsers, &user)
+			_, err = a.mongo.Insert(ctx, domain.ID, constants.ColUsers, &user)
 			// if creation fails the return the error
 			if err != nil {
 				return success, sessionResponse, err

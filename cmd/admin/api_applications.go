@@ -17,9 +17,9 @@ func (a *apiStruct) getApplications(w http.ResponseWriter, r *http.Request, ps h
 
 	var (
 		query   map[string]interface{}
-		sort    []string
-		skip    int
-		limit   int
+		sort    map[string]interface{}
+		skip    int64
+		limit   int64
 		data    []structs.Application
 		session *pbsessions.Session
 		err     error
@@ -37,7 +37,7 @@ func (a *apiStruct) getApplications(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, query, sort, &data, skip, limit)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, query, sort, &data, skip, limit)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -59,7 +59,7 @@ func (a *apiStruct) getApplicationByID(w http.ResponseWriter, r *http.Request, p
 	}
 
 	// applications reside on backd application database
-	err = a.mongo.GetOneByIDRBACInterface(session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
 	rest.Response(w, application, err, http.StatusOK, "")
 
 }
@@ -90,13 +90,13 @@ func (a *apiStruct) postApplication(w http.ResponseWriter, r *http.Request, ps h
 	application.ID = db.NewXID().String()
 
 	// Create application skeleton
-	err = a.mongo.CreateApplicationDatabase(application.ID)
+	err = a.mongo.CreateApplicationDatabase(r.Context(), application.ID)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
 	}
 
-	err = a.mongo.InsertRBACInterface(session, false, constants.DBBackdApp, constants.ColApplications, &application)
+	err = a.mongo.InsertRBACInterface(r.Context(), session, false, constants.DBBackdApp, constants.ColApplications, &application)
 	rest.Response(w, application, err, http.StatusCreated, "")
 
 }
@@ -124,7 +124,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	err = a.mongo.GetOneByIDRBACInterface(session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &oldApplication)
+	err = a.mongo.GetOneByIDRBACInterface(r.Context(), session, false, backd.PermissionRead, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &oldApplication)
 	if err != nil {
 		rest.ResponseErr(w, err)
 		return
@@ -137,7 +137,7 @@ func (a *apiStruct) putApplication(w http.ResponseWriter, r *http.Request, ps ht
 
 	application.SetUpdate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.UpdateByIDRBACInterface(session, false, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
+	err = a.mongo.UpdateByIDRBACInterface(r.Context(), session, false, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &application)
 	rest.Response(w, application, err, http.StatusOK, "")
 
 }
@@ -159,7 +159,7 @@ func (a *apiStruct) deleteApplication(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 
-	err = a.mongo.DeleteByIDRBAC(session, false, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"))
+	_, err = a.mongo.DeleteByIDRBAC(r.Context(), session, false, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"))
 	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

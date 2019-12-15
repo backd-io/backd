@@ -17,9 +17,9 @@ func (a *apiStruct) getFunctions(w http.ResponseWriter, r *http.Request, ps http
 
 	var (
 		query   map[string]interface{}
-		sort    []string
-		skip    int
-		limit   int
+		sort    map[string]interface{}
+		skip    int64
+		limit   int64
 		data    []structs.Function
 		session *pbsessions.Session
 		err     error
@@ -37,7 +37,7 @@ func (a *apiStruct) getFunctions(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	err = a.mongo.GetManyRBAC(session, true, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, query, sort, &data, skip, limit)
+	err = a.mongo.GetManyRBAC(r.Context(), session, true, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, query, sort, &data, skip, limit)
 	rest.Response(w, data, err, http.StatusOK, "")
 
 }
@@ -64,7 +64,7 @@ func (a *apiStruct) getFunctionByID(w http.ResponseWriter, r *http.Request, ps h
 	}
 
 	// applications reside on backd application database
-	function, err = a.mongo.GetOneRBAC(session, false, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, query)
+	function, err = a.mongo.GetOneRBAC(r.Context(), session, false, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, query)
 	rest.Response(w, function, err, http.StatusOK, "")
 
 }
@@ -94,7 +94,7 @@ func (a *apiStruct) postFunction(w http.ResponseWriter, r *http.Request, ps http
 	function.SetCreate(session.GetDomainId(), session.GetUserId())
 	function.ID = db.NewXID().String()
 
-	err = a.mongo.InsertRBACInterface(session, false, ps.ByName("id"), constants.ColFunctions, &function)
+	err = a.mongo.InsertRBACInterface(r.Context(), session, false, ps.ByName("id"), constants.ColFunctions, &function)
 	rest.Response(w, function, err, http.StatusCreated, "")
 
 }
@@ -127,7 +127,7 @@ func (a *apiStruct) putFunction(w http.ResponseWriter, r *http.Request, ps httpr
 		"name": ps.ByName("name"),
 	}
 
-	oldFunction, err = a.mongo.GetOneRBAC(session, false, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, query)
+	oldFunction, err = a.mongo.GetOneRBAC(r.Context(), session, false, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, query)
 	// err = a.mongo.GetOneByIDRBACInterface(session, false, backd.PermissionRead, ps.ByName("id"), constants.ColFunctions, ps.ByName("id"), &oldApplication)
 	if err != nil {
 		rest.ResponseErr(w, err)
@@ -140,7 +140,7 @@ func (a *apiStruct) putFunction(w http.ResponseWriter, r *http.Request, ps httpr
 
 	function.SetUpdate(session.GetDomainId(), session.GetUserId())
 
-	err = a.mongo.UpdateByIDRBACInterface(session, true, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &function)
+	err = a.mongo.UpdateByIDRBACInterface(r.Context(), session, true, constants.DBBackdApp, constants.ColApplications, ps.ByName("id"), &function)
 	rest.Response(w, function, err, http.StatusOK, "")
 
 }
@@ -161,7 +161,7 @@ func (a *apiStruct) deleteFunction(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	err = a.mongo.DeleteByQueryRBAC(session, false, ps.ByName("id"), constants.ColFunctions, query)
+	_, err = a.mongo.DeleteByQueryRBAC(r.Context(), session, false, ps.ByName("id"), constants.ColFunctions, query)
 	rest.Response(w, nil, err, http.StatusNoContent, "")
 
 }

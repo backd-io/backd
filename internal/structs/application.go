@@ -35,7 +35,7 @@ func ApplicationValidator() map[string]interface{} {
 var (
 	ApplicationIndexes = []Index{
 		{
-			Fields: []string{"_id"},
+			Fields: map[string]interface{}{"_id": 1},
 			Unique: true,
 		},
 	}

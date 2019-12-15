@@ -1,6 +1,10 @@
 package structs
 
-import "time"
+import (
+	"crypto/rand"
+	"encoding/base64"
+	"time"
+)
 
 // Session is the struct that reflects the information of the user
 //   currently logged into the domain
@@ -16,6 +20,26 @@ type Session struct {
 // IsExpired returns expiration status of the session
 func (s *Session) IsExpired() bool {
 	return time.Now().Unix() > s.ExpiresAt
+}
+
+// NewToken creates a random token of 43 characters
+func (s *Session) NewToken() (err error) {
+
+	var (
+		arr []byte
+	)
+
+	arr = make([]byte, 32)
+
+	_, err = rand.Read(arr)
+	if err != nil {
+		return
+	}
+
+	s.ID = base64.RawURLEncoding.EncodeToString(arr)
+
+	return
+
 }
 
 // SessionResponse is the struct that will be returned to the client
