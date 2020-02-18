@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -14,6 +15,19 @@ import (
 
 // SetupRouter builds a router for the REST API endpoints
 func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *instrumentation.Instrumentation) {
+
+	rr.optionsMappings = make(map[string][]string)
+
+	for method, mappings := range routes {
+		for route := range mappings {
+			_, ok := rr.optionsMappings[route]
+			if ok {
+				rr.optionsMappings[route] = append(rr.optionsMappings[route], method)
+			} else {
+				rr.optionsMappings[route] = []string{method}
+			}
+		}
+	}
 
 	rr.inst = inst
 	rr.registerMetrics()
@@ -37,8 +51,8 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *inst
 			wrapper = func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 				now := time.Now()
 				if match(localRoute, localMatcher, r) {
-					writeCORSHeaders(w, r)
 					ww := NewLogResponseWriter(w)
+					rr.writeCORSHeaders(w, r, localRoute)
 					localFunction(ww, r, ps)
 
 					rr.log(false, "hit", localMethod, localRoute, r.RequestURI, r.RemoteAddr, ww.Status(), ww.Size(), time.Since(now))
@@ -59,8 +73,32 @@ func (rr *REST) SetupRouter(routes map[string]map[string]APIEndpoint, inst *inst
 				zap.String("matchers", strings.Join(localMatcher, ",")),
 			)
 
-			// TODO: Add OPTIONS routes
 		}
+	}
+
+	// OPTIONS routes
+	for route := range rr.optionsMappings {
+
+		localRoute := route // ensure it will be logged
+		localMethod := "OPTIONS"
+		wrapper := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+			now := time.Now()
+
+			ww := NewLogResponseWriter(w)
+			rr.writeCORSHeaders(ww, r, localRoute)
+			ww.WriteHeader(http.StatusOK)
+
+			rr.log(false, "hit", localMethod, localRoute, r.RequestURI, r.RemoteAddr, ww.Status(), ww.Size(), time.Since(now))
+
+		}
+
+		router.Handle(localMethod, route, wrapper)
+
+		rr.inst.Info("HTTP route added",
+			zap.String("method", localMethod),
+			zap.String("route", localRoute),
+		)
 	}
 
 	// ensure not found and not allowed handlers are logged also
@@ -125,8 +163,9 @@ func match(route string, matcher []string, r *http.Request) bool {
 
 }
 
-func writeCORSHeaders(w http.ResponseWriter, r *http.Request) {
+func (rr *REST) writeCORSHeaders(w http.ResponseWriter, r *http.Request, route string) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Connection, Sec-WebSocket-Extensions, Sec-WebSocket-Key, Sec-WebSocket-Version, Upgrade")
-	w.Header().Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, DELETE")
+	// w.Header().Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, DELETE")
+	w.Header().Add("Access-Control-Allow-Methods", fmt.Sprintf("OPTIONS, %s", strings.Join(rr.optionsMappings[route], ", ")))
 }

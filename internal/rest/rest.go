@@ -13,10 +13,11 @@ import (
 
 // REST holds all logic for the API defined
 type REST struct {
-	router     *httprouter.Router
-	ipPort     string
-	inst       *instrumentation.Instrumentation
-	httpServer *http.Server
+	router          *httprouter.Router
+	ipPort          string
+	inst            *instrumentation.Instrumentation
+	httpServer      *http.Server
+	optionsMappings map[string][]string
 }
 
 // New returns a pointer to a REST struct that holds the interactions for the API
