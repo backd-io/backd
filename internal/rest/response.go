@@ -20,12 +20,6 @@ func Response(w http.ResponseWriter, data interface{}, err error, desiredStatus 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Accept", "application/json")
 
-	// see if is json syntax error (not checkeable on the next switch expression)
-	// _, ok := err.(*json.SyntaxError)
-	// if ok {
-	// 	return ErrorResponse(w, http.StatusBadRequest, err.Error())
-	// }
-
 	switch err {
 	case nil:
 		if location != "" {

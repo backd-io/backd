@@ -166,6 +166,5 @@ func match(route string, matcher []string, r *http.Request) bool {
 func (rr *REST) writeCORSHeaders(w http.ResponseWriter, r *http.Request, route string) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-Session-ID, Connection, Sec-WebSocket-Extensions, Sec-WebSocket-Key, Sec-WebSocket-Version, Upgrade")
-	// w.Header().Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, DELETE")
 	w.Header().Add("Access-Control-Allow-Methods", fmt.Sprintf("OPTIONS, %s", strings.Join(rr.optionsMappings[route], ", ")))
 }
