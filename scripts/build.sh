@@ -1,58 +1,56 @@
 #!/usr/bin/env bash
 
-PROJECT_REPO="github.com/backd-io/backd"
-
-cd $GOPATH/src/${PROJECT_REPO}
-
-for i in {admin,auth,backd,functions,objects,sessions} 
-do 
-    gox -osarch="linux/amd64" -output="bin/{{.Dir}}" github.com/backd-io/backd/cmd/$i
-done
-
+REPO="github.com/backd-io/backd"
+PROJECT_REPO="${GOPATH}/src/${REPO}"
 GIT_COMMIT=$(git rev-parse HEAD)
+BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 function build () {
-    docker build --force-rm                                     \
-        -f scripts/Dockerfile                                   \
-        --build-arg ARTIFACT="${1}"                             \
-        --build-arg ARCH="${2}"                                 \
-        --build-arg API_PORT=$3                                 \
-        --build-arg METRICS_PORT=$4                             \
-        --build-arg VCS_URL=${PROJECT_REPO}                     \
-        --build-arg VCS_REF=${GIT_COMMIT}                       \
-        --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
-        --build-arg VERSION=latest                              \
-        -t backd/$1:$2 .
-    docker push backd/$1:$2
+    # builder & pusher
+    cd $PROJECT_REPO
+    docker buildx build                                               \
+        -f scripts/Dockerfile                                         \
+        --platform linux/amd64,linux/arm64,linux/arm/v7               \
+        --build-arg ARTIFACT=${1}                                     \
+        --build-arg API_PORT=${2}                                     \
+        --build-arg METRICS_PORT=${3}                                 \
+        --build-arg VCS_URL=${REPO}                                   \
+        --build-arg VCS_REF=${GIT_COMMIT}                             \
+        --build-arg BUILD_DATE=${BUILD_DATE}                          \
+        --build-arg VERSION=latest                                    \
+        -t backd/${1}:latest --push .
 }
+
+# --platform linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7  \
 
 function buildcli () {
-    docker build --force-rm                                     \
-        -f scripts/Dockerfile.cli                               \
-        --build-arg ARTIFACT="${1}"                             \
-        --build-arg ARCH="${2}"                                 \
-        --build-arg VCS_URL=${PROJECT_REPO}                     \
-        --build-arg VCS_REF=${GIT_COMMIT}                       \
-        --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
-        --build-arg VERSION=latest                              \
-        -t backd/$1:$2 .
-    docker push backd/$1:$2
+    # builder & pusher
+    cd $PROJECT_REPO
+    docker buildx build                                               \
+        -f scripts/Dockerfile.cli                                     \
+        --platform linux/amd64,linux/arm64,linux/arm/v7               \
+        --build-arg ARTIFACT=${1}                                     \
+        --build-arg VCS_URL=${REPO}                                   \
+        --build-arg VCS_REF=${GIT_COMMIT}                             \
+        --build-arg BUILD_DATE=${BUILD_DATE}                          \
+        --build-arg VERSION=latest                                    \
+        -t backd/${1}:latest --push .
 }
 
-cd $GOPATH/src/${PROJECT_REPO}
+build "objects"   8081 8181
+build "sessions"  8082 8182
+build "auth"      8083 8183
+build "admin"     8084 8184
+build "functions" 8085 8185
+buildcli "backd"
 
-for ARCH in {amd64,arm}
-do
-    for i in {admin,auth,backd,functions,objects,sessions} 
-    do 
-        gox -os="linux" -arch="${ARCH}" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" github.com/fernandezvara/backd/cmd/$i
-        gox -os="darwin" -arch="amd64" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" github.com/fernandezvara/backd/cmd/$i
-    done
- 
-    build "objects" ${ARCH} 8081 8181
-    build "sessions" ${ARCH} 8082 8182
-    build "auth" ${ARCH} 8083 8183
-    build "admin" ${ARCH} 8084 8184
-    build "functions" ${ARCH} 8085 8185
-    buildcli "backd" ${ARCH} 
+# build for current os/arch
+cd $PROJECT_REPO
+mkdir -p bin 
+rm -rf bin/*
+
+cd $PROJECT_REPO/bin
+for i in {admin,auth,backd,functions,objects,sessions}
+do 
+    go build -o $i github.com/backd-io/backd/cmd/$i
 done
