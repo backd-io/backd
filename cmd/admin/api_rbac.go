@@ -8,8 +8,8 @@ import (
 	"github.com/backd-io/backd/internal/pbsessions"
 	"github.com/backd-io/backd/internal/rest"
 	"github.com/backd-io/backd/internal/structs"
-	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // POST /applications/:id/rbac
