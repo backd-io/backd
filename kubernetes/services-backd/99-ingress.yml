@@ -1,3 +1,106 @@
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: ingressroutetls
+#   namespace: default
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#   - match: Host(`admin.backd.io`)
+#     kind: Rule
+#     services:
+#     - name: admin
+#       port: "api"
+#   - match: Host(`auth.backd.io`)
+#     kind: Rule
+#     services:
+#     - name: auth
+#       port: "api"
+#   - match: Host(`objects.backd.io`)
+#     kind: Rule
+#     services:
+#     - name: objects
+#       port: "api"
+#   - match: Host(`functions.backd.io`)
+#     kind: Rule
+#     services:
+#     - name: functions
+#       port: "api"
+#   tls:
+#     certResolver: default
+
+# # apiVersion: traefik.containo.us/v1alpha1
+# # kind: IngressRoute
+# # metadata:
+# #   name: ingressroutetls
+# #   namespace: default
+# # spec:
+# #   entryPoints:
+# #     - websecure
+# #   routes:
+# #   - match: Host(`admin.backd.io`)
+# #     kind: Rule
+# #     services:
+# #     - name: admin
+# #       port: "api"
+# #   tls:
+# #     certResolver: default
+
+# # ---
+# # apiVersion: traefik.containo.us/v1alpha1
+# # kind: IngressRoute
+# # metadata:
+# #   name: ingressroutetls
+# #   namespace: default
+# # spec:
+# #   entryPoints:
+# #     - websecure
+# #   routes:
+# #   - match: Host(`auth.backd.io`)
+# #     kind: Rule
+# #     services:
+# #     - name: auth
+# #       port: "api"
+# #   tls:
+# #     certResolver: default
+
+# # ---
+# # apiVersion: traefik.containo.us/v1alpha1
+# # kind: IngressRoute
+# # metadata:
+# #   name: ingressroutetls
+# #   namespace: default
+# # spec:
+# #   entryPoints:
+# #     - websecure
+# #   routes:
+# #   - match: Host(`objects.backd.io`)
+# #     kind: Rule
+# #     services:
+# #     - name: objects
+# #       port: "api"
+# #   tls:
+# #     certResolver: default
+
+# # ---
+# # apiVersion: traefik.containo.us/v1alpha1
+# # kind: IngressRoute
+# # metadata:
+# #   name: ingressroutetls
+# #   namespace: default
+# # spec:
+# #   entryPoints:
+# #     - websecure
+# #   routes:
+# #   - match: Host(`functions.backd.io`)
+# #     kind: Rule
+# #     services:
+# #     - name: functions
+# #       port: "api"
+# #   tls:
+# #     certResolver: default
+
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -28,16 +131,4 @@ spec:
       paths:
       - backend:
           serviceName: functions
-          servicePort: "api"
-  - host: www.backd.io
-    http:
-      paths:
-      - backend:
-          serviceName: docs
-          servicePort: "api"
-  - host: backd.io
-    http:
-      paths:
-      - backend:
-          serviceName: docs
           servicePort: "api"
